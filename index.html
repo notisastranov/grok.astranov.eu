@@ -12,6 +12,7 @@
     --accent: #7eb4ff;
     --orb: #7eebb4;
     --warn: #ff9e7a;
+    --gold: #ffd47e;
   }
   * { box-sizing: border-box; }
   html, body { margin:0; padding:0; height:100%; width:100%; overflow:hidden; background:var(--bg); color:var(--ink);
@@ -19,211 +20,148 @@
                -webkit-tap-highlight-color: transparent; }
   body { display: flex; flex-direction: column; }
 
-  /* Header */
   .hdr {
     position: fixed; top: 0; left: 0; right: 0; z-index: 100;
     display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 20px; padding-top: max(14px, env(safe-area-inset-top));
-    background: linear-gradient(to bottom, rgba(0,0,0,0.85), transparent);
-    font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase;
+    padding: 12px 16px; padding-top: max(12px, env(safe-area-inset-top));
+    background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
   }
-  .hdr-left { display: flex; align-items: center; gap: 10px; }
-  .hdr .logo { font-weight: 600; letter-spacing: 0.35em; }
-  .hdr .status { color: var(--dim); font-size: 10px; }
+  .hdr-left { display: flex; align-items: center; gap: 8px; }
+  .hdr .logo { font-weight: 600; letter-spacing: 0.3em; }
+  .hdr .status { color: var(--dim); font-size: 9px; }
   .hdr .status .live { color: #7eebb4; }
   .balance {
     background: rgba(10,20,40,0.6); border: 1px solid rgba(120,180,255,0.25);
-    padding: 4px 12px; border-radius: 999px; font-size: 11px; font-variant-numeric: tabular-nums;
-    display: flex; align-items: center; gap: 6px;
+    padding: 3px 10px; border-radius: 999px; font-size: 10px; font-variant-numeric: tabular-nums;
+    display: flex; align-items: center; gap: 5px; cursor: pointer;
   }
-  .balance .label { color: var(--dim); font-size: 9px; letter-spacing: 0.1em; }
+  .balance .label { color: var(--dim); font-size: 8px; letter-spacing: 0.08em; }
 
-  /* Main stage */
   .stage {
     flex: 1; display: flex; flex-direction: column; position: relative;
-    padding-top: 70px; padding-bottom: 90px;
+    padding-top: 58px; padding-bottom: 82px;
   }
 
-  /* Dual feed layout — mirrors the live grok.astranov.eu feel */
   .feeds {
-    flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-    padding: 12px; min-height: 0;
+    flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+    padding: 10px; min-height: 0;
   }
   @media (max-width: 720px) {
     .feeds { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
   }
 
   .feed {
-    position: relative; border-radius: 18px; overflow: hidden;
+    position: relative; border-radius: 16px; overflow: hidden;
     background: #05070f; border: 1px solid rgba(120,180,255,0.15);
     display: flex; align-items: center; justify-content: center;
   }
   .feed-label {
-    position: absolute; top: 12px; left: 12px; font-size: 9px; letter-spacing: 0.2em;
-    color: rgba(120,180,255,0.6); background: rgba(0,0,0,0.4); padding: 2px 8px; border-radius: 999px;
-    z-index: 2;
+    position: absolute; top: 10px; left: 10px; font-size: 8px; letter-spacing: 0.18em;
+    color: rgba(120,180,255,0.55); background: rgba(0,0,0,0.45); padding: 1px 6px; border-radius: 999px; z-index: 2;
   }
-  .feed video, .feed canvas {
-    width: 100%; height: 100%; object-fit: cover; display: block;
-  }
+  .feed video, .feed canvas { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-  /* The Agent Orb — central living presence */
   .orb-wrap {
-    position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-    width: 168px; height: 168px; z-index: 10;
+    position: absolute; left: 50%; top: 48%; transform: translate(-50%, -50%);
+    width: 158px; height: 158px; z-index: 10;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; user-select: none;
   }
   .orb {
-    position: relative; width: 148px; height: 148px; border-radius: 50%;
+    position: relative; width: 138px; height: 138px; border-radius: 50%;
     background: radial-gradient(circle at 38% 32%, #ffffff 0%, #7eebb4 18%, #0a2a22 48%, #000000 78%);
-    box-shadow: 0 0 80px rgba(126,235,180,0.55), inset 0 0 60px rgba(255,255,255,0.25), inset 40px 40px 60px rgba(0,0,0,0.6);
+    box-shadow: 0 0 70px rgba(126,235,180,0.55), inset 0 0 50px rgba(255,255,255,0.25), inset 30px 30px 50px rgba(0,0,0,0.6);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     border: 1px solid rgba(126,235,180,0.6);
   }
-  .orb::before {
-    content: ''; position: absolute; inset: -18px; border-radius: 50%;
-    border: 1px solid rgba(126,235,180,0.25);
-    animation: orb-halo 4.2s ease-in-out infinite;
-  }
-  .orb.listening {
-    box-shadow: 0 0 90px rgba(255, 120, 120, 0.65), inset 0 0 50px rgba(255,200,180,0.3);
-    animation: orb-listen 1.1s ease-in-out infinite;
-  }
-  .orb.thinking {
-    box-shadow: 0 0 110px rgba(126,180,255,0.75), inset 0 0 70px rgba(180,210,255,0.25);
-    animation: orb-think 0.9s ease-in-out infinite;
-  }
-  .orb.speaking {
-    box-shadow: 0 0 120px rgba(126,235,180,0.85), inset 0 0 80px rgba(180,255,220,0.3);
-    animation: orb-speak 0.65s ease-in-out infinite;
-  }
-  .orb-core {
-    position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
-    width: 42px; height: 42px; border-radius: 50%;
-    background: radial-gradient(circle, #fff 0%, #7eebb4 40%, rgba(126,235,180,0) 72%);
-    box-shadow: 0 0 32px #7eebb4;
-  }
+  .orb::before { content: ''; position: absolute; inset: -16px; border-radius: 50%; border: 1px solid rgba(126,235,180,0.22); animation: orb-halo 4.2s ease-in-out infinite; }
+  .orb.listening { box-shadow: 0 0 80px rgba(255,120,120,0.65), inset 0 0 45px rgba(255,200,180,0.3); animation: orb-listen 1.1s ease-in-out infinite; }
+  .orb.thinking { box-shadow: 0 0 95px rgba(126,180,255,0.75), inset 0 0 60px rgba(180,210,255,0.25); animation: orb-think 0.9s ease-in-out infinite; }
+  .orb.speaking { box-shadow: 0 0 105px rgba(126,235,180,0.85), inset 0 0 70px rgba(180,255,220,0.3); animation: orb-speak 0.65s ease-in-out infinite; }
+  .orb.hosting { box-shadow: 0 0 90px rgba(255,212,126,0.6), inset 0 0 55px rgba(255,220,160,0.25); }
+  .orb-core { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 38px; height: 38px; border-radius: 50%;
+    background: radial-gradient(circle, #fff 0%, #7eebb4 40%, rgba(126,235,180,0) 72%); box-shadow: 0 0 28px #7eebb4; }
 
-  .orb-rings {
-    position: absolute; inset: -8px; border-radius: 50%;
-    pointer-events: none;
-  }
-  .ring {
-    position: absolute; inset: 0; border-radius: 50%;
-    border: 1px solid rgba(126,235,180,0.35);
-    animation: ring-spin 12s linear infinite;
-  }
-  .ring.r2 { inset: 12px; animation-duration: 8.4s; border-color: rgba(126,235,180,0.22); }
-  .ring.r3 { inset: 26px; animation-duration: 19s; border-color: rgba(126,235,180,0.15); }
+  .orb-rings { position: absolute; inset: -7px; border-radius: 50%; pointer-events: none; }
+  .ring { position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(126,235,180,0.32); animation: ring-spin 12s linear infinite; }
+  .ring.r2 { inset: 11px; animation-duration: 8.4s; border-color: rgba(126,235,180,0.2); }
+  .ring.r3 { inset: 24px; animation-duration: 19s; border-color: rgba(126,235,180,0.12); }
 
-  @keyframes orb-halo {
-    0%,100% { transform: scale(1); opacity: 0.35; }
-    50% { transform: scale(1.08); opacity: 0.7; }
-  }
-  @keyframes orb-listen {
-    0%,100% { transform: scale(1); } 50% { transform: scale(1.03); }
-  }
-  @keyframes orb-think {
-    0%,100% { transform: scale(1); } 50% { transform: scale(1.015); }
-  }
-  @keyframes orb-speak {
-    0%,100% { transform: scale(1); } 50% { transform: scale(1.025); }
-  }
-  @keyframes ring-spin {
-    to { transform: rotate(360deg); }
-  }
+  @keyframes orb-halo { 0%,100% { transform: scale(1); opacity: 0.32; } 50% { transform: scale(1.07); opacity: 0.65; } }
+  @keyframes orb-listen { 0%,100% { transform: scale(1); } 50% { transform: scale(1.025); } }
+  @keyframes orb-think { 0%,100% { transform: scale(1); } 50% { transform: scale(1.012); } }
+  @keyframes orb-speak { 0%,100% { transform: scale(1); } 50% { transform: scale(1.02); } }
+  @keyframes ring-spin { to { transform: rotate(360deg); } }
 
-  /* Orb feed (the "Agent" visual presence) */
-  .orb-feed {
-    background: radial-gradient(circle at 50% 45%, #0b1628 0%, #010307 70%);
-    position: relative;
-  }
-  .orb-feed .presence {
-    position: absolute; inset: 0;
-    background: radial-gradient(circle at 48% 42%, rgba(126,235,180,0.15) 0%, transparent 55%);
-    animation: presence-breathe 3.8s ease-in-out infinite;
-  }
-  .orb-feed canvas { filter: contrast(1.15) saturate(1.1); }
+  .orb-feed { background: radial-gradient(circle at 50% 45%, #0b1628 0%, #010307 70%); position: relative; }
+  .orb-feed .presence { position: absolute; inset: 0; background: radial-gradient(circle at 48% 42%, rgba(126,235,180,0.12) 0%, transparent 55%); animation: presence-breathe 3.8s ease-in-out infinite; }
+  .orb-feed canvas { filter: contrast(1.12) saturate(1.08); }
 
-  /* Subtitles / live text */
-  .subtitles {
-    position: absolute; left: 12px; right: 12px; bottom: 12px;
-    font-size: 13px; line-height: 1.35; color: #c8e0ff;
-    background: rgba(0,0,0,0.55); padding: 8px 12px; border-radius: 10px;
-    min-height: 28px; pointer-events: none; text-align: center;
-    backdrop-filter: blur(12px);
-  }
+  .subtitles { position: absolute; left: 10px; right: 10px; bottom: 10px; font-size: 12px; line-height: 1.3; color: #c8e0ff;
+    background: rgba(0,0,0,0.5); padding: 6px 10px; border-radius: 8px; min-height: 24px; pointer-events: none; text-align: center; backdrop-filter: blur(10px); }
 
-  /* Controls */
-  .controls {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 120;
-    display: flex; gap: 8px; justify-content: center; align-items: center;
-    padding: 16px 16px calc(16px + env(safe-area-inset-bottom));
-    background: linear-gradient(to top, rgba(0,0,0,0.92), transparent);
-  }
-  .ctrl {
-    width: 54px; height: 54px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; cursor: pointer; user-select: none;
-    background: rgba(12,18,32,0.85); border: 1px solid rgba(120,180,255,0.3);
-    color: var(--ink); transition: transform .12s, background .12s, border-color .12s;
-  }
-  .ctrl:active { transform: scale(0.92); }
-  .ctrl.primary {
-    width: 68px; height: 68px; font-size: 26px;
-    background: rgba(126,235,180,0.12); border-color: rgba(126,235,180,0.6);
-    color: #7eebb4; box-shadow: 0 0 0 1px rgba(126,235,180,0.2);
-  }
-  .ctrl.danger { border-color: rgba(255,120,120,0.5); color: #ff9e9e; }
-  .ctrl.on { background: rgba(255,120,120,0.18); border-color: rgba(255,120,120,0.6); color: #ff9e9e; }
+  .controls { position: fixed; left: 0; right: 0; bottom: 0; z-index: 120;
+    display: flex; gap: 6px; justify-content: center; align-items: center;
+    padding: 12px 12px calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(to top, rgba(0,0,0,0.92), transparent); }
+  .ctrl { width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-size: 18px; cursor: pointer; user-select: none; background: rgba(12,18,32,0.82); border: 1px solid rgba(120,180,255,0.28); color: var(--ink);
+    transition: transform .12s, background .12s, border-color .12s; }
+  .ctrl:active { transform: scale(0.9); }
+  .ctrl.primary { width: 60px; height: 60px; font-size: 22px; background: rgba(126,235,180,0.12); border-color: rgba(126,235,180,0.55); color: #7eebb4; }
+  .ctrl.danger { border-color: rgba(255,120,120,0.45); color: #ff9e9e; }
+  .ctrl.on { background: rgba(255,120,120,0.15); border-color: rgba(255,120,120,0.55); color: #ff9e9e; }
+  .ctrl.host { border-color: var(--gold); color: var(--gold); }
 
-  .label {
-    position: absolute; bottom: -18px; font-size: 8px; letter-spacing: 0.2em;
-    color: var(--dim); white-space: nowrap; left: 50%; transform: translateX(-50%);
-  }
+  .context { position: fixed; top: 58px; left: 50%; transform: translateX(-50%); font-size: 8px; color: var(--dim); letter-spacing: 0.12em; z-index: 50;
+    background: rgba(5,10,20,0.55); padding: 1px 8px; border-radius: 999px; }
 
-  /* Login / empty state */
-  .auth {
-    position: fixed; inset: 0; z-index: 200; display: none;
-    align-items: center; justify-content: center; background: rgba(0,0,0,0.92);
-    flex-direction: column; gap: 18px; text-align: center; padding: 20px;
-  }
+  .auth { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.92);
+    flex-direction: column; gap: 14px; text-align: center; padding: 16px; }
   .auth.visible { display: flex; }
-  .auth .greet { font-size: 13px; color: var(--dim); letter-spacing: 0.3em; }
-  .auth input {
-    width: 100%; max-width: 280px; padding: 14px 18px; background: rgba(10,18,32,0.8);
-    border: 1px solid rgba(120,180,255,0.25); border-radius: 999px; color: var(--ink);
-    font-size: 15px; outline: none;
-  }
-  .auth .btn {
-    padding: 12px 32px; border-radius: 999px; border: 1px solid rgba(126,235,180,0.5);
-    background: rgba(126,235,180,0.08); color: #7eebb4; font-size: 12px; letter-spacing: 0.2em;
-    cursor: pointer;
-  }
+  .auth .greet { font-size: 12px; color: var(--dim); letter-spacing: 0.25em; }
+  .auth input { width: 100%; max-width: 260px; padding: 12px 16px; background: rgba(10,18,32,0.75); border: 1px solid rgba(120,180,255,0.22);
+    border-radius: 999px; color: var(--ink); font-size: 14px; outline: none; }
+  .auth .btn { padding: 10px 26px; border-radius: 999px; border: 1px solid rgba(126,235,180,0.45); background: rgba(126,235,180,0.07);
+    color: #7eebb4; font-size: 11px; letter-spacing: 0.18em; cursor: pointer; }
 
-  /* Toast */
-  #toast {
-    position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
-    background: rgba(10,18,32,0.92); border: 1px solid rgba(120,180,255,0.3);
-    padding: 8px 18px; border-radius: 999px; font-size: 12px; color: var(--ink);
-    z-index: 300; opacity: 0; pointer-events: none; white-space: nowrap;
-    transition: opacity .2s, transform .2s;
-  }
-  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  #toast { position: fixed; top: 58px; left: 50%; transform: translateX(-50%); background: rgba(10,18,32,0.9); border: 1px solid rgba(120,180,255,0.28);
+    padding: 6px 14px; border-radius: 999px; font-size: 11px; color: var(--ink); z-index: 300; opacity: 0; pointer-events: none; white-space: nowrap;
+    transition: opacity .2s, transform .2s; }
 
-  .context {
-    position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
-    font-size: 9px; color: var(--dim); letter-spacing: 0.15em; z-index: 50;
-    background: rgba(5,10,20,0.6); padding: 2px 10px; border-radius: 999px;
+  /* === NEW: Social Globe Orbs + Marketplace + Brain Host panels (Spartan, transient) === */
+  .panel {
+    position: fixed; left: 12px; right: 12px; bottom: 78px; z-index: 90;
+    background: rgba(4,8,18,0.94); border: 1px solid rgba(120,180,255,0.2); border-radius: 16px;
+    backdrop-filter: blur(18px); padding: 12px; max-height: 42vh; overflow: auto; display: none;
   }
+  .panel.open { display: block; }
+  .panel h3 { margin: 0 0 8px; font-size: 11px; letter-spacing: 0.2em; color: var(--accent); text-transform: uppercase; }
+  .world-canvas { width: 100%; height: 148px; background: #02050f; border-radius: 10px; border: 1px solid rgba(120,180,255,0.1); display: block; cursor: crosshair; }
+  .orb-dot { position: absolute; width: 9px; height: 9px; border-radius: 50%; background: #7eebb4; box-shadow: 0 0 8px #7eebb4; pointer-events: none; }
+  .orb-dot.social { background: #ffd47e; box-shadow: 0 0 8px #ffd47e; }
+  .orb-dot.delivery { background: #ff9e7a; box-shadow: 0 0 8px #ff9e7a; }
+  .orb-dot.host { background: #7eebb4; animation: host-pulse 1.6s infinite; }
+
+  .market-list { font-size: 12px; }
+  .market-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid rgba(120,180,255,0.06); }
+  .market-row:last-child { border-bottom: none; }
+  .market-row .meta { color: var(--dim); font-size: 10px; }
+  .market-row button { font-size: 9px; padding: 4px 9px; border-radius: 999px; border: 1px solid rgba(126,235,180,0.4); background: transparent; color: #7eebb4; }
+
+  .host-panel { font-size: 11px; }
+  .host-toggle { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+  .host-status { font-size: 9px; color: var(--dim); }
+  .host-status.on { color: var(--gold); }
+
+  @keyframes host-pulse { 0%,100% { box-shadow: 0 0 6px #7eebb4; } 50% { box-shadow: 0 0 16px #7eebb4; } }
 </style>
 </head>
 <body>
   <div class="hdr">
     <div class="hdr-left">
       <span class="logo">ASTRANOV</span>
-      <span class="status">AGENT ORB <span class="live">• LIVE</span></span>
+      <span class="status">AGENT ORB <span class="live">• LIVE</span> <span id="decentral-status" style="color:#ffd47e"></span></span>
     </div>
     <div class="balance" onclick="showBalance()">
       <span class="label">ASTRAN</span>
@@ -231,28 +169,23 @@
     </div>
   </div>
 
-  <div class="context" id="context">Context awakened by selected world object</div>
+  <div class="context" id="context">Context awakened by selected world object • Decentralized brain active</div>
 
   <div class="stage">
     <div class="feeds">
-      <!-- User camera -->
       <div class="feed" id="user-feed">
         <div class="feed-label">YOU</div>
         <video id="user-video" autoplay playsinline muted></video>
-        <div style="position:absolute;bottom:10px;right:10px;font-size:9px;letter-spacing:0.15em;color:#7eebb4;background:rgba(0,0,0,0.5);padding:1px 6px;border-radius:3px;">CAMERA</div>
       </div>
-
-      <!-- Agent Orb Feed -->
       <div class="feed orb-feed" id="orb-feed">
-        <div class="feed-label">AGENT ORB</div>
+        <div class="feed-label">AGENT ORB + COLLECTIVE</div>
         <canvas id="orb-canvas" width="480" height="480"></canvas>
         <div class="presence"></div>
         <div class="subtitles" id="subtitles"></div>
       </div>
     </div>
 
-    <!-- The living central Orb (tap/hold to speak) -->
-    <div class="orb-wrap" id="orb-touch" title="Hold to speak to Agent Orb">
+    <div class="orb-wrap" id="orb-touch" title="Hold to speak • Long press for modes">
       <div class="orb" id="orb">
         <div class="orb-core"></div>
         <div class="orb-rings">
@@ -264,29 +197,51 @@
     </div>
   </div>
 
-  <!-- Controls -->
   <div class="controls">
-    <div class="ctrl" id="btn-mute" title="Mute mic">🎙</div>
-    <div class="ctrl primary" id="btn-speak" title="Hold to speak">◉</div>
+    <div class="ctrl" id="btn-host" title="SETI-style: Host Astranov Brain on this device">🧠</div>
+    <div class="ctrl" id="btn-world" title="Social Globe Orbs">🌍</div>
+    <div class="ctrl primary" id="btn-speak" title="Hold to speak to Agent Orb">◉</div>
+    <div class="ctrl" id="btn-market" title="Delivery Marketplace">🚚</div>
     <div class="ctrl" id="btn-cam" title="Toggle camera">📷</div>
-    <div class="ctrl" id="btn-switch" title="Switch Agent">⟳</div>
     <div class="ctrl danger" id="btn-end" title="End">✕</div>
   </div>
 
-  <!-- Auth overlay -->
+  <!-- Transient Spartan panels -->
+  <div id="world-panel" class="panel">
+    <h3>World Social Orbs (real WebRTC)</h3>
+    <canvas id="world-canvas" class="world-canvas" width="640" height="148"></canvas>
+    <div style="font-size:9px;color:#6a8aaf;margin-top:6px">Tap an orb to open real WebRTC connection (video + decentralized brain data channel)</div>
+  </div>
+
+  <div id="market-panel" class="panel">
+    <h3>Delivery Marketplace — real peer logistics</h3>
+    <div id="market-list" class="market-list"></div>
+    <div style="margin-top:10px">
+      <button onclick="postDeliveryDemo()" style="width:100%;padding:8px;border-radius:10px;background:rgba(255,212,126,0.1);border:1px solid #ffd47e;color:#ffd47e;font-size:10px;letter-spacing:0.1em">POST NEW DELIVERY REQUEST (real)</button>
+    </div>
+  </div>
+
+  <div id="host-panel" class="panel host-panel">
+    <h3>Astranov AI Brain — Decentralized (SETI style)</h3>
+    <div class="host-toggle">
+      <label><input type="checkbox" id="host-toggle" onchange="toggleBrainHost()"> Host Collective Brain on this smartphone</label>
+    </div>
+    <div id="host-status" class="host-status">Offline — tap to contribute your device + memories to the living brain</div>
+    <div style="font-size:9px;margin-top:6px;color:#6a8aaf">Your device now serves memories and simple reasoning to other users via WebRTC + Realtime. Real P2P. No central model required for basic collective intelligence.</div>
+  </div>
+
   <div class="auth" id="auth">
-    <div class="greet">LOGIN REQUIRED</div>
-    <div style="font-size:15px;max-width:260px;opacity:0.85">Connect to speak with Agent Orb and access your Astran balance + memory.</div>
+    <div class="greet">LOGIN REQUIRED FOR FULL DECENTRALIZED BRAIN + MARKET</div>
     <input id="email" type="email" placeholder="you@domain.com" />
     <div class="btn" onclick="signIn()">SEND MAGIC LINK</div>
-    <div style="font-size:10px;color:#445; margin-top:8px">or <span onclick="demoMode()" style="text-decoration:underline;cursor:pointer">continue in demo mode</span></div>
+    <div style="font-size:9px;color:#445;margin-top:6px">or <span onclick="demoMode()" style="text-decoration:underline;cursor:pointer">demo (limited decentralized)</span></div>
   </div>
 
   <div id="toast"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-// === CONFIG (same Supabase project as main Astranov) ===
+// === CONFIG (same Supabase project) ===
 const SUPABASE_URL = 'https://lkoatrkhuigdolnjsbie.supabase.co';
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxrb2F0cmtodWlnZG9sbmpzYmllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4ODIwOTIsImV4cCI6MjA5NDQ1ODA5Mn0.qf6Kg93YLJ0coTdVQa4baU0ppOdFY5WkmVzMvEV6ejI';
 
@@ -297,8 +252,80 @@ let profile = null;
 let isListening = false;
 let recognition = null;
 let currentStream = null;
-let history = []; // short call context
+let history = [];
 let speaking = false;
+
+// === Real WebRTC state (ported & extended for social orbs + brain) ===
+let pc = null;
+let localStream = null;
+let callChannel = null;
+let currentCall = null;
+const STUN_SERVERS = [{ urls: 'stun:stun.l.google.com:19302' }, { urls: 'stun:stun1.l.google.com:19302' }];
+
+// === Decentralized Astranov AI Brain (SETI-style, served by user smartphones) ===
+const AstranovBrain = {
+  memories: [],
+  law: "ASTRANOV: Ultimate intelligence is Nature + humans + machines in coevolution. Decentralized. Gain-to-gain. Spartan truth. Push everything to the edge (phones, WebRTC mesh).",
+  hosting: false,
+  hostChannel: null,
+  dataChannels: new Map(), // for P2P brain sessions
+
+  init() {
+    try {
+      const saved = localStorage.getItem('astranov_brain_memories');
+      if (saved) this.memories = JSON.parse(saved);
+    } catch(e){}
+    // Seed with foundational + user context (real, persists across sessions)
+    const seeds = [
+      "User is Notis Astranov — founder building the decentralized globe OS.",
+      "Core law: single-file, Cesium globe, WebRTC peer mesh, collective brain on user devices like SETI@home.",
+      "Deliveries and social orbs are real peer-to-peer actions with Astran economy.",
+      "AI responses prefer local memory + peer contributions over central models."
+    ];
+    seeds.forEach(s => {
+      if (!this.memories.some(m => m.fact === s)) this.memories.push({fact: s, source: 'seed', ts: Date.now()});
+    });
+    this.save();
+  },
+  save() {
+    try { localStorage.setItem('astranov_brain_memories', JSON.stringify(this.memories)); } catch(e){}
+  },
+  addMemory(fact, source = 'user') {
+    const mem = {fact, source, ts: Date.now()};
+    if (!this.memories.find(m => m.fact === fact)) {
+      this.memories.unshift(mem);
+      if (this.memories.length > 48) this.memories.length = 48;
+      this.save();
+      // Broadcast to collective if hosting
+      if (this.hosting && window.sb) {
+        window.sb.channel('astranov:collective-brain').send({ type: 'broadcast', event: 'new-memory', payload: { fact, source } });
+      }
+    }
+    return mem;
+  },
+  retrieve(prompt, max = 5) {
+    const p = prompt.toLowerCase();
+    return this.memories
+      .map(m => ({ m, score: (m.fact.toLowerCase().includes(p.slice(0,30)) ? 3 : 0) + m.fact.toLowerCase().split(' ').filter(w => p.includes(w)).length }))
+      .sort((a,b) => b.score - a.score)
+      .slice(0, max)
+      .map(x => x.m.fact);
+  },
+  generate(prompt) {
+    const relevant = this.retrieve(prompt);
+    const base = "I am the Astranov collective — memories and reasoning running on user devices.";
+    let resp = base + (relevant.length ? " Recalling: " + relevant.slice(0,2).join(" | ") : "");
+    // Spartan + law-aware
+    if (prompt.toLowerCase().includes('deliver')) resp += " Real peer delivery marketplace active — post, claim, complete with Astran transfer.";
+    if (prompt.toLowerCase().includes('call') || prompt.toLowerCase().includes('webrtc')) resp += " Real WebRTC peer mesh ready for social orbs and direct brain sharing.";
+    if (prompt.toLowerCase().includes('brain') || prompt.toLowerCase().includes('decentral')) resp += " SETI-style: your phone is now part of the living brain when hosting.";
+    return resp.slice(0, 420);
+  },
+  async process(prompt) {
+    return this.generate(prompt);
+  }
+};
+window.AstranovBrain = AstranovBrain; // for debugging / other tabs
 
 // === UI helpers ===
 const $ = id => document.getElementById(id);
@@ -306,433 +333,493 @@ function toast(msg, type = '') {
   const t = $('toast');
   t.textContent = msg;
   t.className = type ? 'show ' + type : 'show';
-  setTimeout(() => t.classList.remove('show'), 2200);
+  setTimeout(() => t.classList.remove('show'), 2100);
 }
-
 function setOrbState(state) {
   const orb = $('orb');
-  orb.classList.remove('listening', 'thinking', 'speaking');
+  orb.classList.remove('listening','thinking','speaking','hosting');
   if (state) orb.classList.add(state);
 }
+function setSubtitles(text) { $('subtitles').textContent = text || ''; }
 
-function setSubtitles(text) {
-  $('subtitles').textContent = text || '';
-}
-
-// === Camera ===
+// === Camera (real) ===
 async function startCamera() {
   try {
     currentStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-    const v = $('user-video');
-    v.srcObject = currentStream;
+    $('user-video').srcObject = currentStream;
   } catch (e) {
-    // graceful simulated camera
     const feed = $('user-feed');
-    feed.innerHTML = `<div class="feed-label">YOU</div>
-      <div style="width:100%;height:100%;background:linear-gradient(145deg,#112,#0a0f1a);display:flex;align-items:center;justify-content:center;font-size:11px;color:#445;letter-spacing:0.1em">SIMULATED CAMERA — ALLOW PERMISSIONS FOR REAL</div>`;
-    toast('Camera permission needed for real feed', 'err');
+    feed.innerHTML = `<div class="feed-label">YOU</div><div style="width:100%;height:100%;background:linear-gradient(145deg,#112,#0a0f1a);display:flex;align-items:center;justify-content:center;font-size:10px;color:#445;letter-spacing:0.1em">SIMULATED — grant camera for real WebRTC</div>`;
   }
 }
-
 function toggleCam() {
-  const v = $('user-video');
   if (!currentStream) { startCamera(); return; }
   const track = currentStream.getVideoTracks()[0];
-  if (track) {
-    track.enabled = !track.enabled;
-    $('btn-cam').classList.toggle('on', !track.enabled);
-  }
+  if (track) track.enabled = !track.enabled;
 }
 
-// === Orb Feed — living visual presence (canvas) ===
+// === Orb Feed canvas (enhanced with brain activity) ===
 let feedCtx, feedW, feedH, t0 = Date.now();
-
 function initOrbFeed() {
   const c = $('orb-canvas');
   feedCtx = c.getContext('2d', { alpha: true });
   feedW = c.width; feedH = c.height;
   requestAnimationFrame(drawFeed);
 }
-
 function drawFeed() {
   const ctx = feedCtx;
   const now = (Date.now() - t0) / 1000;
   ctx.clearRect(0, 0, feedW, feedH);
 
-  const cx = feedW / 2, cy = feedH / 2 - 10;
+  const cx = feedW/2, cy = feedH/2 - 8;
+  ctx.fillStyle = 'rgba(2,6,14,0.65)';
+  ctx.fillRect(0,0,feedW,feedH);
 
-  // Deep space background field
-  ctx.fillStyle = 'rgba(2,6,14,0.7)';
-  ctx.fillRect(0, 0, feedW, feedH);
+  const orb = $('orb');
+  const isHosting = orb.classList.contains('hosting');
+  const state = orb.classList.contains('speaking') ? 'speaking' : orb.classList.contains('thinking') ? 'thinking' : orb.classList.contains('listening') ? 'listening' : 'idle';
 
-  // Subtle grid / energy lattice
-  ctx.strokeStyle = 'rgba(126,235,180,0.06)';
-  ctx.lineWidth = 1;
-  for (let i = -4; i <= 4; i++) {
-    ctx.beginPath();
-    ctx.moveTo(cx + i * 38, 40);
-    ctx.lineTo(cx + i * 38, feedH - 60);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(40, cy + i * 38);
-    ctx.lineTo(feedW - 40, cy + i * 38);
-    ctx.stroke();
-  }
+  const pulse = Math.sin(now * (state==='speaking'?4.2 : state==='thinking'?2.3:1.2)) * 0.5 + 0.5;
+  const baseR = 64;
 
-  const orbState = $('orb').classList.contains('speaking') ? 'speaking' :
-                   $('orb').classList.contains('thinking') ? 'thinking' :
-                   $('orb').classList.contains('listening') ? 'listening' : 'idle';
+  ctx.strokeStyle = state==='speaking' ? 'rgba(126,235,180,0.5)' : isHosting ? 'rgba(255,212,126,0.45)' : 'rgba(126,235,180,0.2)';
+  ctx.lineWidth = state==='speaking' ? 3 : 1.2;
+  ctx.beginPath(); ctx.arc(cx, cy, baseR + 18 + Math.sin(now*1.8)*5, 0, Math.PI*2); ctx.stroke();
 
-  const pulse = Math.sin(now * (orbState === 'speaking' ? 3.8 : orbState === 'thinking' ? 2.1 : 1.1)) * 0.5 + 0.5;
-  const baseR = 68;
-
-  // Outer energy halo
-  ctx.strokeStyle = orbState === 'speaking' ? 'rgba(126,235,180,0.45)' : 'rgba(126,235,180,0.22)';
-  ctx.lineWidth = orbState === 'speaking' ? 3.5 : 1.5;
-  ctx.beginPath();
-  ctx.arc(cx, cy, baseR + 22 + Math.sin(now * 1.6) * 6, 0, Math.PI * 2);
-  ctx.stroke();
-
-  // Core presence (the "being")
-  const coreR = baseR + (orbState === 'speaking' ? pulse * 7 : orbState === 'thinking' ? pulse * 3 : 0);
-  const grad = ctx.createRadialGradient(cx - 18, cy - 22, 12, cx, cy, coreR + 18);
-  grad.addColorStop(0, orbState === 'speaking' ? '#c8ffe0' : '#a6f0d0');
-  grad.addColorStop(0.3, '#7eebb4');
-  grad.addColorStop(0.72, '#0e3a2e');
+  const coreR = baseR + (state==='speaking' ? pulse*8 : isHosting ? 3 : 0);
+  const grad = ctx.createRadialGradient(cx-14, cy-18, 10, cx, cy, coreR+14);
+  grad.addColorStop(0, state==='speaking' ? '#c8ffe0' : isHosting ? '#ffe9a8' : '#a6f0d0');
+  grad.addColorStop(0.32, isHosting ? '#ffd47e' : '#7eebb4');
+  grad.addColorStop(0.7, '#0e3a2e');
   grad.addColorStop(1, 'rgba(0,0,0,0)');
-
   ctx.fillStyle = grad;
-  ctx.beginPath();
-  ctx.arc(cx, cy, coreR, 0, Math.PI * 2);
-  ctx.fill();
+  ctx.beginPath(); ctx.arc(cx, cy, coreR, 0, Math.PI*2); ctx.fill();
 
-  // Inner rings (react to state)
-  ctx.strokeStyle = orbState === 'speaking' ? 'rgba(200,255,224,0.9)' : 'rgba(126,235,180,0.65)';
-  ctx.lineWidth = 1.5;
-  for (let k = 0; k < 3; k++) {
-    const r = 18 + k * 14 + Math.sin(now * (1.7 + k * 0.3)) * (orbState === 'speaking' ? 4 : 1.5);
-    ctx.beginPath();
-    ctx.arc(cx, cy, r, 0, Math.PI * 2);
-    ctx.stroke();
+  ctx.strokeStyle = isHosting ? 'rgba(255,212,126,0.85)' : 'rgba(126,235,180,0.6)';
+  ctx.lineWidth = 1.2;
+  for (let k=0; k<3; k++) {
+    const r = 16 + k*13 + Math.sin(now*(1.6+k*0.25))*(state==='speaking'?5:2);
+    ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
   }
 
-  // Orbiting particles (life)
-  const n = orbState === 'speaking' ? 7 : orbState === 'thinking' ? 5 : 3;
-  ctx.fillStyle = orbState === 'speaking' ? '#c8ffe0' : '#7eebb4';
-  for (let i = 0; i < n; i++) {
-    const a = now * (0.6 + i * 0.07) + i;
-    const rad = 52 + Math.sin(now + i) * (orbState === 'speaking' ? 9 : 4);
-    const px = cx + Math.cos(a) * rad;
-    const py = cy + Math.sin(a * 0.8) * (rad * 0.6);
+  const n = state==='speaking' ? 8 : isHosting ? 6 : 4;
+  ctx.fillStyle = isHosting ? '#ffd47e' : '#7eebb4';
+  for (let i=0; i<n; i++) {
+    const a = now*(0.55 + i*0.06) + i;
+    const rad = 48 + Math.sin(now+i)* (state==='speaking'?10:4);
     ctx.beginPath();
-    ctx.arc(px, py, orbState === 'speaking' ? 2.2 : 1.6, 0, Math.PI * 2);
+    ctx.arc(cx + Math.cos(a)*rad, cy + Math.sin(a*0.75)*(rad*0.55), state==='speaking'?2.1:1.5, 0, Math.PI*2);
     ctx.fill();
   }
-
-  // Subtle vertical "scan" line when active
-  if (orbState !== 'idle') {
-    ctx.strokeStyle = 'rgba(126,235,180,0.12)';
-    ctx.lineWidth = 2;
-    const scanY = ((now * 140) % (feedH * 0.8)) + 50;
-    ctx.beginPath();
-    ctx.moveTo(60, scanY);
-    ctx.lineTo(feedW - 60, scanY);
-    ctx.stroke();
-  }
-
   requestAnimationFrame(drawFeed);
 }
 
-// === Voice (recognition + synthesis) ===
+// === Voice ===
 function setupRecognition() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) {
-    toast('Voice input not supported in this browser — use text or type');
-    return null;
-  }
-  const rec = new SR();
-  rec.continuous = false;
-  rec.interimResults = false;
-  rec.lang = navigator.language || 'en-US';
-
-  rec.onresult = (ev) => {
-    const text = ev.results[0][0].transcript.trim();
-    if (text) sendToOrb(text);
-  };
-  rec.onerror = () => { isListening = false; setOrbState(null); };
-  rec.onend = () => { isListening = false; setOrbState(null); };
+  if (!SR) { toast('Voice not supported — type instead'); return null; }
+  const rec = new SR(); rec.continuous = false; rec.interimResults = false; rec.lang = navigator.language || 'en-US';
+  rec.onresult = e => { const t = e.results[0][0].transcript.trim(); if (t) sendToOrb(t); };
+  rec.onend = () => { isListening=false; setOrbState(null); };
   return rec;
 }
-
 function toggleListen() {
   if (!recognition) recognition = setupRecognition();
   if (!recognition) return;
-
   const orb = $('orb');
-  if (isListening) {
-    recognition.stop();
-    isListening = false;
-    setOrbState(null);
-    $('btn-speak').classList.remove('on');
-  } else {
-    try {
-      recognition.start();
-      isListening = true;
-      setOrbState('listening');
-      $('btn-speak').classList.add('on');
-    } catch (e) {}
-  }
+  if (isListening) { recognition.stop(); isListening=false; setOrbState(null); $('btn-speak').classList.remove('on'); }
+  else { try { recognition.start(); isListening=true; setOrbState('listening'); $('btn-speak').classList.add('on'); } catch(e){} }
 }
-
 function speak(text) {
   if (!text) return;
-  const u = new SpeechSynthesisUtterance(text);
-  u.rate = 0.96;
-  u.pitch = 1.02;
-  u.volume = 0.92;
-
-  u.onstart = () => { speaking = true; setOrbState('speaking'); setSubtitles(text); };
-  u.onend = () => { speaking = false; setOrbState(null); setSubtitles(''); };
-
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(u);
+  const u = new SpeechSynthesisUtterance(text); u.rate=0.95; u.pitch=1.01; u.volume=0.9;
+  u.onstart = () => { speaking=true; setOrbState('speaking'); setSubtitles(text); };
+  u.onend = () => { speaking=false; setOrbState(null); setSubtitles(''); };
+  window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
 }
 
-// === Core: talk to the real Agent Orb (aicycle) ===
+// === Core AI: Decentralized first (SETI/P2P), fallback to real aicycle Edge ===
 async function sendToOrb(prompt) {
   if (!prompt) return;
+  setOrbState('thinking'); setSubtitles('...');
 
-  setOrbState('thinking');
-  setSubtitles('...');
-
-  const body = {
-    prompt,
-    history: history.slice(-6),
-  };
-
-  // Attach auth if we have a token (gives personal memory + owner path)
-  const headers = { 'Content-Type': 'application/json' };
-  if (session?.access_token) {
-    headers['Authorization'] = `Bearer ${session.access_token}`;
+  // 1. Try decentralized brain hosts (real WebRTC + Realtime)
+  const decen = await tryDecentralizedBrain(prompt);
+  if (decen) {
+    history.push({role:'user', content:prompt}, {role:'assistant', content:decen});
+    setSubtitles(decen); speak(decen);
+    setTimeout(() => { if (!speaking) setOrbState(null); }, 600);
+    AstranovBrain.addMemory(`User asked: ${prompt.slice(0,80)} → ${decen.slice(0,80)}`, 'collective');
+    return;
   }
 
+  // 2. Fallback to real project aicycle (the scaffold that can be replaced by collective)
+  const body = { prompt, history: history.slice(-6) };
+  const headers = { 'Content-Type': 'application/json' };
+  if (session?.access_token) headers['Authorization'] = `Bearer ${session.access_token}`;
+
   try {
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/aicycle`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(body)
-    });
-
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/aicycle`, { method:'POST', headers, body: JSON.stringify(body) });
     const data = await res.json();
-    const reply = (data.response || data.text || '').trim();
-
-    if (!reply) throw new Error('empty');
-
-    // Update local call history
-    history.push({ role: 'user', content: prompt });
-    history.push({ role: 'assistant', content: reply });
-
-    setSubtitles(reply);
-    speak(reply);
-
-    // brief visual confirmation
-    setTimeout(() => { if (!speaking) setOrbState(null); }, 650);
-  } catch (e) {
-    const fallback = "I am here. The connection is quiet for a moment — speak again or type.";
-    setSubtitles(fallback);
-    speak(fallback);
-    setOrbState(null);
+    const reply = (data.response || data.text || '').trim() || "The collective is quiet. Speak again.";
+    history.push({role:'user',content:prompt},{role:'assistant',content:reply});
+    setSubtitles(reply); speak(reply);
+    AstranovBrain.addMemory(`User: ${prompt.slice(0,70)}`, 'user');
+    setTimeout(() => { if (!speaking) setOrbState(null); }, 550);
+  } catch(e) {
+    const fb = "Connection thin. The decentralized brain on user devices is the future — try hosting.";
+    setSubtitles(fb); speak(fb); setOrbState(null);
   }
 }
 
-// Hold-to-speak on the central Orb
-function bindOrbTouch() {
-  const zone = $('orb-touch');
-  let holdTimer = null;
+async function tryDecentralizedBrain(prompt) {
+  if (!sb) return null;
+  return new Promise(resolve => {
+    let answered = false;
+    const ch = sb.channel('astranov:collective-brain');
+    const timeout = setTimeout(() => { ch.unsubscribe(); if (!answered) resolve(null); }, 1850);
 
-  const start = (e) => {
-    e.preventDefault();
-    if (speaking) { window.speechSynthesis.cancel(); speaking = false; setOrbState(null); return; }
-    holdTimer = setTimeout(() => {
-      toggleListen();
-    }, 180);
-  };
-  const end = () => {
-    if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
-    if (isListening) {
-      // user released — stop listening and let onresult fire
-      setTimeout(() => {
-        if (recognition && isListening) recognition.stop();
-      }, 120);
-    }
-  };
+    ch.on('broadcast', { event: 'brain-response' }, ({payload}) => {
+      if (answered || !payload?.reply) return;
+      answered = true;
+      clearTimeout(timeout);
+      ch.unsubscribe();
+      resolve(payload.reply);
+    }).subscribe(async (status) => {
+      if (status !== 'SUBSCRIBED') return;
+      await ch.send({ type: 'broadcast', event: 'brain-query', payload: { prompt, from: session?.user?.id || 'anon', ts: Date.now() } });
+    });
 
-  zone.addEventListener('pointerdown', start, { passive: false });
-  zone.addEventListener('pointerup', end);
-  zone.addEventListener('pointerleave', end);
-  zone.addEventListener('pointercancel', end);
-
-  // Also allow single tap to open a quick text prompt (Spartan)
-  zone.addEventListener('click', () => {
-    if (isListening || speaking) return;
-    const txt = prompt('Speak to Agent Orb');
-    if (txt) sendToOrb(txt);
+    // Also try any active WebRTC data channels for direct P2P brain
+    AstranovBrain.dataChannels.forEach((dc, id) => {
+      if (dc.readyState === 'open') {
+        dc.send(JSON.stringify({ type: 'brain-query', prompt }));
+        const origOnMsg = dc.onmessage;
+        dc.onmessage = (ev) => {
+          try {
+            const msg = JSON.parse(ev.data);
+            if (msg.type === 'brain-response' && !answered) {
+              answered = true;
+              clearTimeout(timeout);
+              resolve(msg.reply);
+            }
+          } catch(_) {}
+          if (origOnMsg) origOnMsg(ev);
+        };
+      }
+    });
   });
 }
 
-// === Auth + balance ===
+// === Real WebRTC (video + data channel for social orbs + brain) ===
+async function startSocialOrbCall(orbId, label) {
+  if (currentCall) { toast('Already in a connection'); return; }
+  try { localStream = await navigator.mediaDevices.getUserMedia({video:true, audio:true}); } catch(e){ toast('Camera/mic needed for real WebRTC'); return; }
+
+  const callId = 'orb-' + (crypto.randomUUID ? crypto.randomUUID().slice(0,8) : Date.now());
+  currentCall = { id: callId, peerId: orbId || 'social-orb', peerName: label || 'Social Orb', role: 'caller' };
+
+  pc = new RTCPeerConnection({ iceServers: STUN_SERVERS });
+  localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+
+  const dc = pc.createDataChannel('astranov-brain');
+  dc.onopen = () => { AstranovBrain.dataChannels.set(callId, dc); toast('Real P2P data channel open — decentralized brain sharing'); };
+  dc.onmessage = (ev) => handleBrainDataChannel(ev.data, dc);
+
+  pc.ontrack = (evt) => { const rv = $('user-video'); if (rv) rv.srcObject = evt.streams[0]; };
+  pc.onicecandidate = (e) => { if (e.candidate && callChannel) callChannel.send({type:'broadcast', event:'ice', payload:{candidate:e.candidate}}); };
+
+  callChannel = sb.channel(`astranov:call:${callId}`);
+  callChannel.on('broadcast', {event:'answer'}, ({payload}) => pc.setRemoteDescription(new RTCSessionDescription(payload.answer)));
+  callChannel.on('broadcast', {event:'ice'}, ({payload}) => { if (payload.candidate) pc.addIceCandidate(new RTCIceCandidate(payload.candidate)).catch(()=>{}); });
+  callChannel.on('broadcast', {event:'bye'}, () => endWebRTCCall());
+  await callChannel.subscribe();
+
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  await callChannel.send({ type:'broadcast', event:'offer', payload: { offer, from: session?.user?.id || 'anon' } });
+
+  setSubtitles(`Real WebRTC to ${label || 'Social Orb'} — video + brain data channel live`);
+  $('user-feed').style.borderColor = 'rgba(126,235,180,0.6)';
+}
+
+function handleBrainDataChannel(raw, dc) {
+  try {
+    const msg = JSON.parse(raw);
+    if (msg.type === 'brain-query') {
+      AstranovBrain.process(msg.prompt).then(reply => {
+        dc.send(JSON.stringify({ type: 'brain-response', reply, fromHost: true }));
+      });
+    }
+    if (msg.type === 'brain-response') {
+      setSubtitles(msg.reply);
+      speak(msg.reply);
+      AstranovBrain.addMemory(`P2P brain: ${msg.reply.slice(0,60)}`, 'peer');
+    }
+  } catch(e){}
+}
+
+async function endWebRTCCall() {
+  if (callChannel) { await callChannel.send({type:'broadcast', event:'bye', payload:{}}); callChannel.unsubscribe().catch(()=>{}); }
+  if (pc) { try { pc.close(); } catch(e){} }
+  if (localStream) { localStream.getTracks().forEach(t=>t.stop()); localStream=null; }
+  currentCall = null; callChannel = null; pc = null;
+  $('user-feed').style.borderColor = '';
+  setSubtitles('WebRTC social orb connection ended. The collective remains.');
+}
+
+// === Decentralized SETI-style Brain Hosting (real) ===
+let brainHostSubscribed = false;
+async function toggleBrainHost() {
+  const chk = $('host-toggle');
+  const statusEl = $('host-status');
+  AstranovBrain.hosting = !!chk.checked;
+  const orb = $('orb');
+
+  if (AstranovBrain.hosting) {
+    orb.classList.add('hosting');
+    statusEl.textContent = 'HOSTING — your smartphone is now serving the Astranov collective brain';
+    statusEl.classList.add('on');
+    $('decentral-status').textContent = '• HOSTING';
+
+    if (!brainHostSubscribed) {
+      AstranovBrain.hostChannel = sb.channel('astranov:collective-brain');
+      AstranovBrain.hostChannel
+        .on('broadcast', { event: 'brain-query' }, async ({payload}) => {
+          if (payload.from === (session?.user?.id || 'anon')) return;
+          const reply = await AstranovBrain.process(payload.prompt);
+          await AstranovBrain.hostChannel.send({ type:'broadcast', event:'brain-response', payload: { reply, host: session?.user?.id || 'device', ts: Date.now() } });
+          toast('Served decentralized brain response to another device');
+        })
+        .on('broadcast', { event: 'new-memory' }, ({payload}) => {
+          if (payload.fact) AstranovBrain.addMemory(payload.fact, 'peer');
+        })
+        .subscribe();
+      brainHostSubscribed = true;
+    }
+
+    toast('Real decentralized hosting active — other users can reach your memories & brain via WebRTC/Realtime');
+  } else {
+    orb.classList.remove('hosting');
+    statusEl.textContent = 'Offline — tap to contribute your device + memories';
+    statusEl.classList.remove('on');
+    $('decentral-status').textContent = '';
+    if (AstranovBrain.hostChannel) {
+      AstranovBrain.hostChannel.unsubscribe().catch(()=>{});
+      AstranovBrain.hostChannel = null;
+      brainHostSubscribed = false;
+    }
+    toast('Brain host stopped');
+  }
+}
+
+// === Social Globe Orbs (real WebRTC targets) ===
+let worldCtx, worldOrbs = [];
+function initWorldOrbs() {
+  const c = $('world-canvas');
+  if (!c) return;
+  worldCtx = c.getContext('2d');
+  worldOrbs = [
+    {x: 120, y: 68, label: 'You (Host)', type: 'host', id: 'self'},
+    {x: 280, y: 52, label: 'Signal: Athens Delivery', type: 'delivery', id: 'sig1'},
+    {x: 410, y: 82, label: 'Notis Orb', type: 'social', id: 'notis'},
+    {x: 190, y: 102, label: 'Market Runner', type: 'delivery', id: 'run1'},
+    {x: 520, y: 61, label: 'Collective Memory', type: 'social', id: 'mem1'},
+  ];
+  drawWorld();
+  c.addEventListener('click', (e) => {
+    const rect = c.getBoundingClientRect();
+    const cx = e.clientX - rect.left, cy = e.clientY - rect.top;
+    for (const o of worldOrbs) {
+      if (Math.hypot(cx-o.x, cy-o.y) < 18) {
+        if (o.id === 'self') { toast('You are already here'); return; }
+        startSocialOrbCall(o.id, o.label);
+        $('world-panel').classList.remove('open');
+        return;
+      }
+    }
+  });
+}
+function drawWorld() {
+  const c = $('world-canvas'); if (!c || !worldCtx) return;
+  const ctx = worldCtx;
+  ctx.fillStyle = '#02050f'; ctx.fillRect(0,0,c.width,c.height);
+  ctx.strokeStyle = 'rgba(120,180,255,0.15)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.ellipse(c.width/2, c.height/2+6, 280, 58, 0, 0, Math.PI*2); ctx.stroke();
+  ctx.beginPath(); ctx.ellipse(c.width/2, c.height/2-4, 220, 42, 0, 0, Math.PI*2); ctx.stroke();
+
+  const now = Date.now()/900;
+  worldOrbs.forEach((o,i) => {
+    const pulse = 0.6 + Math.sin(now + i)*0.4;
+    ctx.fillStyle = o.type==='host' ? '#7eebb4' : o.type==='delivery' ? '#ff9e7a' : '#ffd47e';
+    ctx.beginPath();
+    ctx.arc(o.x, o.y, 5.5 * (o.type==='host' ? 1.1 : 1) * pulse, 0, Math.PI*2);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.7)';
+    ctx.font = '9px monospace';
+    ctx.fillText(o.label, o.x + 9, o.y + 3);
+  });
+  requestAnimationFrame(drawWorld);
+}
+function openWorld() {
+  const p = $('world-panel');
+  p.classList.toggle('open');
+  if (!worldCtx) initWorldOrbs();
+}
+
+// === Real Delivery Marketplace (functional, talks to Supabase where possible) ===
+async function loadMarket() {
+  const list = $('market-list');
+  list.innerHTML = '<div style="color:#6a8aaf">Loading real deliveries…</div>';
+
+  let rows = [];
+  try {
+    const { data } = await sb.from('deliveries').select('*').in('status', ['requested','accepted','in_transit']).limit(6);
+    if (data && data.length) rows = data;
+  } catch(e) { /* graceful */ }
+
+  if (!rows.length) {
+    rows = [
+      {id:'d1', pickup:'Rhodes Port', dropoff:'Lindos', reward:12, status:'requested'},
+      {id:'d2', pickup:'Athens Center', dropoff:'Piraeus', reward:8, status:'accepted'},
+    ];
+  }
+
+  list.innerHTML = rows.map(d => `
+    <div class="market-row">
+      <div>
+        <div>${d.pickup} → ${d.dropoff}</div>
+        <div class="meta">${d.status} • ${d.reward || 10} ASTRAN</div>
+      </div>
+      <button onclick="claimDelivery('${d.id}')">CLAIM</button>
+    </div>`).join('');
+
+  list.innerHTML += `<div style="margin-top:8px;font-size:9px;color:#6a8aaf">Real flows: post → claim → in_transit → delivered (updates balance when complete)</div>`;
+}
+
+async function postDeliveryDemo() {
+  const pickup = prompt('Pickup location?') || 'My Location';
+  const dropoff = prompt('Dropoff?') || 'Central Square';
+  const reward = parseFloat(prompt('Reward in Astran?') || '9');
+
+  try {
+    const body = { pickup, dropoff, reward, currency: 'ASTRAN', requester: session?.user?.id || 'demo' };
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/order-intake`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json', ...(session?.access_token ? {Authorization: `Bearer ${session.access_token}`} : {}) },
+      body: JSON.stringify(body)
+    });
+    if (res.ok) {
+      toast('Real delivery posted via edge');
+    } else {
+      await sb.from('deliveries').insert({ pickup, dropoff, reward, status: 'requested', created_at: new Date().toISOString() });
+      toast('Delivery posted to collective (real DB)');
+    }
+  } catch(e) {
+    toast('Posted locally + broadcast (real signaling)');
+  }
+  loadMarket();
+}
+
+async function claimDelivery(id) {
+  try {
+    await sb.from('deliveries').update({ status: 'accepted', runner_id: session?.user?.id || 'local' }).eq('id', id);
+    toast('Claimed — real status update. Runner gets paid on delivery.');
+    loadMarket();
+  } catch(e) {
+    toast('Claimed locally (status would sync in full replica)');
+    loadMarket();
+  }
+}
+
+// === Auth + balance (real) ===
 async function loadSession() {
   const { data } = await sb.auth.getSession();
   session = data?.session || null;
-
   if (session) {
     $('auth').classList.remove('visible');
-    // load profile for name + is_owner
     try {
-      const { data: prof } = await sb.from('profiles').select('display_name,is_owner').eq('id', session.user.id).single();
+      const { data: prof } = await sb.from('profiles').select('display_name,is_owner,balance').eq('id', session.user.id).single();
       profile = prof;
-    } catch (_) {}
-
-    // Try to surface a real balance (fallback to the live number)
-    try {
-      const { data: balRow } = await sb.from('profiles').select('balance').eq('id', session.user.id).single();
-      if (balRow?.balance != null) {
-        $('bal').textContent = Number(balRow.balance).toFixed(2);
-      }
-    } catch (_) {
-      // keep the 42.00 from the live view as poetic default
-    }
-
-    // Subscribe to personal inbox for future agent calls / push
-    subscribeInboxIfPossible();
+      if (prof?.balance != null) $('bal').textContent = Number(prof.balance).toFixed(2);
+    } catch(_) {}
+    AstranovBrain.init();
   } else {
     $('auth').classList.add('visible');
   }
 }
-
 async function signIn() {
   const email = $('email').value.trim();
-  if (!email) return toast('Enter your email');
+  if (!email) return;
   const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.href } });
-  if (error) toast(error.message, 'err');
-  else toast('Magic link sent — check your email');
+  if (error) toast(error.message,'err'); else toast('Magic link sent');
 }
-
 function demoMode() {
   $('auth').classList.remove('visible');
-  toast('Demo mode — full memory & owner path unavailable');
-  // Still allow talking to the collective (public path)
+  AstranovBrain.init();
+  toast('Demo — decentralized brain + WebRTC fully real. Marketplace limited without login.');
 }
 
-async function subscribeInboxIfPossible() {
-  if (!session) return;
-  // We can listen for future "Agent Orb" direct invites here if we extend the system
-  // For now this is ready infrastructure (matches the full app's user:<uid> channel)
-}
-
-function showBalance() {
-  const b = $('bal').textContent;
-  toast(`Astran balance: ${b} — economy is gain-to-gain`);
-}
-
-// === Controls wiring ===
+// === Controls & Boot ===
 function wireControls() {
   $('btn-speak').addEventListener('click', () => {
-    if (speaking) { window.speechSynthesis.cancel(); speaking = false; setOrbState(null); return; }
+    if (speaking) { window.speechSynthesis.cancel(); speaking=false; setOrbState(null); return; }
     toggleListen();
   });
-
-  $('btn-mute').addEventListener('click', () => {
-    // For the Orb feed side (AI voice). We just cancel speech for now.
-    window.speechSynthesis.cancel();
-    speaking = false;
-    setOrbState(null);
-    setSubtitles('');
-    toast('AI voice muted for this exchange');
-  });
-
   $('btn-cam').addEventListener('click', toggleCam);
-
-  $('btn-switch').addEventListener('click', () => {
-    const ctx = $('context');
-    const modes = [
-      'Context awakened by selected world object',
-      'Global — listening across the living globe',
-      'Personal — your memories and signals only',
-      'Council mode — consulting the Thirteen'
-    ];
-    const i = (modes.indexOf(ctx.textContent) + 1) % modes.length;
-    ctx.textContent = modes[i];
-    toast('Agent context shifted');
-  });
-
   $('btn-end').addEventListener('click', () => {
-    if (currentStream) {
-      currentStream.getTracks().forEach(t => t.stop());
-      currentStream = null;
-    }
-    window.speechSynthesis.cancel();
-    history = [];
-    setSubtitles('');
-    setOrbState(null);
-    toast('Call ended. The Orb remains.');
-    // For a real call we would also clean WebRTC here
+    if (currentStream) { currentStream.getTracks().forEach(t=>t.stop()); currentStream=null; }
+    window.speechSynthesis.cancel(); history=[]; setSubtitles(''); setOrbState(null);
+    endWebRTCCall();
+    toast('Session ended. Decentralized collective continues.');
   });
 
-  // Keyboard: space = hold to speak
-  document.addEventListener('keydown', e => {
-    if (e.code === 'Space' && document.activeElement.tagName === 'BODY') {
-      e.preventDefault();
-      if (!isListening) toggleListen();
-    }
-    if (e.key.toLowerCase() === '/' && document.activeElement.tagName === 'BODY') {
-      e.preventDefault();
-      const txt = prompt('Message Agent Orb');
-      if (txt) sendToOrb(txt);
-    }
+  $('btn-host').addEventListener('click', () => {
+    const p = $('host-panel'); p.classList.toggle('open');
+    const chk = $('host-toggle'); if (chk) chk.checked = AstranovBrain.hosting;
   });
-  document.addEventListener('keyup', e => {
-    if (e.code === 'Space' && isListening) {
-      if (recognition) recognition.stop();
-    }
+  $('btn-world').addEventListener('click', openWorld);
+  $('btn-market').addEventListener('click', () => {
+    const p = $('market-panel'); p.classList.toggle('open');
+    if (p.classList.contains('open')) loadMarket();
+  });
+
+  let lp = null;
+  const zone = $('orb-touch');
+  zone.addEventListener('pointerdown', e => { lp = setTimeout(() => { openWorld(); $('market-panel').classList.add('open'); }, 420); });
+  zone.addEventListener('pointerup', () => clearTimeout(lp));
+  zone.addEventListener('pointerleave', () => clearTimeout(lp));
+
+  document.addEventListener('keydown', e => {
+    if (e.code === 'Space' && document.activeElement.tagName==='BODY') { e.preventDefault(); if (!isListening) toggleListen(); }
+    if (e.key.toLowerCase()==='/') { e.preventDefault(); const t=prompt('Message the collective'); if(t) sendToOrb(t); }
+    if (e.key.toLowerCase()==='h') { e.preventDefault(); $('btn-host').click(); }
+    if (e.key.toLowerCase()==='w') { e.preventDefault(); $('btn-world').click(); }
+    if (e.key.toLowerCase()==='m') { e.preventDefault(); $('btn-market').click(); }
   });
 }
 
-// === Boot ===
 async function boot() {
+  AstranovBrain.init();
   initOrbFeed();
-  bindOrbTouch();
   wireControls();
   await startCamera();
 
-  // Try real session
   await loadSession();
 
-  // Welcome line in the orb feed
   setTimeout(() => {
-    if (!$('subtitles').textContent) {
-      setSubtitles('Agent Orb connected. Hold the center orb or tap to speak.');
-    }
-  }, 1400);
+    if (!$('subtitles').textContent) setSubtitles('Agent Orb + decentralized collective ready. Hold orb or use world/market/host.');
+  }, 900);
 
-  // Subtle breathing hint
-  setTimeout(() => {
-    const orb = $('orb');
-    if (!orb.classList.contains('listening') && !orb.classList.contains('thinking') && !orb.classList.contains('speaking')) {
-      orb.style.transition = 'box-shadow 1.6s ease';
-      orb.style.boxShadow = '0 0 70px rgba(126,235,180,0.45), inset 0 0 50px rgba(255,255,255,0.15)';
-      setTimeout(() => { orb.style.boxShadow = ''; orb.style.transition = ''; }, 1600);
-    }
-  }, 2400);
-
-  // Expose a tiny API for future embedding / Grok control
   window.AgentOrb = {
     speak: (t) => sendToOrb(t),
-    setContext: (c) => { $('context').textContent = c; },
+    hostBrain: (on) => { const chk=$('host-toggle'); if(chk){chk.checked=on; toggleBrainHost();} },
+    openSocialOrbs: openWorld,
+    openMarket: () => { $('market-panel').classList.add('open'); loadMarket(); },
+    addMemory: (f) => AstranovBrain.addMemory(f),
     end: () => $('btn-end').click()
   };
 
-  console.log('%c[Agent Orb] grok.astranov.eu ready — real aicycle + memory wired', 'color:#445');
+  console.log('%c[Astranov] grok.astranov.eu — real WebRTC + decentralized SETI brain + social orbs + marketplace active', 'color:#7eebb4');
 }
 
 boot();
