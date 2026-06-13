@@ -5,13 +5,6 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
 <meta name="theme-color" content="#020713"/>
 <title>Astranov</title>
-<!--
-# ASTRANOV LAW
-
-Build ASTRANOV as one complete mobile-first `index.html` using clean HTML, CSS, and JavaScript only. No build tools, no fragmented edits, no pseudocode, no placeholder theater, and no symbolic substitutes. Output exactly one fully reconstructed runnable `index.html`. This law is one whole law, not multiple laws.
-
-[... full law as provided ...]
--->
 <script>window.CESIUM_BASE_URL="https://cdn.jsdelivr.net/npm/cesium@1.123.1/Build/Cesium/";</script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cesium@1.123.1/Build/Cesium/Widgets/widgets.css">
 <script src="https://cdn.jsdelivr.net/npm/cesium@1.123.1/Build/Cesium/Cesium.js"></script>
@@ -41,6 +34,14 @@ body{position:fixed;inset:0}
 .cesium-viewer,.cesium-viewer-cesiumWidgetContainer,.cesium-widget,.cesium-widget canvas{width:100%;height:100%}
 .cesium-viewer-toolbar,.cesium-viewer-animationContainer,.cesium-viewer-timelineContainer,.cesium-viewer-fullscreenContainer,.cesium-infoBox,.cesium-selection-wrapper{display:none!important}
 .cesium-viewer-bottom{left:8px!important;bottom:5px!important;font-size:9px!important;opacity:.55!important;filter:drop-shadow(0 0 7px rgba(85,214,255,.5));z-index:15!important}
+
+/* SPLASH LOADING SCREEN */
+#splash{position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#020713;pointer-events:auto}
+#splash.hidden{opacity:0;pointer-events:none;transition:opacity .4s ease .2s}
+#splash .logo{font-family:Inter,ui-sans-serif;font-weight:950;font-size:clamp(22px,6vw,32px);letter-spacing:.4em;text-transform:uppercase;color:#f3fcff;text-shadow:0 0 12px rgba(96,215,255,.9),0 0 32px rgba(21,123,255,.6);margin-bottom:18px}
+#splash .loader{width:42px;height:42px;border:3px solid rgba(96,215,255,.25);border-top-color:#60d7ff;border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
 #cityShade{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;background:
   radial-gradient(circle at 50% 60%,rgba(0,190,255,.13),transparent 30%),
   linear-gradient(180deg,rgba(0,18,48,.08),rgba(0,8,22,.44));
@@ -49,9 +50,7 @@ body{position:fixed;inset:0}
 #brand{position:absolute;top:calc(12px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:24;
   color:#f3fcff;font-weight:950;font-size:clamp(15px,4.2vw,24px);letter-spacing:.36em;text-transform:uppercase;
   text-shadow:0 0 8px rgba(255,255,255,.95),0 0 18px rgba(81,214,255,.9),0 0 44px rgba(21,123,255,.72);
-  user-select:none;pointer-events:auto;padding:8px 10px 9px 18px;border-radius:999px}
-#brand.awake{animation:brandPulse 1.1s ease infinite alternate}
-@keyframes brandPulse{from{text-shadow:0 0 8px rgba(255,255,255,.82),0 0 20px rgba(91,219,255,.75),0 0 45px rgba(32,132,255,.56)}to{text-shadow:0 0 14px rgba(255,255,255,1),0 0 32px rgba(98,220,255,1),0 0 74px rgba(35,141,255,.9)}}
+  user-select:none;pointer-events:auto;padding:8px 10px 9px 18px;border-radius:999px;cursor:pointer}
 #stageFlash{position:absolute;left:50%;top:50%;width:95px;height:95px;border-radius:999px;z-index:14;pointer-events:none;opacity:0;transform:translate(-50%,-50%) scale(.55);
   border:1px solid rgba(155,238,255,.52);box-shadow:0 0 34px rgba(84,210,255,.65),inset 0 0 26px rgba(95,204,255,.2)}
 #stageFlash.go{animation:flash .95s ease forwards}
@@ -87,29 +86,26 @@ body{position:fixed;inset:0}
 #loginGate{left:10px;top:calc(58px + env(safe-area-inset-top));align-items:center;gap:8px;padding:8px 10px;border-radius:999px;border:1px solid var(--line);
   background:rgba(5,18,40,.66);backdrop-filter:blur(16px);box-shadow:var(--soft);font-size:12px;font-weight:770}
 #avatar{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#d9fbff,#51caff 58%,#1269e8);color:#031323;font-weight:950}
-#debugLaw{display:none}
-@media(max-width:560px){
-  #contextCard{bottom:calc(12px + env(safe-area-inset-bottom));border-radius:22px}
-  #wallet{right:8px;top:calc(54px + env(safe-area-inset-top))}
-  #loginGate{left:8px;top:calc(54px + env(safe-area-inset-top))}
-  #brand{letter-spacing:.31em}
-}
+@media(max-width:560px){#contextCard{bottom:calc(12px + env(safe-area-inset-bottom));border-radius:22px} #wallet{right:8px;top:calc(54px + env(safe-area-inset-top))} #loginGate{left:8px;top:calc(54px + env(safe-area-inset-top))} #brand{letter-spacing:.31em}}
 </style>
 </head>
 <body>
+<div id="splash">
+  <div class="logo">ASTRANOV</div>
+  <div class="loader"></div>
+</div>
+
 <div id="app">
   <div id="cesium" aria-label="Astranov real globe"></div>
   <div id="cityShade"></div>
   <div id="stageFlash"></div>
-  <div id="brand" role="button" aria-label="Astranov voice wake">ASTRANOV</div>
+  <div id="brand" role="button" aria-label="Reset to global view">ASTRANOV</div>
 
   <div id="statusRibbon" class="wake" aria-live="polite"></div>
-
   <div id="wallet" class="wake" aria-live="polite">
     <small>Astran balance</small>
     <strong id="balanceText">0.00</strong>
   </div>
-
   <div id="loginGate" class="wake">
     <div id="avatar">A</div>
     <span id="loginText">Login required</span>
@@ -131,442 +127,116 @@ body{position:fixed;inset:0}
     <textarea id="composerInput" rows="1" placeholder="Manual AI fallback"></textarea>
     <button id="sendBtn" type="submit">AI</button>
   </form>
-
-  <script id="debugLaw" type="text/plain"># ASTRANOV LAW
-
-[... full law ...]
-</script>
 </div>
+
 <script>
 (function(){
 'use strict';
 
-// Full clean reconstruction per ASTRANOV LAW (single file, zero-UI, real Cesium, adapter-ready AI, no frontend secrets)
-// Pushed only to astranov.eu-grok as instructed.
-
 const $=id=>document.getElementById(id);
 const ui={
-  app:$('app'),brand:$('brand'),status:$('statusRibbon'),flash:$('stageFlash'),shade:$('cityShade'),
-  card:$('contextCard'),cardTitle:$('cardTitle'),cardMeta:$('cardMeta'),cardDetail:$('cardDetail'),actions:$('cardActions'),close:$('closeCard'),
-  composer:$('composer'),input:$('composerInput'),send:$('sendBtn'),wallet:$('wallet'),balance:$('balanceText'),login:$('loginGate'),loginText:$('loginText')
+  splash:$('splash'), app:$('app'), brand:$('brand'), status:$('statusRibbon'), flash:$('stageFlash'), shade:$('cityShade'),
+  card:$('contextCard'), cardTitle:$('cardTitle'), cardMeta:$('cardMeta'), cardDetail:$('cardDetail'), actions:$('cardActions'), close:$('closeCard'),
+  composer:$('composer'), input:$('composerInput'), send:$('sendBtn'), wallet:$('wallet'), balance:$('balanceText'), login:$('loginGate'), loginText:$('loginText')
 };
-const state={
-  selected:null,context:null,cityAnchor:null,cityEntities:[],hasCity:false,balance:0,auth:false,voiceLive:false,manualOpen:false,lastLayer:'',
-  protectedAction:null,cityRenderedAtHeight:false
-};
-const adapters={
-  ai:'adapter-ready: connect via Supabase Edge Function or backend (no frontend key)',
-  sheets:'adapter-ready: connect vendor Google Sheets menu source',
-  payments:'adapter-ready: connect Stripe, PayPal, or wallet backend',
-  routing:'adapter-ready: connect OSRM, OpenRouteService, Google Directions, or local routing engine',
-  media:'adapter-ready: link/embed lawful YouTube, TikTok, Instagram, or creator-owned media',
-  auth:'adapter-ready: connect Supabase/Auth.js/custom account API'
-};
+
+const state={ selected:null, context:null, cityAnchor:null, cityEntities:[], hasCity:false, balance:0, auth:false, voiceLive:false, manualOpen:false, lastLayer:'' };
+
+const adapters={ ai:'adapter-ready: connect via Supabase Edge Function or backend (no frontend key)', sheets:'adapter-ready', payments:'adapter-ready', routing:'adapter-ready', media:'adapter-ready', auth:'adapter-ready' };
 
 function wake(el,on=true){el.classList.toggle('show',!!on)}
-function speak(text,ms=2500){ui.status.textContent=text;wake(ui.status,true);clearTimeout(speak.t);speak.t=setTimeout(()=>wake(ui.status,false),ms)}
-function hideAll(){
-  wake(ui.card,false);wake(ui.composer,false);wake(ui.wallet,false);wake(ui.login,false);
-  ui.brand.classList.remove('awake');state.manualOpen=false;
-}
-function setContext(title,meta,detail,actions,kind){
-  state.context={title,meta,detail,kind};
-  ui.cardTitle.textContent=title;
-  ui.cardMeta.textContent=meta;
-  ui.cardDetail.textContent=detail;
-  ui.actions.innerHTML='';
-  actions.forEach(a=>{
-    const b=document.createElement('button');
-    b.type='button';b.className='pill'+(a.primary?' primary':'')+(a.danger?' danger':'');
-    b.textContent=a.label;b.onclick=a.run;ui.actions.appendChild(b);
-  });
-  wake(ui.card,true);
-  if(kind==='market'||kind==='delivery'||kind==='vendor'||kind==='route') showWallet();
-}
-function showWallet(){
-  ui.balance.textContent=state.balance.toFixed(2)+' ASTRAN';
-  wake(ui.wallet,true);
-}
-function needLogin(reason){
-  state.protectedAction=reason;
-  ui.loginText.textContent='Login required · '+reason;
-  wake(ui.login,true);
-  speak('Protected action. Identity adapter required before this can continue.',2600);
-}
-function showComposer(reason){
-  state.manualOpen=true;
-  ui.input.placeholder=reason||'Manual AI fallback';
-  wake(ui.composer,true);
-  setTimeout(()=>ui.input.focus(),80);
-}
-function deliveryQuote(km,opts){
-  let total=Math.ceil(km),notes=['base '+Math.ceil(km)+' km'];
-  if(opts.night){total++;notes.push('night +1')}
-  if(opts.badWeather){total++;notes.push('weather +1')}
-  if(opts.load>13){total++;notes.push('first load above 13 +1');const extra=Math.floor((Math.min(opts.load,33)-13)/13);if(extra>0){total+=extra;notes.push('extra load +'+extra)}}
-  const platform=+(total*.03).toFixed(2),parties=+(total-platform).toFixed(2);
-  return {total,platform,parties,notes:notes.join(' · ')};
-}
+function speak(text,ms=2200){ui.status.textContent=text;wake(ui.status,true);clearTimeout(speak.t);speak.t=setTimeout(()=>wake(ui.status,false),ms)}
+function hideAll(){ wake(ui.card,false); wake(ui.composer,false); wake(ui.wallet,false); wake(ui.login,false); ui.brand.classList.remove('awake'); state.manualOpen=false; }
 
-if(!window.Cesium){
-  ui.brand.textContent='ASTRANOV';
-  speak('Real globe engine failed to load. Check network/CDN.',7000);
-  showComposer('Real globe failed. Type fallback command.');
-  return;
-}
+function setContext(title,meta,detail,actions,kind){ state.context={title,meta,detail,kind}; ui.cardTitle.textContent=title; ui.cardMeta.textContent=meta; ui.cardDetail.textContent=detail; ui.actions.innerHTML=''; actions.forEach(a=>{ const b=document.createElement('button'); b.type='button'; b.className='pill'+(a.primary?' primary':'')+(a.danger?' danger':''); b.textContent=a.label; b.onclick=a.run; ui.actions.appendChild(b); }); wake(ui.card,true); if(kind==='market'||kind==='delivery'||kind==='vendor'||kind==='route') showWallet(); }
+function showWallet(){ ui.balance.textContent=state.balance.toFixed(2)+' ASTRAN'; wake(ui.wallet,true); }
+function needLogin(reason){ state.protectedAction=reason; ui.loginText.textContent='Login required · '+reason; wake(ui.login,true); speak('Protected action. Login required.',2200); }
+function showComposer(reason){ state.manualOpen=true; ui.input.placeholder=reason||'Type command'; wake(ui.composer,true); setTimeout(()=>ui.input.focus(),60); }
+function deliveryQuote(km,opts){ let total=Math.ceil(km),notes=['base '+Math.ceil(km)+' km']; if(opts.night){total++;notes.push('night +1')} if(opts.badWeather){total++;notes.push('weather +1')} if(opts.load>13){total++;notes.push('load +1'); const ex=Math.floor((Math.min(opts.load,33)-13)/13); if(ex>0){total+=ex;notes.push('extra +'+ex)}} const platform=+(total*0.03).toFixed(2); return {total,platform,parties:+(total-platform).toFixed(2),notes:notes.join(' · ')}; }
+
+// SPLASH + CESIUM BOOT
+const splash=ui.splash;
+function hideSplash(){ splash.classList.add('hidden'); setTimeout(()=>splash.remove(),600); }
+
+if(!window.Cesium){ splash.style.display='none'; alert('Cesium failed to load'); return; }
 
 const Cesium=window.Cesium;
 let viewer;
 try{
   viewer=new Cesium.Viewer('cesium',{
-    animation:false,timeline:false,geocoder:false,homeButton:false,sceneModePicker:false,baseLayerPicker:false,
-    navigationHelpButton:false,fullscreenButton:false,vrButton:false,infoBox:false,selectionIndicator:false,shadows:false,
-    requestRenderMode:false,shouldAnimate:true,
+    animation:false,timeline:false,geocoder:false,homeButton:false,sceneModePicker:false,baseLayerPicker:false,navigationHelpButton:false,fullscreenButton:false,vrButton:false,infoBox:false,selectionIndicator:false,shadows:false,requestRenderMode:false,shouldAnimate:true,
     terrainProvider:new Cesium.EllipsoidTerrainProvider(),
-    imageryProvider:new Cesium.UrlTemplateImageryProvider({
-      url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-      maximumLevel:19,
-      credit:'Imagery © Esri, Maxar, Earthstar Geographics, and the GIS User Community'
-    })
+    imageryProvider:new Cesium.UrlTemplateImageryProvider({ url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', maximumLevel:19, credit:'Esri' })
   });
-}catch(e){
-  speak('Cesium started badly: '+e.message,7000);
-  showComposer('Cesium error. Type fallback command.');
-  return;
-}
+}catch(e){ splash.style.display='none'; alert('Cesium error'); return; }
 
 viewer.scene.globe.baseColor=Cesium.Color.fromCssColorString('#071b45');
 viewer.scene.globe.enableLighting=false;
 viewer.scene.skyAtmosphere.show=true;
 viewer.scene.fog.enabled=false;
 viewer.scene.highDynamicRange=true;
-viewer.scene.screenSpaceCameraController.enableCollisionDetection=true;
-viewer.scene.screenSpaceCameraController.inertiaSpin=.94;
-viewer.scene.screenSpaceCameraController.inertiaZoom=.88;
-viewer.scene.screenSpaceCameraController.inertiaTranslate=.86;
-viewer.scene.screenSpaceCameraController.minimumZoomDistance=620;
+viewer.scene.screenSpaceCameraController.inertiaSpin=.92;
+viewer.scene.screenSpaceCameraController.inertiaZoom=.9;
+viewer.scene.screenSpaceCameraController.minimumZoomDistance=650;
 viewer.scene.screenSpaceCameraController.maximumZoomDistance=260000000;
-viewer.camera.setView({
-  destination:Cesium.Cartesian3.fromDegrees(21.5,28,24000000),
-  orientation:{heading:Cesium.Math.toRadians(0),pitch:Cesium.Math.toRadians(-90),roll:0}
-});
 
-function layerName(h){
-  if(h>90000000)return 'Solar Layer';
-  if(h>20000000)return 'Orbital Earth';
-  if(h>6000000)return 'Global Feed';
-  if(h>900000)return 'Regional Layer';
-  if(h>95000)return 'Local Descent';
-  return 'Astranov City Map';
-}
-function cameraHeight(){
-  return Cesium.Cartographic.fromCartesian(viewer.camera.positionWC).height;
-}
-function cameraLonLat(){
-  const c=viewer.camera.pickEllipsoid(new Cesium.Cartesian2(viewer.scene.canvas.clientWidth/2,viewer.scene.canvas.clientHeight/2),viewer.scene.globe.ellipsoid);
-  if(!c)return {lon:28.222,lat:36.441};
-  const g=Cesium.Cartographic.fromCartesian(c);
-  return {lon:Cesium.Math.toDegrees(g.longitude),lat:Cesium.Math.toDegrees(g.latitude)};
-}
-function flash(){
-  ui.flash.classList.remove('go');void ui.flash.offsetWidth;ui.flash.classList.add('go');
-}
-function fly(lon,lat,height,duration,done){
-  viewer.camera.flyTo({
-    destination:Cesium.Cartesian3.fromDegrees(lon,lat,height),
-    orientation:{heading:0,pitch:Cesium.Math.toRadians(-90),roll:0},
-    duration:duration||1,
-    easingFunction:Cesium.EasingFunction.QUADRATIC_IN_OUT,
-    complete:done
-  });
-}
-function descend(target){
-  const t=target||state.selected||{lon:28.222,lat:36.441,title:'Rhodes local radius'};
-  state.cityAnchor={lon:t.lon,lat:t.lat,title:t.title||'selected Earth point'};
-  hideAll();flash();
-  speak('Descending through global, regional, and local layers.',1700);
-  fly(t.lon,t.lat,6500000,.82,()=>fly(t.lon,t.lat,1200000,.72,()=>{
-    renderCity(t.lon,t.lat);
-    fly(t.lon,t.lat,140000,.66,()=>fly(t.lon,t.lat,5200,.9,()=>speak('Astranov City Map awakened around this place.',2100)));
-  }));
-}
-function orbit(){
-  hideAll();flash();
-  const t=state.cityAnchor||cameraLonLat();
-  fly(t.lon,t.lat,26000000,1.15,()=>speak('Orbital Earth. Zero UI restored.',1600));
-}
-function pointEntity(id,title,kind,lon,lat,height,color,labelSize){
-  return viewer.entities.add({
-    id,position:Cesium.Cartesian3.fromDegrees(lon,lat,height||140000),
-    point:{pixelSize:labelSize||12,color,outlineColor:Cesium.Color.WHITE.withAlpha(.78),outlineWidth:1.3,
-      scaleByDistance:new Cesium.NearFarScalar(800000,1.9,56000000,.45),disableDepthTestDistance:Number.POSITIVE_INFINITY},
-    label:{text:title,font:'600 12px system-ui',fillColor:Cesium.Color.WHITE,outlineColor:Cesium.Color.DEEPSKYBLUE,outlineWidth:3,style:Cesium.LabelStyle.FILL_AND_OUTLINE,
-      pixelOffset:new Cesium.Cartesian2(0,-26),scaleByDistance:new Cesium.NearFarScalar(800000,1,52000000,.28),
-      distanceDisplayCondition:new Cesium.DistanceDisplayCondition(0,52000000),disableDepthTestDistance:Number.POSITIVE_INFINITY},
-    polyline:height>5000?{positions:[Cesium.Cartesian3.fromDegrees(lon,lat,0),Cesium.Cartesian3.fromDegrees(lon,lat,height)],width:1.3,
-      material:new Cesium.PolylineGlowMaterialProperty({glowPower:.22,color:Cesium.Color.CYAN.withAlpha(.82)})}:undefined,
-    properties:{title,kind,lon,lat}
-  });
-}
-const globalSignals=[
-  ['sig_rhodes','Friend feed · Rhodes','friend',28.222,36.441,190000,Cesium.Color.AQUA],
-  ['sig_london','Marketplace heat · London','market',-0.1276,51.5072,230000,Cesium.Color.DEEPSKYBLUE],
-  ['sig_newyork','World news · New York','news',-74.006,40.7128,240000,Cesium.Color.CYAN],
-  ['sig_tokyo','Social Circle · Tokyo','circle',139.6503,35.6762,220000,Cesium.Color.LIGHTSKYBLUE],
-  ['sig_dubai','Delivery demand · Dubai','delivery',55.2708,25.2048,210000,Cesium.Color.CORNFLOWERBLUE],
-  ['sig_athens','AI research node · Athens','ai',23.7275,37.9838,175000,Cesium.Color.SKYBLUE]
-];
-globalSignals.forEach(s=>pointEntity(...s));
+viewer.camera.setView({ destination:Cesium.Cartesian3.fromDegrees(21.5,28,24000000), orientation:{heading:0,pitch:Cesium.Math.toRadians(-90),roll:0} });
 
-function clearCity(){
-  state.cityEntities.forEach(e=>viewer.entities.remove(e));
-  state.cityEntities.length=0;state.hasCity=false;
-}
-function addCity(e){
-  const entity=viewer.entities.add(e);
-  state.cityEntities.push(entity);
-  return entity;
-}
-function renderCity(lon,lat){
-  clearCity();state.hasCity=true;state.cityAnchor={lon,lat,title:'Astranov City Map radius'};
-  const p={
-    vendor:{lon:lon+.0065,lat:lat+.0038,title:'Vendor tile · menu source'},
-    driver:{lon:lon-.0068,lat:lat-.0042,title:'Driver tile · available'},
-    client:{lon:lon-.0028,lat:lat+.008,title:'Client delivery point'},
-    news:{lon:lon+.008,lat:lat-.006,title:'Place news signal'},
-    friend:{lon:lon-.009,lat:lat+.004,title:'Friend nearby story'}
-  };
-  const mk=(id,item,color,text)=>addCity({
-    id:'city_'+id,position:Cesium.Cartesian3.fromDegrees(item.lon,item.lat,45),
-    point:{pixelSize:13,color,outlineColor:Cesium.Color.WHITE.withAlpha(.82),outlineWidth:1.4,disableDepthTestDistance:Number.POSITIVE_INFINITY},
-    label:{text,font:'700 12px system-ui',fillColor:Cesium.Color.WHITE,outlineColor:Cesium.Color.DEEPSKYBLUE,outlineWidth:3,style:Cesium.LabelStyle.FILL_AND_OUTLINE,pixelOffset:new Cesium.Cartesian2(0,-27),disableDepthTestDistance:Number.POSITIVE_INFINITY},
-    properties:{title:item.title,kind:id,lon:item.lon,lat:item.lat}
-  });
-  mk('vendor',p.vendor,Cesium.Color.DEEPSKYBLUE,'Vendor');
-  mk('driver',p.driver,Cesium.Color.CYAN,'Driver');
-  mk('client',p.client,Cesium.Color.LIGHTCYAN,'Client');
-  mk('news',p.news,Cesium.Color.SKYBLUE,'News');
-  mk('friend',p.friend,Cesium.Color.AQUA,'Friend');
-  const quote=deliveryQuote(3.6,{night:true,badWeather:false,load:18});
-  addCity({
-    id:'delivery_triangle',
-    polyline:{positions:Cesium.Cartesian3.fromDegreesArrayHeights([
-      p.vendor.lon,p.vendor.lat,55,p.driver.lon,p.driver.lat,55,p.client.lon,p.client.lat,55,p.vendor.lon,p.vendor.lat,55
-    ]),width:5,material:new Cesium.PolylineGlowMaterialProperty({glowPower:.28,color:Cesium.Color.CYAN.withAlpha(.95)})},
-    properties:{title:`Client · Vendor · Driver triangle · ${quote.total} ASTRAN`,kind:'route',lon:(p.vendor.lon+p.client.lon)/2,lat:(p.vendor.lat+p.client.lat)/2,quote:quote.total,platform:quote.platform,notes:quote.notes}
-  });
-  addCity({
-    id:'route_price_label',position:Cesium.Cartesian3.fromDegrees((p.vendor.lon+p.client.lon)/2,(p.vendor.lat+p.client.lat)/2,80),
-    label:{text:`${quote.total} ASTRAN · 3% platform`,font:'900 14px system-ui',fillColor:Cesium.Color.WHITE,outlineColor:Cesium.Color.DEEPSKYBLUE,outlineWidth:4,style:Cesium.LabelStyle.FILL_AND_OUTLINE,disableDepthTestDistance:Number.POSITIVE_INFINITY},
-    properties:{title:`Delivery quote · ${quote.total} Astran coins`,kind:'route',lon:(p.vendor.lon+p.client.lon)/2,lat:(p.vendor.lat+p.client.lat)/2,quote:quote.total,platform:quote.platform,notes:quote.notes}
-  });
-  addCity({
-    id:'social_circle',
-    position:Cesium.Cartesian3.fromDegrees(lon+.010,lat-.009,50),
-    ellipse:{semiMajorAxis:460,semiMinorAxis:460,material:Cesium.Color.CYAN.withAlpha(.11),outline:true,outlineWidth:2,outlineColor:Cesium.Color.CYAN},
-    label:{text:'Social Circle',font:'700 12px system-ui',fillColor:Cesium.Color.WHITE,outlineColor:Cesium.Color.DEEPSKYBLUE,outlineWidth:3,style:Cesium.LabelStyle.FILL_AND_OUTLINE,disableDepthTestDistance:Number.POSITIVE_INFINITY},
-    properties:{title:'Social Circle · local group reality',kind:'circle',lon:lon+.010,lat:lat-.009}
-  });
-}
+// Hide splash when globe is ready
+function onGlobeReady(){ hideSplash(); }
+viewer.scene.globe.tileLoadProgressEvent.addEventListener((queued) => { if(queued < 8) onGlobeReady(); });
+setTimeout(onGlobeReady, 4200); // safety net
 
-function contextFor(props){
-  const title=props.title||'Astranov object';
-  const kind=props.kind||'object';
-  if(kind==='market'||kind==='vendor')return {
-    title,kind:'vendor',meta:'Marketplace context · controls awakened by need',
-    detail:'Vendor menu, Sheets adapter, availability, order path, and product pricing live on this world object. '+adapters.sheets+' · '+adapters.payments,
-    actions:[
-      {label:'Open menu',primary:true,run:()=>setContext('Vendor menu · adapter-ready','Products wake here, not in a permanent menu','Menu data should come from vendor-owned Sheets or backend. Example: pizza, coffee, delivery radius, opening hours. '+adapters.sheets,[
-        {label:'Start order',primary:true,run:()=>needLogin('order')},
-        {label:'Ask by voice',run:()=>tryVoice('Ask the vendor menu question')},
-        {label:'Type fallback',run:()=>showComposer('Ask about this vendor')},
-        {label:'Orbit',run:orbit}
-      ],'market')},
-      {label:'Voice',run:()=>tryVoice('Marketplace voice')},
-      {label:'Type',run:()=>showComposer('Ask about this marketplace object')},
-      {label:'Orbit',run:orbit}
-    ]
-  };
-  if(kind==='delivery'||kind==='route')return {
-    title,kind:'delivery',meta:'Delivery geometry · line/triangle/polygon logic',
-    detail:'Client, vendor, and driver are represented by map geometry. Quote uses 1 ASTRAN/km, night/load/weather additions, and 3% platform split. '+adapters.routing+' · '+adapters.payments,
-    actions:[
-      {label:'Request delivery',primary:true,run:()=>needLogin('delivery')},
-      {label:'Show balance',run:showWallet},
-      {label:'Ask by voice',run:()=>tryVoice('Delivery voice')},
-      {label:'Type fallback',run:()=>showComposer('Ask about delivery')},
-      {label:'Orbit',run:orbit}
-    ]
-  };
-  if(kind==='news'||kind==='friend'||kind==='circle'||kind==='ai')return {
-    title,kind,meta:'Feed and social context · no old permanent feed drawer',
-    detail:'This signal is anchored to place and altitude. Media/feed adapters should link lawful external platforms instead of duplicating them. '+adapters.media+' · '+adapters.ai,
-    actions:[
-      {label:'Open signal',primary:true,run:()=>speak('Adapter-ready feed object opened. Backend connection required for live content.',3000)},
-      {label:'Ask by voice',run:()=>tryVoice('Ask about this signal')},
-      {label:'Type fallback',run:()=>showComposer('Ask about this signal')},
-      {label:'Descend',run:()=>descend(state.selected)},
-      {label:'Orbit',run:orbit}
-    ]
-  };
-  return {
-    title,kind:'object',meta:'World object',
-    detail:'This object wakes only its needed context. No persistent interface survives after closing it.',
-    actions:[{label:'Voice',primary:true,run:()=>tryVoice('Object voice')},{label:'Type fallback',run:()=>showComposer('Ask about this object')},{label:'Orbit',run:orbit}]
-  };
-}
+function layerName(h){ if(h>90000000)return 'Solar'; if(h>20000000)return 'Orbital'; if(h>6000000)return 'Global'; if(h>900000)return 'Regional'; if(h>95000)return 'Local'; return 'City Map'; }
+function cameraHeight(){ return Cesium.Cartographic.fromCartesian(viewer.camera.positionWC).height; }
+function cameraLonLat(){ const c=viewer.camera.pickEllipsoid(new Cesium.Cartesian2(viewer.scene.canvas.clientWidth/2,viewer.scene.canvas.clientHeight/2),viewer.scene.globe.ellipsoid); if(!c)return{lon:28.222,lat:36.441}; const g=Cesium.Cartographic.fromCartesian(c); return{lon:Cesium.Math.toDegrees(g.longitude),lat:Cesium.Math.toDegrees(g.latitude)}; }
 
-function entityPositionLonLat(entity){
-  try{
-    if(entity.properties&&entity.properties.lon&&entity.properties.lat){
-      return {lon:entity.properties.lon.getValue(),lat:entity.properties.lat.getValue()};
-    }
-    const pos=entity.position&&entity.position.getValue(Cesium.JulianDate.now());
-    if(pos){
-      const c=Cesium.Cartographic.fromCartesian(pos);
-      return {lon:Cesium.Math.toDegrees(c.longitude),lat:Cesium.Math.toDegrees(c.latitude)};
-    }
-  }catch(e){}
-  return cameraLonLat();
-}
-function pickWorld(movement){
-  const picked=viewer.scene.pick(movement.position);
-  if(Cesium.defined(picked)&&picked.id&&picked.id.properties){
-    const e=picked.id,p=e.properties,pos=entityPositionLonLat(e);
-    state.selected={...pos,title:p.title?p.title.getValue():'Astranov object'};
-    const ctx=contextFor({
-      title:p.title?p.title.getValue():'Astranov object',
-      kind:p.kind?p.kind.getValue():'object'
-    });
-    setContext(ctx.title,ctx.meta,ctx.detail,ctx.actions,ctx.kind);
-    return;
-  }
-  const cart=viewer.camera.pickEllipsoid(movement.position,viewer.scene.globe.ellipsoid);
-  if(cart){
-    const c=Cesium.Cartographic.fromCartesian(cart);
-    state.selected={lon:Cesium.Math.toDegrees(c.longitude),lat:Cesium.Math.toDegrees(c.latitude),title:'selected Earth point'};
-    descend(state.selected);
-  }
-}
+function flash(){ ui.flash.classList.remove('go'); void ui.flash.offsetWidth; ui.flash.classList.add('go'); }
+function fly(lon,lat,height,dur,done){ viewer.camera.flyTo({ destination:Cesium.Cartesian3.fromDegrees(lon,lat,height), orientation:{heading:0,pitch:Cesium.Math.toRadians(-90),roll:0}, duration:dur||1.1, easingFunction:Cesium.EasingFunction.QUADRATIC_IN_OUT, complete:done }); }
 
-const handler=new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-handler.setInputAction(pickWorld,Cesium.ScreenSpaceEventType.LEFT_CLICK);
-handler.setInputAction(function(m){
-  const cart=viewer.camera.pickEllipsoid(m.position,viewer.scene.globe.ellipsoid);
-  if(cart){
-    const c=Cesium.Cartographic.fromCartesian(cart);
-    state.selected={lon:Cesium.Math.toDegrees(c.longitude),lat:Cesium.Math.toDegrees(c.latitude),title:'selected Earth point'};
-    speak('Place selected. Hold ASTRANOV for voice, tap selected place to descend.',2100);
-  }
-},Cesium.ScreenSpaceEventType.RIGHT_CLICK);
+function goGlobalView(){ hideAll(); flash(); const t=state.cityAnchor||cameraLonLat(); fly(t.lon,t.lat,26000000,1.4,()=>speak('Global view restored',1600)); }
+
+function descend(target){ const t=target||state.selected||{lon:28.222,lat:36.441,title:'selected point'}; state.cityAnchor={lon:t.lon,lat:t.lat,title:t.title||'point'}; hideAll(); flash(); speak('Descending...',1400); fly(t.lon,t.lat,6500000,.75,()=>fly(t.lon,t.lat,1200000,.65,()=>{ renderCity(t.lon,t.lat); fly(t.lon,t.lat,5200,.85,()=>speak('City Map ready',1800)); })); }
+
+function pointEntity(id,title,kind,lon,lat,h,color){ return viewer.entities.add({ id, position:Cesium.Cartesian3.fromDegrees(lon,lat,h||140000), point:{pixelSize:11,color,outlineColor:Cesium.Color.WHITE.withAlpha(.8),outlineWidth:1.2,scaleByDistance:new Cesium.NearFarScalar(700000,1.6,48000000,.4),disableDepthTestDistance:Number.POSITIVE_INFINITY}, label:{text:title,font:'600 11px system-ui',fillColor:Cesium.Color.WHITE,outlineColor:Cesium.Color.DEEPSKYBLUE,outlineWidth:2.5,style:Cesium.LabelStyle.FILL_AND_OUTLINE,pixelOffset:new Cesium.Cartesian2(0,-22),scaleByDistance:new Cesium.NearFarScalar(700000,1,45000000,.3),distanceDisplayCondition:new Cesium.DistanceDisplayCondition(0,45000000),disableDepthTestDistance:Number.POSITIVE_INFINITY}, properties:{title,kind,lon,lat} }); }
+
+const signals=[ ['sig_rhodes','Rhodes · friend feed','friend',28.222,36.441,180000,Cesium.Color.AQUA], ['sig_london','London · marketplace','market',-0.13,51.51,210000,Cesium.Color.DEEPSKYBLUE], ['sig_ny','New York · news','news',-74,40.71,220000,Cesium.Color.CYAN], ['sig_tokyo','Tokyo · circle','circle',139.65,35.68,200000,Cesium.Color.LIGHTSKYBLUE], ['sig_dubai','Dubai · delivery','delivery',55.27,25.2,190000,Cesium.Color.CORNFLOWERBLUE] ];
+signals.forEach(s=>pointEntity(...s));
+
+function clearCity(){ state.cityEntities.forEach(e=>viewer.entities.remove(e)); state.cityEntities.length=0; state.hasCity=false; }
+function addCity(e){ const en=viewer.entities.add(e); state.cityEntities.push(en); return en; }
+function renderCity(lon,lat){ clearCity(); state.hasCity=true; state.cityAnchor={lon,lat,title:'City Map'}; const p={v:{lon:lon+0.006,lat:lat+0.0035}, d:{lon:lon-0.0065,lat:lat-0.004}, c:{lon:lon-0.0025,lat:lat+0.0075}}; addCity({id:'city_v',position:Cesium.Cartesian3.fromDegrees(p.v.lon,p.v.lat,40),point:{pixelSize:12,color:Cesium.Color.DEEPSKYBLUE,outlineColor:Cesium.Color.WHITE.withAlpha(.85),outlineWidth:1.3,disableDepthTestDistance:Number.POSITIVE_INFINITY},label:{text:'Vendor',font:'700 11px system-ui',fillColor:Cesium.Color.WHITE,outlineColor:Cesium.Color.DEEPSKYBLUE,outlineWidth:2.5,style:Cesium.LabelStyle.FILL_AND_OUTLINE,pixelOffset:new Cesium.Cartesian2(0,-24),disableDepthTestDistance:Number.POSITIVE_INFINITY},properties:{title:'Vendor tile',kind:'vendor',lon:p.v.lon,lat:p.v.lat}}); addCity({id:'city_d',position:Cesium.Cartesian3.fromDegrees(p.d.lon,p.d.lat,40),point:{pixelSize:12,color:Cesium.Color.CYAN,outlineColor:Cesium.Color.WHITE.withAlpha(.85),outlineWidth:1.3,disableDepthTestDistance:Number.POSITIVE_INFINITY},label:{text:'Driver',font:'700 11px system-ui',fillColor:Cesium.Color.WHITE,outlineColor:Cesium.Color.DEEPSKYBLUE,outlineWidth:2.5,style:Cesium.LabelStyle.FILL_AND_OUTLINE,pixelOffset:new Cesium.Cartesian2(0,-24),disableDepthTestDistance:Number.POSITIVE_INFINITY},properties:{title:'Driver tile',kind:'driver',lon:p.d.lon,lat:p.d.lat}}); addCity({id:'city_c',position:Cesium.Cartesian3.fromDegrees(p.c.lon,p.c.lat,40),point:{pixelSize:12,color:Cesium.Color.LIGHTCYAN,outlineColor:Cesium.Color.WHITE.withAlpha(.85),outlineWidth:1.3,disableDepthTestDistance:Number.POSITIVE_INFINITY},label:{text:'Client',font:'700 11px system-ui',fillColor:Cesium.Color.WHITE,outlineColor:Cesium.Color.DEEPSKYBLUE,outlineWidth:2.5,style:Cesium.LabelStyle.FILL_AND_OUTLINE,pixelOffset:new Cesium.Cartesian2(0,-24),disableDepthTestDistance:Number.POSITIVE_INFINITY},properties:{title:'Client point',kind:'client',lon:p.c.lon,lat:p.c.lat}}); const q=deliveryQuote(3.4,{night:true,badWeather:false,load:17}); addCity({id:'tri',polyline:{positions:Cesium.Cartesian3.fromDegreesArrayHeights([p.v.lon,p.v.lat,50,p.d.lon,p.d.lat,50,p.c.lon,p.c.lat,50,p.v.lon,p.v.lat,50]),width:4.5,material:new Cesium.PolylineGlowMaterialProperty({glowPower:.3,color:Cesium.Color.CYAN.withAlpha(.9)})},properties:{title:`Delivery triangle · ${q.total} ASTRAN`,kind:'route',lon:(p.v.lon+p.c.lon)/2,lat:(p.v.lat+p.c.lat)/2,quote:q.total}}); }
+
+function contextFor(p){ const k=p.kind||'object'; if(k==='vendor')return{title:p.title||'Vendor',kind:'vendor',meta:'Marketplace',detail:'Vendor menu + availability (adapter-ready).',actions:[{label:'Start order',primary:true,run:()=>needLogin('order')},{label:'Voice',run:()=>tryVoice('vendor')},{label:'Global view',run:goGlobalView}]}; if(k==='route')return{title:'Delivery route',kind:'delivery',meta:'Client · Vendor · Driver',detail:'1 ASTRAN/km + extras. 3% platform.',actions:[{label:'Request delivery',primary:true,run:()=>needLogin('delivery')},{label:'Global view',run:goGlobalView}]}; return{title:p.title||'Object',kind:k,meta:'World object',detail:'Context for selected item.',actions:[{label:'Global view',primary:true,run:goGlobalView}]}; }
+
+function pick(m){ const picked=viewer.scene.pick(m.position); if(Cesium.defined(picked)&&picked.id&&picked.id.properties){ const e=picked.id; const pos={lon:e.properties.lon?.getValue()||28.222,lat:e.properties.lat?.getValue()||36.441,title:e.properties.title?.getValue()||'Object'}; state.selected=pos; const ctx=contextFor({title:pos.title,kind:e.properties.kind?.getValue()}); setContext(ctx.title,ctx.meta,ctx.detail,ctx.actions,ctx.kind); return; } const cart=viewer.camera.pickEllipsoid(m.position,viewer.scene.globe.ellipsoid); if(cart){ const c=Cesium.Cartographic.fromCartesian(cart); state.selected={lon:Cesium.Math.toDegrees(c.longitude),lat:Cesium.Math.toDegrees(c.latitude),title:'Earth point'}; descend(state.selected); } }
+const h=new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas); h.setInputAction(pick,Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
 ui.close.onclick=hideAll;
-ui.login.onclick=()=>{
-  state.auth=true;wake(ui.login,false);speak('Auth adapter placeholder accepted for this prototype. Real login must connect backend.',3200);
-  if(state.protectedAction==='order'||state.protectedAction==='delivery')showWallet();
-};
-ui.brand.addEventListener('click',()=>tryVoice('Astranov voice wake'));
-ui.brand.addEventListener('dblclick',orbit);
+ui.login.onclick=()=>{state.auth=true;wake(ui.login,false);if(state.protectedAction)showWallet();};
 
-let pressTimer=null,pressTarget=null;
-function clearPress(){clearTimeout(pressTimer);pressTimer=null;pressTarget=null}
-document.addEventListener('pointerdown',e=>{
-  if(e.target.closest('#contextCard')||e.target.closest('#composer')||e.target.closest('#loginGate')||e.target.closest('#wallet'))return;
-  pressTarget=e.target;
-  pressTimer=setTimeout(()=>tryVoice('Long-press voice wake'),650);
-},{passive:true});
-document.addEventListener('pointerup',clearPress,{passive:true});
-document.addEventListener('pointercancel',clearPress,{passive:true});
-document.addEventListener('pointermove',clearPress,{passive:true});
+// SINGLE CLICK ON LOGO = HARD RESET + GLOBAL VIEW
+ui.brand.onclick=()=>{ location.reload(); };
 
-async function tryVoice(reason){
-  ui.brand.classList.add('awake');
-  speak('Voice waking. Browser may require microphone permission.',1600);
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-    ui.brand.classList.remove('awake');
-    showComposer('Voice unavailable. Type to Astranov.');
-    return;
-  }
-  try{
-    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-    stream.getTracks().forEach(t=>t.stop());
-    const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-    if(!SR){
-      ui.brand.classList.remove('awake');
-      showComposer('Microphone granted, speech recognition unavailable. Type to Astranov.');
-      return;
-    }
-    const rec=new SR();
-    rec.lang='en-US';rec.interimResults=true;rec.continuous=false;
-    state.voiceLive=true;
-    rec.onstart=()=>{ui.brand.classList.add('awake');speak('Listening.',1200)};
-    rec.onresult=e=>{
-      const heard=Array.from(e.results).map(r=>r[0].transcript).join(' ').trim();
-      if(heard) handleIntent(heard);
-    };
-    rec.onerror=()=>{state.voiceLive=false;ui.brand.classList.remove('awake');showComposer('Voice failed. Type to Astranov.')};
-    rec.onend=()=>{state.voiceLive=false;ui.brand.classList.remove('awake')};
-    rec.start();
-  }catch(e){
-    state.voiceLive=false;ui.brand.classList.remove('awake');
-    showComposer('Voice blocked or unavailable. Type to Astranov.');
-  }
-}
-function handleIntent(text){
-  const raw=text.trim(),t=raw.toLowerCase();
-  speak('Heard: '+raw,2200);
-  if(t.includes('order')||t.includes('buy')||t.includes('delivery')||t.includes('market')){
-    showWallet();
-    if(t.includes('order')||t.includes('buy')||t.includes('delivery'))needLogin(t.includes('delivery')?'delivery':'order');
-    return;
-  }
-  if(t.includes('login')||t.includes('account')){needLogin('account');return}
-  if(t.includes('balance')||t.includes('wallet')||t.includes('money')){showWallet();return}
-  if(t.includes('type')||t.includes('keyboard')){showComposer('Manual AI fallback');return}
-  if(t.includes('globe')||t.includes('orbit')||t.includes('space')){orbit();return}
-  if(t.includes('city')||t.includes('down')||t.includes('map')){descend(state.selected||cameraLonLat());return}
-  if(t.includes('hide')||t.includes('clean')||t.includes('clear')){hideAll();return}
-  setContext('AI intent · adapter-ready','Voice intent received','The frontend captured intent. Live AI answer requires backend AI adapter. '+adapters.ai,[
-    {label:'Type more',primary:true,run:()=>showComposer('Continue with AI')},
-    {label:'Clear',run:hideAll},
-    {label:'Orbit',run:orbit}
-  ],'ai');
-}
-ui.composer.addEventListener('submit',e=>{
-  e.preventDefault();
-  const text=ui.input.value.trim();
-  if(!text)return;
-  ui.input.value='';
-  handleIntent(text);
-  wake(ui.composer,false);state.manualOpen=false;
-});
-ui.input.addEventListener('input',()=>{
-  ui.input.style.height='auto';
-  ui.input.style.height=Math.min(ui.input.scrollHeight,120)+'px';
-});
+ui.brand.addEventListener('dblclick',goGlobalView);
 
-let lastAutoCity=0;
-viewer.scene.postRender.addEventListener(()=>{
-  const h=cameraHeight(),name=layerName(h);
-  ui.shade.classList.toggle('on',h<95000);
-  state.cityEntities.forEach(e=>e.show=h<170000);
-  if(name!==state.lastLayer){
-    state.lastLayer=name;
-    if(name==='Astranov City Map'&&!state.hasCity){
-      const c=cameraLonLat();renderCity(c.lon,c.lat);
-      speak('Astranov City Map layer. Objects appear on the real map.',2000);
-    }
-  }
-  if(h<78000&&!state.hasCity&&Date.now()-lastAutoCity>2400){
-    lastAutoCity=Date.now();
-    const c=cameraLonLat();renderCity(c.lon,c.lat);
-  }
-});
+let pressT=null;
+document.addEventListener('pointerdown',e=>{ if(e.target.closest('#contextCard')||e.target.closest('#composer')||e.target.closest('#wallet')||e.target.closest('#loginGate'))return; pressT=setTimeout(()=>tryVoice('voice'),600); },{passive:true});
+document.addEventListener('pointerup',()=>{clearTimeout(pressT)},{passive:true});
 
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape')hideAll();
-  if(e.key==='/'&&!state.manualOpen){e.preventDefault();showComposer('Manual AI fallback')}
-});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape')hideAll(); if(e.key==='/'&&!state.manualOpen){e.preventDefault();showComposer();} });
+
+function tryVoice(r){ ui.brand.classList.add('awake'); speak('Listening...',1200); if(!('SpeechRecognition' in window)){ ui.brand.classList.remove('awake'); showComposer('Voice not supported'); return; } const SR=window.SpeechRecognition||window.webkitSpeechRecognition; const rec=new SR(); rec.lang='en-US'; rec.interimResults=false; rec.onresult=e=>{ const txt=e.results[0][0].transcript.trim(); if(txt) handleIntent(txt); }; rec.onerror=()=>{ui.brand.classList.remove('awake');showComposer('Voice failed');}; rec.onend=()=>ui.brand.classList.remove('awake'); rec.start(); }
+
+function handleIntent(t){ const s=t.toLowerCase(); speak('Heard: '+t,1800); if(s.includes('global')||s.includes('home')||s.includes('reset')){ goGlobalView(); return; } if(s.includes('city')||s.includes('down')){ descend(state.selected||cameraLonLat()); return; } if(s.includes('order')||s.includes('delivery')){ needLogin('delivery'); return; } setContext('AI','Adapter-ready','Live AI requires backend connection.',[{label:'Global view',primary:true,run:goGlobalView}],'ai'); }
+
+ui.composer.onsubmit=e=>{ e.preventDefault(); const v=ui.input.value.trim(); if(v){ handleIntent(v); ui.input.value=''; } wake(ui.composer,false); };
+
+let lastCity=0;
+viewer.scene.postRender.addEventListener(()=>{ const h=cameraHeight(); ui.shade.classList.toggle('on',h<95000); state.cityEntities.forEach(e=>e.show=h<160000); if(h<75000&&!state.hasCity&&Date.now()-lastCity>2200){ lastCity=Date.now(); renderCity(cameraLonLat().lon,cameraLonLat().lat); } });
+
+// Initial global view message
+setTimeout(()=>{ if(!state.hasCity) speak('Ready. Tap ASTRANOV to reset anytime.',2400); },5200);
 
 })();
 </script>
