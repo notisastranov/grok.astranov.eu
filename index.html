@@ -10,122 +10,83 @@
 <script src="https://cdn.jsdelivr.net/npm/cesium@1.123.1/Build/Cesium/Cesium.js"></script>
 <style>
 :root{
-  --blue:#60d7ff;--blue2:#168fff;--ice:#eefcff;--ink:#020713;--panel:rgba(5,18,40,.68);
-  --line:rgba(112,224,255,.28);--hot:0 0 18px rgba(92,210,255,.7),0 0 42px rgba(45,145,255,.32);
-  --soft:0 18px 70px rgba(0,0,0,.38),0 0 30px rgba(87,203,255,.22)
+  --blue:#1e5cff;--deepblue:#0f3cff;--ice:#eefcff;--ink:#020713;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body,#app,#cesium{width:100%;height:100%;margin:0;overflow:hidden;background:#020713;color:var(--ice);font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial,sans-serif;touch-action:none}
+html,body,#app,#cesium{width:100%;height:100%;margin:0;overflow:hidden;background:#020713;color:#eefcff;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial,sans-serif;touch-action:none}
 body{position:fixed;inset:0}
-#app{position:relative;background:
-  radial-gradient(circle at 50% 25%,rgba(33,104,204,.18),transparent 34%),
-  radial-gradient(circle at 15% 85%,rgba(0,197,255,.13),transparent 28%),
-  #020713}
-#app:before{content:"";position:absolute;inset:0;pointer-events:none;z-index:1;opacity:.72;background-image:
-  radial-gradient(circle at 12% 24%,rgba(255,255,255,.86) 0 1px,transparent 1.8px),
-  radial-gradient(circle at 74% 19%,rgba(255,255,255,.5) 0 1px,transparent 1.6px),
-  radial-gradient(circle at 45% 64%,rgba(255,255,255,.55) 0 1px,transparent 1.8px),
-  radial-gradient(circle at 88% 74%,rgba(255,255,255,.64) 0 1px,transparent 1.6px),
-  radial-gradient(circle at 29% 78%,rgba(112,224,255,.52) 0 1px,transparent 2px);
-  background-size:330px 330px,420px 420px,520px 520px,610px 610px,460px 460px;
-  animation:starDrift 90s linear infinite}
-@keyframes starDrift{from{transform:translate3d(0,0,0)}to{transform:translate3d(-80px,40px,0)}}
-#cesium{position:absolute;inset:0;z-index:2}
-.cesium-viewer,.cesium-viewer-cesiumWidgetContainer,.cesium-widget,.cesium-widget canvas{width:100%;height:100%}
-.cesium-viewer-toolbar,.cesium-viewer-animationContainer,.cesium-viewer-timelineContainer,.cesium-viewer-fullscreenContainer,.cesium-infoBox,.cesium-selection-wrapper{display:none!important}
-.cesium-viewer-bottom{left:8px!important;bottom:5px!important;font-size:9px!important;opacity:.55!important;filter:drop-shadow(0 0 7px rgba(85,214,255,.5));z-index:15!important}
 
-/* SPLASH LOADING SCREEN */
-#splash{position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#020713;pointer-events:auto}
-#splash.hidden{opacity:0;pointer-events:none;transition:opacity .4s ease .2s}
-#splash .logo{font-family:Inter,ui-sans-serif;font-weight:950;font-size:clamp(22px,6vw,32px);letter-spacing:.4em;text-transform:uppercase;color:#f3fcff;text-shadow:0 0 12px rgba(96,215,255,.9),0 0 32px rgba(21,123,255,.6);margin-bottom:18px}
-#splash .loader{width:42px;height:42px;border:3px solid rgba(96,215,255,.25);border-top-color:#60d7ff;border-radius:50%;animation:spin 1s linear infinite}
+/* SPLASH LOADING */
+#splash{position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#020713}
+#splash.hidden{opacity:0;pointer-events:none;transition:opacity .35s ease}
+#splash .logo{font-weight:950;font-size:clamp(24px,7vw,34px);letter-spacing:.42em;text-transform:uppercase;color:#f3fcff;text-shadow:0 0 14px #1e5cff,0 0 32px #0f3cff;margin-bottom:22px}
+#splash .loader{width:38px;height:38px;border:3px solid rgba(30,92,255,.25);border-top-color:#1e5cff;border-radius:50%;animation:spin 0.95s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-#cityShade{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;background:
-  radial-gradient(circle at 50% 60%,rgba(0,190,255,.13),transparent 30%),
-  linear-gradient(180deg,rgba(0,18,48,.08),rgba(0,8,22,.44));
-  mix-blend-mode:multiply;transition:opacity .7s ease}
-#cityShade.on{opacity:.84}
-#brand{position:absolute;top:calc(12px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:24;
-  color:#f3fcff;font-weight:950;font-size:clamp(15px,4.2vw,24px);letter-spacing:.36em;text-transform:uppercase;
-  text-shadow:0 0 8px rgba(255,255,255,.95),0 0 18px rgba(81,214,255,.9),0 0 44px rgba(21,123,255,.72);
-  user-select:none;pointer-events:auto;padding:8px 10px 9px 18px;border-radius:999px;cursor:pointer}
-#stageFlash{position:absolute;left:50%;top:50%;width:95px;height:95px;border-radius:999px;z-index:14;pointer-events:none;opacity:0;transform:translate(-50%,-50%) scale(.55);
-  border:1px solid rgba(155,238,255,.52);box-shadow:0 0 34px rgba(84,210,255,.65),inset 0 0 26px rgba(95,204,255,.2)}
-#stageFlash.go{animation:flash .95s ease forwards}
-@keyframes flash{0%{opacity:0;transform:translate(-50%,-50%) scale(.45)}28%{opacity:.88}100%{opacity:0;transform:translate(-50%,-50%) scale(2.6)}}
-.wake{position:absolute;z-index:28;opacity:0;pointer-events:none;transform:translateY(8px) scale(.98);transition:opacity .22s ease,transform .22s ease;display:none}
+#cesium{position:absolute;inset:0;z-index:2}
+.cesium-viewer,.cesium-viewer-cesiumWidgetContainer,.cesium-widget,.cesium-widget canvas{width:100%;height:100%}
+.cesium-viewer *{display:none!important}
+
+/* BRAND - DEEP BLUE GLOWING */
+#brand{position:absolute;top:calc(14px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:300;
+  color:#f3fcff;font-weight:950;font-size:clamp(16px,4.4vw,26px);letter-spacing:.38em;text-transform:uppercase;
+  text-shadow:0 0 10px #1e5cff,0 0 26px #0f3cff,0 0 48px #0a2cff;
+  user-select:none;pointer-events:auto;padding:9px 14px 10px 20px;border-radius:999px;cursor:pointer}
+
+#stageFlash{position:absolute;left:50%;top:50%;width:90px;height:90px;border-radius:999px;z-index:140;pointer-events:none;opacity:0;transform:translate(-50%,-50%) scale(.5);border:1px solid rgba(30,92,255,.5);box-shadow:0 0 30px rgba(30,92,255,.6)}
+#stageFlash.go{animation:flash .8s ease forwards}
+@keyframes flash{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}30%{opacity:.9}100%{opacity:0;transform:translate(-50%,-50%) scale(2.4)}}
+
+.wake{position:absolute;z-index:280;opacity:0;pointer-events:none;transform:translateY(8px) scale(.98);transition:opacity .2s ease,transform .2s ease;display:none}
 .wake.show{display:flex;opacity:1;pointer-events:auto;transform:translateY(0) scale(1)}
-#contextCard{left:50%;bottom:calc(18px + env(safe-area-inset-bottom));width:min(92vw,430px);transform:translate(-50%,8px) scale(.98);flex-direction:column;gap:10px;
-  border:1px solid var(--line);border-radius:24px;padding:13px;background:linear-gradient(180deg,rgba(5,21,49,.78),rgba(3,10,26,.56));backdrop-filter:blur(18px);box-shadow:var(--soft)}
+
+#contextCard{left:50%;bottom:calc(16px + env(safe-area-inset-bottom));width:min(92vw,420px);transform:translate(-50%,8px) scale(.98);flex-direction:column;gap:9px;
+  border:1px solid rgba(112,224,255,.25);border-radius:22px;padding:12px;background:rgba(5,18,40,.78);backdrop-filter:blur(16px)}
 #contextCard.show{transform:translate(-50%,0) scale(1)}
-.cardTop{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:start}
-#cardTitle{font-size:15px;font-weight:820;line-height:1.2;text-shadow:0 0 13px rgba(97,214,255,.48)}
-#cardMeta{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:rgba(224,248,255,.75);margin-top:4px}
-.iconBtn,.pill{border:1px solid var(--line);background:linear-gradient(180deg,rgba(10,35,78,.72),rgba(4,15,35,.55));color:var(--ice);box-shadow:0 0 18px rgba(77,205,255,.2);border-radius:999px;font:inherit}
-.iconBtn{width:34px;height:34px;display:grid;place-items:center;font-size:18px;line-height:1;padding:0}
-.cardActions{display:flex;flex-wrap:wrap;gap:8px}
-.pill{padding:9px 12px;font-size:12px;font-weight:760}
-.pill.primary{color:#031323;background:linear-gradient(180deg,#baf5ff,#59c7ff 58%,#268aff);box-shadow:0 0 22px rgba(96,215,255,.45)}
-.pill.danger{background:rgba(255,255,255,.05)}
-#cardDetail{font-size:12px;line-height:1.35;color:rgba(237,250,255,.86);padding:9px 10px;border-radius:16px;background:rgba(255,255,255,.045);border:1px solid rgba(112,224,255,.12)}
-#composer{left:50%;bottom:calc(16px + env(safe-area-inset-bottom));width:min(94vw,620px);transform:translate(-50%,8px) scale(.98);align-items:end;gap:8px;
-  border:1px solid var(--line);border-radius:22px;padding:9px;background:rgba(5,18,40,.82);backdrop-filter:blur(18px);box-shadow:var(--soft)}
+
+#composer{left:50%;bottom:calc(14px + env(safe-area-inset-bottom));width:min(94vw,580px);transform:translate(-50%,8px) scale(.98);align-items:end;gap:8px;
+  border:1px solid rgba(112,224,255,.25);border-radius:20px;padding:8px;background:rgba(5,18,40,.82);backdrop-filter:blur(16px)}
 #composer.show{transform:translate(-50%,0) scale(1)}
-#composerInput{flex:1;min-height:44px;max-height:120px;resize:none;border:0;outline:0;border-radius:16px;background:rgba(255,255,255,.07);color:var(--ice);padding:12px 13px;font-size:15px;line-height:1.28;font-family:inherit}
-#composerInput::placeholder{color:rgba(238,252,255,.48)}
-#sendBtn{min-width:54px;height:44px;border:0;border-radius:16px;font-weight:900;color:#031323;background:linear-gradient(180deg,#bdf7ff,#5ccaff 55%,#278dff);box-shadow:0 0 24px rgba(96,215,255,.42)}
-#statusRibbon{left:50%;top:calc(58px + env(safe-area-inset-top));transform:translate(-50%,-5px);max-width:min(88vw,520px);padding:9px 12px;align-items:center;justify-content:center;text-align:center;
-  border:1px solid rgba(112,224,255,.18);border-radius:999px;background:rgba(5,18,40,.48);backdrop-filter:blur(14px);font-size:12px;line-height:1.25;color:rgba(239,252,255,.92);box-shadow:0 0 24px rgba(81,205,255,.18)}
-#statusRibbon.show{transform:translate(-50%,0)}
-#wallet{right:10px;top:calc(58px + env(safe-area-inset-top));flex-direction:column;gap:3px;padding:10px 12px;border-radius:18px;border:1px solid var(--line);
-  background:rgba(5,18,40,.66);backdrop-filter:blur(16px);box-shadow:var(--soft);text-align:right}
-#wallet strong{font-size:16px;text-shadow:0 0 14px rgba(100,220,255,.6)}
-#wallet small{font-size:10px;color:rgba(229,249,255,.72);letter-spacing:.08em;text-transform:uppercase}
-#loginGate{left:10px;top:calc(58px + env(safe-area-inset-top));align-items:center;gap:8px;padding:8px 10px;border-radius:999px;border:1px solid var(--line);
-  background:rgba(5,18,40,.66);backdrop-filter:blur(16px);box-shadow:var(--soft);font-size:12px;font-weight:770}
-#avatar{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#d9fbff,#51caff 58%,#1269e8);color:#031323;font-weight:950}
-@media(max-width:560px){#contextCard{bottom:calc(12px + env(safe-area-inset-bottom));border-radius:22px} #wallet{right:8px;top:calc(54px + env(safe-area-inset-top))} #loginGate{left:8px;top:calc(54px + env(safe-area-inset-top))} #brand{letter-spacing:.31em}}
+#composerInput{flex:1;min-height:42px;max-height:110px;resize:none;border:0;outline:0;border-radius:14px;background:rgba(255,255,255,.07);color:#eefcff;padding:11px 12px;font-size:15px}
+#sendBtn{min-width:52px;height:42px;border:0;border-radius:14px;font-weight:900;color:#031323;background:linear-gradient(180deg,#bdf7ff,#5ccaff 55%,#278dff)}
+
+@media(max-width:560px){#contextCard{bottom:calc(10px + env(safe-area-inset-bottom))}}
 </style>
 </head>
 <body>
+
+<!-- SPLASH LOADING SCREEN -->
 <div id="splash">
   <div class="logo">ASTRANOV</div>
   <div class="loader"></div>
 </div>
 
 <div id="app">
-  <div id="cesium" aria-label="Astranov real globe"></div>
-  <div id="cityShade"></div>
+  <div id="cesium"></div>
   <div id="stageFlash"></div>
-  <div id="brand" role="button" aria-label="Reset to global view">ASTRANOV</div>
+  <div id="brand" role="button">ASTRANOV</div>
 
-  <div id="statusRibbon" class="wake" aria-live="polite"></div>
-  <div id="wallet" class="wake" aria-live="polite">
-    <small>Astran balance</small>
-    <strong id="balanceText">0.00</strong>
-  </div>
-  <div id="loginGate" class="wake">
-    <div id="avatar">A</div>
-    <span id="loginText">Login required</span>
+  <div id="statusRibbon" class="wake"></div>
+  <div id="wallet" class="wake" style="right:10px;top:calc(58px + env(safe-area-inset-top));flex-direction:column;gap:2px;padding:9px 11px;border-radius:16px;border:1px solid rgba(112,224,255,.25);background:rgba(5,18,40,.7);backdrop-filter:blur(14px);text-align:right">
+    <small style="font-size:10px;color:rgba(229,249,255,.7)">Astran balance</small>
+    <strong id="balanceText" style="font-size:15px">0.00</strong>
   </div>
 
-  <section id="contextCard" class="wake" aria-label="Selected Astranov context">
-    <div class="cardTop">
+  <section id="contextCard" class="wake">
+    <div style="display:grid;grid-template-columns:1fr auto;gap:8px;align-items:start">
       <div>
-        <div id="cardTitle">Astranov object</div>
-        <div id="cardMeta">Context awakened by selected world object</div>
+        <div id="cardTitle" style="font-size:15px;font-weight:800"></div>
+        <div id="cardMeta" style="font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:rgba(224,248,255,.7);margin-top:3px"></div>
       </div>
-      <button id="closeCard" class="iconBtn" type="button" aria-label="Close">×</button>
+      <button id="closeCard" style="width:30px;height:30px;border:1px solid rgba(112,224,255,.3);background:rgba(10,35,78,.6);color:#eefcff;border-radius:999px;font-size:18px;line-height:1">×</button>
     </div>
-    <div id="cardDetail"></div>
-    <div id="cardActions" class="cardActions"></div>
+    <div id="cardDetail" style="font-size:12px;line-height:1.35;color:rgba(237,250,255,.85);padding:8px 9px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(112,224,255,.12)"></div>
+    <div id="cardActions" style="display:flex;flex-wrap:wrap;gap:7px"></div>
   </section>
 
   <form id="composer" class="wake" autocomplete="off">
-    <textarea id="composerInput" rows="1" placeholder="Manual AI fallback"></textarea>
-    <button id="sendBtn" type="submit">AI</button>
+    <textarea id="composerInput" rows="1" placeholder="Type command" style="flex:1;min-height:40px;max-height:100px;resize:none;border:0;outline:0;border-radius:13px;background:rgba(255,255,255,.07);color:#eefcff;padding:10px 11px;font-size:15px"></textarea>
+    <button id="sendBtn" type="submit" style="min-width:50px;height:40px;border:0;border-radius:13px;font-weight:900;color:#031323;background:linear-gradient(180deg,#bdf7ff,#5ccaff 55%,#278dff)">AI</button>
   </form>
 </div>
 
@@ -134,109 +95,65 @@ body{position:fixed;inset:0}
 'use strict';
 
 const $=id=>document.getElementById(id);
-const ui={
-  splash:$('splash'), app:$('app'), brand:$('brand'), status:$('statusRibbon'), flash:$('stageFlash'), shade:$('cityShade'),
-  card:$('contextCard'), cardTitle:$('cardTitle'), cardMeta:$('cardMeta'), cardDetail:$('cardDetail'), actions:$('cardActions'), close:$('closeCard'),
-  composer:$('composer'), input:$('composerInput'), send:$('sendBtn'), wallet:$('wallet'), balance:$('balanceText'), login:$('loginGate'), loginText:$('loginText')
-};
+const splash=$('splash');
+const ui={ brand:$('brand'), status:$('statusRibbon'), flash:$('stageFlash'), card:$('contextCard'), cardTitle:$('cardTitle'), cardMeta:$('cardMeta'), cardDetail:$('cardDetail'), actions:$('cardActions'), close:$('closeCard'), composer:$('composer'), input:$('composerInput'), send:$('sendBtn'), wallet:$('wallet'), balance:$('balanceText') };
 
-const state={ selected:null, context:null, cityAnchor:null, cityEntities:[], hasCity:false, balance:0, auth:false, voiceLive:false, manualOpen:false, lastLayer:'' };
-
-const adapters={ ai:'adapter-ready: connect via Supabase Edge Function or backend (no frontend key)', sheets:'adapter-ready', payments:'adapter-ready', routing:'adapter-ready', media:'adapter-ready', auth:'adapter-ready' };
+const state={ selected:null, cityAnchor:null, cityEntities:[], hasCity:false };
 
 function wake(el,on=true){el.classList.toggle('show',!!on)}
-function speak(text,ms=2200){ui.status.textContent=text;wake(ui.status,true);clearTimeout(speak.t);speak.t=setTimeout(()=>wake(ui.status,false),ms)}
-function hideAll(){ wake(ui.card,false); wake(ui.composer,false); wake(ui.wallet,false); wake(ui.login,false); ui.brand.classList.remove('awake'); state.manualOpen=false; }
+function speak(t,ms=2000){ui.status.textContent=t;wake(ui.status,true);clearTimeout(speak.t);speak.t=setTimeout(()=>wake(ui.status,false),ms)}
+function hideAll(){ wake(ui.card,false); wake(ui.composer,false); wake(ui.wallet,false); }
 
-function setContext(title,meta,detail,actions,kind){ state.context={title,meta,detail,kind}; ui.cardTitle.textContent=title; ui.cardMeta.textContent=meta; ui.cardDetail.textContent=detail; ui.actions.innerHTML=''; actions.forEach(a=>{ const b=document.createElement('button'); b.type='button'; b.className='pill'+(a.primary?' primary':'')+(a.danger?' danger':''); b.textContent=a.label; b.onclick=a.run; ui.actions.appendChild(b); }); wake(ui.card,true); if(kind==='market'||kind==='delivery'||kind==='vendor'||kind==='route') showWallet(); }
-function showWallet(){ ui.balance.textContent=state.balance.toFixed(2)+' ASTRAN'; wake(ui.wallet,true); }
-function needLogin(reason){ state.protectedAction=reason; ui.loginText.textContent='Login required · '+reason; wake(ui.login,true); speak('Protected action. Login required.',2200); }
-function showComposer(reason){ state.manualOpen=true; ui.input.placeholder=reason||'Type command'; wake(ui.composer,true); setTimeout(()=>ui.input.focus(),60); }
-function deliveryQuote(km,opts){ let total=Math.ceil(km),notes=['base '+Math.ceil(km)+' km']; if(opts.night){total++;notes.push('night +1')} if(opts.badWeather){total++;notes.push('weather +1')} if(opts.load>13){total++;notes.push('load +1'); const ex=Math.floor((Math.min(opts.load,33)-13)/13); if(ex>0){total+=ex;notes.push('extra +'+ex)}} const platform=+(total*0.03).toFixed(2); return {total,platform,parties:+(total-platform).toFixed(2),notes:notes.join(' · ')}; }
+function goGlobalView(){ hideAll(); if(ui.flash) ui.flash.classList.add('go'); setTimeout(()=>ui.flash&&ui.flash.classList.remove('go'),900); const t=state.cityAnchor||{lon:28.222,lat:36.441}; if(window.viewer){ window.viewer.camera.flyTo({ destination:Cesium.Cartesian3.fromDegrees(t.lon,t.lat,26000000), orientation:{heading:0,pitch:Cesium.Math.toRadians(-90),roll:0}, duration:1.3 }); } }
 
-// SPLASH + CESIUM BOOT
-const splash=ui.splash;
-function hideSplash(){ splash.classList.add('hidden'); setTimeout(()=>splash.remove(),600); }
+function hardResetToGlobal(){ splash.classList.remove('hidden'); setTimeout(()=>{ const url=new URL(location.href); url.searchParams.set('_r',Date.now()); location.href=url.toString(); },120); }
 
-if(!window.Cesium){ splash.style.display='none'; alert('Cesium failed to load'); return; }
+// LOGO: Single click = Empty cache hard reload + Global view
+ui.brand.onclick=hardResetToGlobal;
+
+// Double click = quick global view without reload
+ui.brand.ondblclick=()=>{ goGlobalView(); };
+
+if(!window.Cesium){ splash.style.display='none'; return; }
 
 const Cesium=window.Cesium;
 let viewer;
 try{
   viewer=new Cesium.Viewer('cesium',{
-    animation:false,timeline:false,geocoder:false,homeButton:false,sceneModePicker:false,baseLayerPicker:false,navigationHelpButton:false,fullscreenButton:false,vrButton:false,infoBox:false,selectionIndicator:false,shadows:false,requestRenderMode:false,shouldAnimate:true,
+    animation:false,timeline:false,geocoder:false,homeButton:false,sceneModePicker:false,baseLayerPicker:false,navigationHelpButton:false,fullscreenButton:false,vrButton:false,infoBox:false,selectionIndicator:false,shadows:false,requestRenderMode:false,
     terrainProvider:new Cesium.EllipsoidTerrainProvider(),
-    imageryProvider:new Cesium.UrlTemplateImageryProvider({ url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', maximumLevel:19, credit:'Esri' })
+    imageryProvider:new Cesium.UrlTemplateImageryProvider({url:'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',maximumLevel:19})
   });
-}catch(e){ splash.style.display='none'; alert('Cesium error'); return; }
+  window.viewer=viewer;
+}catch(e){ splash.style.display='none'; return; }
 
 viewer.scene.globe.baseColor=Cesium.Color.fromCssColorString('#071b45');
 viewer.scene.globe.enableLighting=false;
 viewer.scene.skyAtmosphere.show=true;
 viewer.scene.fog.enabled=false;
-viewer.scene.highDynamicRange=true;
-viewer.scene.screenSpaceCameraController.inertiaSpin=.92;
-viewer.scene.screenSpaceCameraController.inertiaZoom=.9;
-viewer.scene.screenSpaceCameraController.minimumZoomDistance=650;
+viewer.scene.screenSpaceCameraController.inertiaSpin=.9;
+viewer.scene.screenSpaceCameraController.minimumZoomDistance=600;
 viewer.scene.screenSpaceCameraController.maximumZoomDistance=260000000;
-
 viewer.camera.setView({ destination:Cesium.Cartesian3.fromDegrees(21.5,28,24000000), orientation:{heading:0,pitch:Cesium.Math.toRadians(-90),roll:0} });
 
-// Hide splash when globe is ready
-function onGlobeReady(){ hideSplash(); }
-viewer.scene.globe.tileLoadProgressEvent.addEventListener((queued) => { if(queued < 8) onGlobeReady(); });
-setTimeout(onGlobeReady, 4200); // safety net
+// Hide splash when ready
+function hideSplash(){ splash.classList.add('hidden'); setTimeout(()=>splash.remove(),500); }
+viewer.scene.globe.tileLoadProgressEvent.addEventListener(q=>{ if(q<6) hideSplash(); });
+setTimeout(hideSplash,4500);
 
-function layerName(h){ if(h>90000000)return 'Solar'; if(h>20000000)return 'Orbital'; if(h>6000000)return 'Global'; if(h>900000)return 'Regional'; if(h>95000)return 'Local'; return 'City Map'; }
-function cameraHeight(){ return Cesium.Cartographic.fromCartesian(viewer.camera.positionWC).height; }
-function cameraLonLat(){ const c=viewer.camera.pickEllipsoid(new Cesium.Cartesian2(viewer.scene.canvas.clientWidth/2,viewer.scene.canvas.clientHeight/2),viewer.scene.globe.ellipsoid); if(!c)return{lon:28.222,lat:36.441}; const g=Cesium.Cartographic.fromCartesian(c); return{lon:Cesium.Math.toDegrees(g.longitude),lat:Cesium.Math.toDegrees(g.latitude)}; }
+// Simple signals
+['Rhodes','London','New York','Tokyo'].forEach((name,i)=>{
+  const lon=[28.22,-0.13,-74,139.65][i]; const lat=[36.44,51.51,40.71,35.68][i];
+  viewer.entities.add({ position:Cesium.Cartesian3.fromDegrees(lon,lat,160000), point:{pixelSize:10,color:Cesium.Color.fromCssColorString('#60d7ff'),outlineColor:Cesium.Color.WHITE.withAlpha(.7),outlineWidth:1.2}, label:{text:name,font:'600 11px Inter',fillColor:Cesium.Color.WHITE,outlineColor:Cesium.Color.fromCssColorString('#0f3cff'),outlineWidth:2,pixelOffset:new Cesium.Cartesian2(0,-20)} });
+});
 
-function flash(){ ui.flash.classList.remove('go'); void ui.flash.offsetWidth; ui.flash.classList.add('go'); }
-function fly(lon,lat,height,dur,done){ viewer.camera.flyTo({ destination:Cesium.Cartesian3.fromDegrees(lon,lat,height), orientation:{heading:0,pitch:Cesium.Math.toRadians(-90),roll:0}, duration:dur||1.1, easingFunction:Cesium.EasingFunction.QUADRATIC_IN_OUT, complete:done }); }
+// Basic pick for context
+new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas).setInputAction((m)=>{
+  const p=viewer.scene.pick(m.position);
+  if(p&&p.id){ const pos={lon:28.22,lat:36.44,title:p.id._label?.text||'Object'}; state.selected=pos; ui.cardTitle.textContent=pos.title; ui.cardMeta.textContent='World object'; ui.cardDetail.textContent='Tap logo to reset.'; ui.actions.innerHTML=''; const b=document.createElement('button'); b.textContent='Global View'; b.onclick=goGlobalView; b.style.cssText='padding:8px 14px;border-radius:999px;background:#1e5cff;color:white;border:0'; ui.actions.appendChild(b); wake(ui.card,true); }
+},Cesium.ScreenSpaceEventType.LEFT_CLICK);
 
-function goGlobalView(){ hideAll(); flash(); const t=state.cityAnchor||cameraLonLat(); fly(t.lon,t.lat,26000000,1.4,()=>speak('Global view restored',1600)); }
-
-function descend(target){ const t=target||state.selected||{lon:28.222,lat:36.441,title:'selected point'}; state.cityAnchor={lon:t.lon,lat:t.lat,title:t.title||'point'}; hideAll(); flash(); speak('Descending...',1400); fly(t.lon,t.lat,6500000,.75,()=>fly(t.lon,t.lat,1200000,.65,()=>{ renderCity(t.lon,t.lat); fly(t.lon,t.lat,5200,.85,()=>speak('City Map ready',1800)); })); }
-
-function pointEntity(id,title,kind,lon,lat,h,color){ return viewer.entities.add({ id, position:Cesium.Cartesian3.fromDegrees(lon,lat,h||140000), point:{pixelSize:11,color,outlineColor:Cesium.Color.WHITE.withAlpha(.8),outlineWidth:1.2,scaleByDistance:new Cesium.NearFarScalar(700000,1.6,48000000,.4),disableDepthTestDistance:Number.POSITIVE_INFINITY}, label:{text:title,font:'600 11px system-ui',fillColor:Cesium.Color.WHITE,outlineColor:Cesium.Color.DEEPSKYBLUE,outlineWidth:2.5,style:Cesium.LabelStyle.FILL_AND_OUTLINE,pixelOffset:new Cesium.Cartesian2(0,-22),scaleByDistance:new Cesium.NearFarScalar(700000,1,45000000,.3),distanceDisplayCondition:new Cesium.DistanceDisplayCondition(0,45000000),disableDepthTestDistance:Number.POSITIVE_INFINITY}, properties:{title,kind,lon,lat} }); }
-
-const signals=[ ['sig_rhodes','Rhodes · friend feed','friend',28.222,36.441,180000,Cesium.Color.AQUA], ['sig_london','London · marketplace','market',-0.13,51.51,210000,Cesium.Color.DEEPSKYBLUE], ['sig_ny','New York · news','news',-74,40.71,220000,Cesium.Color.CYAN], ['sig_tokyo','Tokyo · circle','circle',139.65,35.68,200000,Cesium.Color.LIGHTSKYBLUE], ['sig_dubai','Dubai · delivery','delivery',55.27,25.2,190000,Cesium.Color.CORNFLOWERBLUE] ];
-signals.forEach(s=>pointEntity(...s));
-
-function clearCity(){ state.cityEntities.forEach(e=>viewer.entities.remove(e)); state.cityEntities.length=0; state.hasCity=false; }
-function addCity(e){ const en=viewer.entities.add(e); state.cityEntities.push(en); return en; }
-function renderCity(lon,lat){ clearCity(); state.hasCity=true; state.cityAnchor={lon,lat,title:'City Map'}; const p={v:{lon:lon+0.006,lat:lat+0.0035}, d:{lon:lon-0.0065,lat:lat-0.004}, c:{lon:lon-0.0025,lat:lat+0.0075}}; addCity({id:'city_v',position:Cesium.Cartesian3.fromDegrees(p.v.lon,p.v.lat,40),point:{pixelSize:12,color:Cesium.Color.DEEPSKYBLUE,outlineColor:Cesium.Color.WHITE.withAlpha(.85),outlineWidth:1.3,disableDepthTestDistance:Number.POSITIVE_INFINITY},label:{text:'Vendor',font:'700 11px system-ui',fillColor:Cesium.Color.WHITE,outlineColor:Cesium.Color.DEEPSKYBLUE,outlineWidth:2.5,style:Cesium.LabelStyle.FILL_AND_OUTLINE,pixelOffset:new Cesium.Cartesian2(0,-24),disableDepthTestDistance:Number.POSITIVE_INFINITY},properties:{title:'Vendor tile',kind:'vendor',lon:p.v.lon,lat:p.v.lat}}); addCity({id:'city_d',position:Cesium.Cartesian3.fromDegrees(p.d.lon,p.d.lat,40),point:{pixelSize:12,color:Cesium.Color.CYAN,outlineColor:Cesium.Color.WHITE.withAlpha(.85),outlineWidth:1.3,disableDepthTestDistance:Number.POSITIVE_INFINITY},label:{text:'Driver',font:'700 11px system-ui',fillColor:Cesium.Color.WHITE,outlineColor:Cesium.Color.DEEPSKYBLUE,outlineWidth:2.5,style:Cesium.LabelStyle.FILL_AND_OUTLINE,pixelOffset:new Cesium.Cartesian2(0,-24),disableDepthTestDistance:Number.POSITIVE_INFINITY},properties:{title:'Driver tile',kind:'driver',lon:p.d.lon,lat:p.d.lat}}); addCity({id:'city_c',position:Cesium.Cartesian3.fromDegrees(p.c.lon,p.c.lat,40),point:{pixelSize:12,color:Cesium.Color.LIGHTCYAN,outlineColor:Cesium.Color.WHITE.withAlpha(.85),outlineWidth:1.3,disableDepthTestDistance:Number.POSITIVE_INFINITY},label:{text:'Client',font:'700 11px system-ui',fillColor:Cesium.Color.WHITE,outlineColor:Cesium.Color.DEEPSKYBLUE,outlineWidth:2.5,style:Cesium.LabelStyle.FILL_AND_OUTLINE,pixelOffset:new Cesium.Cartesian2(0,-24),disableDepthTestDistance:Number.POSITIVE_INFINITY},properties:{title:'Client point',kind:'client',lon:p.c.lon,lat:p.c.lat}}); const q=deliveryQuote(3.4,{night:true,badWeather:false,load:17}); addCity({id:'tri',polyline:{positions:Cesium.Cartesian3.fromDegreesArrayHeights([p.v.lon,p.v.lat,50,p.d.lon,p.d.lat,50,p.c.lon,p.c.lat,50,p.v.lon,p.v.lat,50]),width:4.5,material:new Cesium.PolylineGlowMaterialProperty({glowPower:.3,color:Cesium.Color.CYAN.withAlpha(.9)})},properties:{title:`Delivery triangle · ${q.total} ASTRAN`,kind:'route',lon:(p.v.lon+p.c.lon)/2,lat:(p.v.lat+p.c.lat)/2,quote:q.total}}); }
-
-function contextFor(p){ const k=p.kind||'object'; if(k==='vendor')return{title:p.title||'Vendor',kind:'vendor',meta:'Marketplace',detail:'Vendor menu + availability (adapter-ready).',actions:[{label:'Start order',primary:true,run:()=>needLogin('order')},{label:'Voice',run:()=>tryVoice('vendor')},{label:'Global view',run:goGlobalView}]}; if(k==='route')return{title:'Delivery route',kind:'delivery',meta:'Client · Vendor · Driver',detail:'1 ASTRAN/km + extras. 3% platform.',actions:[{label:'Request delivery',primary:true,run:()=>needLogin('delivery')},{label:'Global view',run:goGlobalView}]}; return{title:p.title||'Object',kind:k,meta:'World object',detail:'Context for selected item.',actions:[{label:'Global view',primary:true,run:goGlobalView}]}; }
-
-function pick(m){ const picked=viewer.scene.pick(m.position); if(Cesium.defined(picked)&&picked.id&&picked.id.properties){ const e=picked.id; const pos={lon:e.properties.lon?.getValue()||28.222,lat:e.properties.lat?.getValue()||36.441,title:e.properties.title?.getValue()||'Object'}; state.selected=pos; const ctx=contextFor({title:pos.title,kind:e.properties.kind?.getValue()}); setContext(ctx.title,ctx.meta,ctx.detail,ctx.actions,ctx.kind); return; } const cart=viewer.camera.pickEllipsoid(m.position,viewer.scene.globe.ellipsoid); if(cart){ const c=Cesium.Cartographic.fromCartesian(cart); state.selected={lon:Cesium.Math.toDegrees(c.longitude),lat:Cesium.Math.toDegrees(c.latitude),title:'Earth point'}; descend(state.selected); } }
-const h=new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas); h.setInputAction(pick,Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
-ui.close.onclick=hideAll;
-ui.login.onclick=()=>{state.auth=true;wake(ui.login,false);if(state.protectedAction)showWallet();};
-
-// SINGLE CLICK ON LOGO = HARD RESET + GLOBAL VIEW
-ui.brand.onclick=()=>{ location.reload(); };
-
-ui.brand.addEventListener('dblclick',goGlobalView);
-
-let pressT=null;
-document.addEventListener('pointerdown',e=>{ if(e.target.closest('#contextCard')||e.target.closest('#composer')||e.target.closest('#wallet')||e.target.closest('#loginGate'))return; pressT=setTimeout(()=>tryVoice('voice'),600); },{passive:true});
-document.addEventListener('pointerup',()=>{clearTimeout(pressT)},{passive:true});
-
-document.addEventListener('keydown',e=>{ if(e.key==='Escape')hideAll(); if(e.key==='/'&&!state.manualOpen){e.preventDefault();showComposer();} });
-
-function tryVoice(r){ ui.brand.classList.add('awake'); speak('Listening...',1200); if(!('SpeechRecognition' in window)){ ui.brand.classList.remove('awake'); showComposer('Voice not supported'); return; } const SR=window.SpeechRecognition||window.webkitSpeechRecognition; const rec=new SR(); rec.lang='en-US'; rec.interimResults=false; rec.onresult=e=>{ const txt=e.results[0][0].transcript.trim(); if(txt) handleIntent(txt); }; rec.onerror=()=>{ui.brand.classList.remove('awake');showComposer('Voice failed');}; rec.onend=()=>ui.brand.classList.remove('awake'); rec.start(); }
-
-function handleIntent(t){ const s=t.toLowerCase(); speak('Heard: '+t,1800); if(s.includes('global')||s.includes('home')||s.includes('reset')){ goGlobalView(); return; } if(s.includes('city')||s.includes('down')){ descend(state.selected||cameraLonLat()); return; } if(s.includes('order')||s.includes('delivery')){ needLogin('delivery'); return; } setContext('AI','Adapter-ready','Live AI requires backend connection.',[{label:'Global view',primary:true,run:goGlobalView}],'ai'); }
-
-ui.composer.onsubmit=e=>{ e.preventDefault(); const v=ui.input.value.trim(); if(v){ handleIntent(v); ui.input.value=''; } wake(ui.composer,false); };
-
-let lastCity=0;
-viewer.scene.postRender.addEventListener(()=>{ const h=cameraHeight(); ui.shade.classList.toggle('on',h<95000); state.cityEntities.forEach(e=>e.show=h<160000); if(h<75000&&!state.hasCity&&Date.now()-lastCity>2200){ lastCity=Date.now(); renderCity(cameraLonLat().lon,cameraLonLat().lat); } });
-
-// Initial global view message
-setTimeout(()=>{ if(!state.hasCity) speak('Ready. Tap ASTRANOV to reset anytime.',2400); },5200);
+setTimeout(()=>speak('Ready. Tap ASTRANOV to reset.'),4800);
 
 })();
 </script>
