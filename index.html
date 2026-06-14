@@ -1,194 +1,20 @@
-<!doctype html>
-<html lang="el">
+<!DOCTYPE html>
+<html>
 <head>
-<meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"/>
-<meta name="theme-color" content="#020713"/>
-<title>Astranov</title>
-<script>window.CESIUM_BASE_URL="https://cdn.jsdelivr.net/npm/cesium@1.123.1/Build/Cesium/";</script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cesium@1.123.1/Build/Cesium/Widgets/widgets.css">
-<script src="https://cdn.jsdelivr.net/npm/cesium@1.123.1/Build/Cesium/Cesium.js"></script>
-<style>
-:root{--blue:#1e5cff;--deepblue:#0f3cff;--ice:#eefcff;--ink:#020713;}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body,#app,#cesium{width:100%;height:100%;margin:0;overflow:hidden;background:#020713;color:#eefcff;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial,sans-serif;touch-action:none}
-body{position:fixed;inset:0}
-
-/* SPLASH */
-#splash{position:fixed;inset:0;z-index:1000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#020713;}
-#splash.hidden{opacity:0;pointer-events:none;transition:opacity .4s ease}
-#splash .logo{font-weight:950;font-size:clamp(28px,8vw,42px);letter-spacing:.5em;text-transform:uppercase;color:#f3fcff;text-shadow:0 0 20px #1e5cff,0 0 50px #0f3cff,0 0 80px #0a2cff;margin-bottom:30px;}
-#splash .loader{width:48px;height:48px;border:4px solid rgba(30,92,255,.2);border-top-color:#1e5cff;border-radius:50%;animation:spin 1s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-#cesium{position:absolute;inset:0;z-index:1}
-.cesium-viewer *{display:none!important}
-
-#brand{position:absolute;top:calc(18px + env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:300;color:#f3fcff;font-weight:950;font-size:clamp(18px,5vw,32px);letter-spacing:.45em;text-transform:uppercase;text-shadow:0 0 15px #1e5cff,0 0 40px #0f3cff,0 0 70px #0a2cff;padding:12px 28px;border-radius:9999px;cursor:pointer;user-select:none;pointer-events:auto;}
-
-#stageFlash{position:absolute;left:50%;top:50%;width:120px;height:120px;border-radius:999px;z-index:140;pointer-events:none;opacity:0;transform:translate(-50%,-50%) scale(.6);border:2px solid rgba(30,92,255,.6);box-shadow:0 0 60px rgba(30,92,255,.8)}
-@keyframes flash{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)} 40%{opacity:1} 100%{opacity:0;transform:translate(-50%,-50%) scale(3)}}
-
-.wake{position:absolute;z-index:280;opacity:0;pointer-events:none;transition:all .25s ease;display:none}
-.wake.show{display:flex;opacity:1;pointer-events:auto;transform:translateY(0) scale(1)}
-
-#contextCard,#composer{bottom:calc(20px + env(safe-area-inset-bottom));left:50%;width:min(92vw,460px);transform:translate(-50%,12px) scale(.96);border:1px solid rgba(112,224,255,.3);border-radius:24px;padding:14px;background:rgba(3,14,38,.85);backdrop-filter:blur(18px)}
-#composerInput{flex:1;min-height:46px;max-height:120px;resize:none;border:0;outline:0;border-radius:16px;background:rgba(255,255,255,.08);color:#eefcff;padding:12px 16px;font-size:15.5px}
-#sendBtn{min-width:56px;height:46px;border:0;border-radius:16px;font-weight:900;color:#031323;background:linear-gradient(#c5f8ff,#4eb8ff,#1e7eff)}
-</style>
+<title>Astranov - Globe Pilot</title>
+<script src="https://cesium.com/downloads/cesiumjs/releases/1.123/Build/Cesium/Cesium.js"></script>
+<link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.123/Build/Cesium/Widgets/widgets.css" />
+<style> body { margin: 0; overflow: hidden; } #cesiumContainer { width: 100%; height: 100vh; } </style>
 </head>
 <body>
-<div id="splash">
-  <div class="logo">ASTRANOV</div>
-  <div class="loader"></div>
-</div>
-
-<div id="app">
-  <div id="cesium"></div>
-  <div id="stageFlash"></div>
-  <div id="brand" role="button">ASTRANOV</div>
-
-  <div id="contextCard" class="wake">
-    <div style="display:flex;justify-content:space-between;align-items:start">
-      <div>
-        <div id="cardTitle" style="font-size:16px;font-weight:800"></div>
-        <div id="cardMeta" style="font-size:11px;opacity:0.75"></div>
-      </div>
-      <button id="closeCard" style="background:none;border:none;color:#fff;font-size:28px;line-height:1;padding:0 4px;cursor:pointer">×</button>
-    </div>
-    <div id="cardDetail" style="margin:12px 0;font-size:13.5px;line-height:1.4;opacity:0.9"></div>
-  </div>
-
-  <form id="composer" class="wake" autocomplete="off">
-    <textarea id="composerInput" placeholder="Πες κάτι... (global / home / change)" rows="1"></textarea>
-    <button id="sendBtn" type="submit">AI</button>
-  </form>
-</div>
-
+<div id="cesiumContainer"></div>
 <script>
-'use strict';
-const $=id=>document.getElementById(id);
-const splash=$('splash');
-const brand=$('brand');
-const flash=$('stageFlash');
-const card=$('contextCard');
-const composer=$('composer');
-const input=$('composerInput');
-const sendBtn=$('sendBtn');
-const cardTitle=$('cardTitle');
-const cardDetail=$('cardDetail');
-const closeCard=$('closeCard');
-
-let viewer;
-
-// HARD RESET - Single click on logo
-function hardReset() {
-  splash.classList.remove('hidden');
-  setTimeout(() => {
-    const url = new URL(window.location.href);
-    url.searchParams.set('_cb', Date.now());
-    window.location.href = url.toString();
-  }, 80);
-}
-
-brand.onclick = hardReset;
-
-// Quick global view on double click
-function goGlobal() {
-  if (viewer) {
-    viewer.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(23.5, 38.5, 28000000),
-      duration: 1.8,
-      orientation: { heading: 0, pitch: Cesium.Math.toRadians(-88), roll: 0 }
-    });
-  }
-  flash.classList.add('go');
-  setTimeout(() => flash.classList.remove('go'), 1200);
-}
-brand.ondblclick = goGlobal;
-
-// Splash hide
-function hideSplash() {
-  splash.classList.add('hidden');
-  setTimeout(() => { if(splash) splash.remove(); }, 600);
-}
-
-// Collective Intelligence - bilingual
-function collectiveAI(text) {
-  const lower = text.toLowerCase().trim();
-  if (lower.includes('global') || lower.includes('home') || lower.includes('επιστροφή') || lower.includes('κόσμος')) {
-    goGlobal();
-    return "Επιστροφή σε Global View. Τι άλλο χρειάζεσαι;";
-  }
-  if (lower.includes('change') || lower.includes('τροποποίησε') || lower.includes('modify')) {
-    return "Collective mode active. Πες μου τι να αλλάξω στην εφαρμογή (π.χ. 'add voice', 'faster globe').";
-  }
-  return "Γεια! Είμαι η Συλλογική Νοημοσύνη του Astranov. Μίλα μου στα Ελληνικά ή Αγγλικά.";
-}
-
-// Init Cesium
-function initCesium() {
-  if (typeof Cesium === 'undefined') return;
-  try {
-    viewer = new Cesium.Viewer('cesium', {
-      animation: false, timeline: false, geocoder: false, homeButton: false,
-      sceneModePicker: false, baseLayerPicker: false, navigationHelpButton: false,
-      fullscreenButton: false, vrButton: false, infoBox: false, selectionIndicator: false,
-      terrainProvider: new Cesium.EllipsoidTerrainProvider(),
-      imageryProvider: new Cesium.UrlTemplateImageryProvider({
-        url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-        maximumLevel: 19
-      })
-    });
-
-    viewer.scene.globe.baseColor = Cesium.Color.fromCssColorString('#0a1f4a');
-    viewer.camera.setView({ destination: Cesium.Cartesian3.fromDegrees(23.5, 38.5, 26000000) });
-
-    // Signals
-    const signals = [{name:'Ρόδος',lon:28.22,lat:36.44}, {name:'Athens',lon:23.73,lat:37.98}];
-    signals.forEach(s => {
-      viewer.entities.add({
-        position: Cesium.Cartesian3.fromDegrees(s.lon, s.lat, 120000),
-        point: { pixelSize: 9, color: Cesium.Color.CYAN.withAlpha(0.9) }
-      });
-    });
-
-    viewer.scene.globe.tileLoadProgressEvent.addEventListener(count => {
-      if (count < 4) hideSplash();
-    });
-    setTimeout(hideSplash, 3200);
-
-  } catch(e) { hideSplash(); }
-}
-
-initCesium();
-
-// Composer
-composer.onsubmit = e => {
-  e.preventDefault();
-  const txt = input.value.trim();
-  if (!txt) return;
-  const resp = collectiveAI(txt);
-  cardTitle.textContent = 'Συλλογική Νοημοσύνη';
-  cardDetail.textContent = resp;
-  card.classList.add('show');
-  input.value = '';
-};
-
-closeCard.onclick = () => card.classList.remove('show');
-
-// Keyboard support
-input.addEventListener('keydown', e => { if(e.key==='Enter' && !e.shiftKey) { e.preventDefault(); composer.onsubmit(new Event('submit')); } });
-
-setTimeout(() => { speak('Έτοιμο. Κάνε tap στο ASTRANOV για reset.'); }, 2500);
-
-function speak(t) {
-  const status = document.createElement('div');
-  status.style.cssText = 'position:absolute;bottom:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.7);padding:8px 18px;border-radius:999px;color:#fff;z-index:290;';
-  status.textContent = t;
-  document.body.appendChild(status);
-  setTimeout(() => status.remove(), 2800);
-}
+  Cesium.Ion.defaultAccessToken = 'your_token_here';
+  const viewer = new Cesium.Viewer('cesiumContainer', {
+    terrainProvider: Cesium.createWorldTerrain(),
+  });
+  // Add pilot logic here
+  console.log('Astranov Globe Pilot loaded - Notis version');
 </script>
 </body>
 </html>
