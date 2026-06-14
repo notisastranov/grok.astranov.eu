@@ -1,20 +1,276 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Astranov - Globe Pilot</title>
-<script src="https://cesium.com/downloads/cesiumjs/releases/1.123/Build/Cesium/Cesium.js"></script>
-<link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.123/Build/Cesium/Widgets/widgets.css" />
-<style> body { margin: 0; overflow: hidden; } #cesiumContainer { width: 100%; height: 100vh; } </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ASTRANOV — Globe Pilot</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
+        
+        :root {
+            --navy: #0a1428;
+            --gold: #ffd700;
+            --electric: #00f0ff;
+            --text: #e0f0ff;
+        }
+        
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #000;
+            color: var(--text);
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+        
+        /* Deep space background */
+        #space-bg {
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at center, #1a2a4a 0%, #000 70%);
+            z-index: 1;
+        }
+        #stars {
+            position: absolute;
+            inset: 0;
+            background: transparent url('https://picsum.photos/id/1015/1920/1080') center/cover;
+            opacity: 0.6;
+            z-index: 2;
+            mix-blend-mode: screen;
+        }
+        
+        /* Globe Container */
+        #globe-container {
+            position: absolute;
+            inset: 0;
+            z-index: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #earth {
+            width: 620px;
+            height: 620px;
+            background: radial-gradient(circle at 40% 30%, #4488ff 10%, #003366 40%, #000 70%);
+            border-radius: 50%;
+            box-shadow: 
+                0 0 120px #00f0ff,
+                inset 0 0 80px rgba(255,215,0,0.3),
+                0 0 200px rgba(0,240,255,0.4);
+            position: relative;
+            animation: rotate 120s linear infinite;
+        }
+        #earth::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            background: url('https://picsum.photos/id/1015/800/800') center/cover;
+            opacity: 0.85;
+            box-shadow: inset 0 0 60px #000;
+        }
+        
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        
+        /* Header */
+        header {
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10;
+            background: linear-gradient(to bottom, rgba(10,20,40,0.9), transparent);
+        }
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.8rem;
+            font-weight: 600;
+            letter-spacing: 4px;
+            color: var(--gold);
+            text-shadow: 0 0 20px var(--electric);
+        }
+        .status {
+            background: rgba(0,240,255,0.1);
+            color: var(--electric);
+            padding: 6px 18px;
+            border-radius: 30px;
+            font-size: 0.95rem;
+            border: 1px solid rgba(0,240,255,0.3);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Pilot Orb */
+        #pilot-orb {
+            position: absolute;
+            bottom: 120px;
+            right: 60px;
+            width: 90px;
+            height: 90px;
+            background: radial-gradient(circle at 30% 30%, #fff, #00f0ff, #0088aa);
+            border-radius: 50%;
+            box-shadow: 0 0 60px #00f0ff, inset 0 0 30px #fff;
+            cursor: pointer;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: #000;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        #pilot-orb:hover { transform: scale(1.15); box-shadow: 0 0 90px #00f0ff; }
+        
+        /* Chat / Input Area */
+        #chat-area {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: linear-gradient(to top, rgba(10,20,40,0.95), transparent);
+            padding: 20px 40px;
+            z-index: 15;
+        }
+        #input-bar {
+            display: flex;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50px;
+            padding: 8px;
+            border: 1px solid rgba(0,240,255,0.2);
+        }
+        #user-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.1rem;
+            padding: 12px 24px;
+            outline: none;
+        }
+        button {
+            background: var(--gold);
+            color: #000;
+            border: none;
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        /* Messages */
+        .message {
+            max-width: 70%;
+            margin: 12px 0;
+            padding: 14px 20px;
+            border-radius: 20px;
+            background: rgba(255,215,0,0.08);
+            border-left: 3px solid var(--gold);
+        }
+        
+        .mic {
+            position: absolute;
+            bottom: 180px;
+            left: 60px;
+            width: 70px;
+            height: 70px;
+            background: #ff2222;
+            border-radius: 50%;
+            box-shadow: 0 0 40px #ff2222;
+        }
+    </style>
 </head>
 <body>
-<div id="cesiumContainer"></div>
-<script>
-  Cesium.Ion.defaultAccessToken = 'your_token_here';
-  const viewer = new Cesium.Viewer('cesiumContainer', {
-    terrainProvider: Cesium.createWorldTerrain(),
-  });
-  // Add pilot logic here
-  console.log('Astranov Globe Pilot loaded - Notis version');
-</script>
+    <div id="space-bg"></div>
+    <div id="stars"></div>
+    
+    <header>
+        <div class="logo">ASTRANOV</div>
+        <div class="status"><span style="color:#0f0;">●</span> 1 ALIVE • ONE MIND</div>
+    </header>
+    
+    <div id="globe-container">
+        <div id="earth"></div>
+    </div>
+    
+    <!-- Pilot Orb -->
+    <div id="pilot-orb" onclick="activatePilot()">PILOT</div>
+    
+    <!-- Mic Orb -->
+    <div class="mic" id="mic-orb" onclick="toggleMic()"></div>
+    
+    <div id="chat-area">
+        <div id="messages"></div>
+        <div id="input-bar">
+            <input type="text" id="user-input" placeholder="Speak or type command... (pilot / home / news)" onkeypress="if(event.key==='Enter') sendMessage()">
+            <button onclick="sendMessage()">↑</button>
+        </div>
+        <div style="text-align:center; margin-top:12px; font-size:0.85rem; opacity:0.7;">
+            Try: news • pizza • people • circles • diag
+        </div>
+    </div>
+
+    <script>
+        // Your brain connection (Grok priority - our brain only)
+        async function sendMessage() {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            if (!text) return;
+            
+            addMessage("You", text);
+            input.value = '';
+            
+            // Simulate our brain response (replace with real Grok API call)
+            setTimeout(() => {
+                const responses = [
+                    "Setting course, Captain. Globe centered on Athens. Pilot orb engaged.",
+                    "Pilot orb activated. What is your command? Spartan mode full.",
+                    "ASTRANOV online. Hyperlocal layer active. Our brain only.",
+                    "One mind responding. No Llama nonsense."
+                ];
+                addMessage("ASTRANOV", responses[Math.floor(Math.random()*responses.length)]);
+            }, 800);
+        }
+        
+        function addMessage(sender, text) {
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message';
+            msgDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+            document.getElementById('messages').appendChild(msgDiv);
+            msgDiv.scrollIntoView({ behavior: "smooth" });
+        }
+        
+        function activatePilot() {
+            const orb = document.getElementById('pilot-orb');
+            orb.style.boxShadow = '0 0 120px #00f0ff, 0 0 200px #ffd700';
+            setTimeout(() => {
+                orb.style.boxShadow = '0 0 60px #00f0ff, inset 0 0 30px #fff';
+                alert("Pilot Orb Activated — Spartan Mode Full. Brain routing fixed to our mind.");
+            }, 800);
+        }
+        
+        function toggleMic() {
+            const mic = document.getElementById('mic-orb');
+            if (mic.style.background === 'rgb(0, 255, 0)') {
+                mic.style.background = '#ff2222';
+                mic.style.boxShadow = '0 0 40px #ff2222';
+            } else {
+                mic.style.background = '#0f0';
+                mic.style.boxShadow = '0 0 40px #0f0';
+            }
+        }
+        
+        // Init
+        window.onload = () => {
+            addMessage("ASTRANOV", "Welcome back, Captain Notis. Globe is live. Pilot orb ready. Our brain only — no external Llama. What reality shall we deliver today?");
+            // Auto activate pilot orb visibility
+            setTimeout(() => {
+                const orb = document.getElementById('pilot-orb');
+                orb.style.display = 'flex';
+            }, 1500);
+        };
+    </script>
 </body>
 </html>
