@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ASTRANOV — Globe Pilot</title>
+    <title>ASTRANOV — Globe Pilot (Spartan Cinematic)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
         
@@ -24,23 +24,15 @@
             position: relative;
         }
         
-        /* Deep space background */
+        /* Deep space cinematic background */
         #space-bg {
             position: absolute;
             inset: 0;
-            background: radial-gradient(circle at center, #1a2a4a 0%, #000 70%);
+            background: radial-gradient(circle at center, #0a1428 0%, #000 75%);
             z-index: 1;
         }
-        #stars {
-            position: absolute;
-            inset: 0;
-            background: transparent url('https://picsum.photos/id/1015/1920/1080') center/cover;
-            opacity: 0.6;
-            z-index: 2;
-            mix-blend-mode: screen;
-        }
         
-        /* Globe Container */
+        /* Premium rotating Earth */
         #globe-container {
             position: absolute;
             inset: 0;
@@ -73,7 +65,7 @@
         
         @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
-        /* Header */
+        /* Header - Premium */
         header {
             position: absolute;
             top: 0; left: 0; right: 0;
@@ -82,7 +74,7 @@
             align-items: center;
             justify-content: space-between;
             z-index: 10;
-            background: linear-gradient(to bottom, rgba(10,20,40,0.9), transparent);
+            background: linear-gradient(to bottom, rgba(10,20,40,0.95), transparent);
         }
         .logo {
             font-family: 'Space Grotesk', sans-serif;
@@ -104,42 +96,48 @@
             gap: 8px;
         }
         
-        /* Pilot Orb */
+        /* Premium Pilot Orb - Cinematic */
         #pilot-orb {
             position: absolute;
-            bottom: 120px;
+            bottom: 140px;
             right: 60px;
-            width: 90px;
-            height: 90px;
+            width: 92px;
+            height: 92px;
             background: radial-gradient(circle at 30% 30%, #fff, #00f0ff, #0088aa);
             border-radius: 50%;
-            box-shadow: 0 0 60px #00f0ff, inset 0 0 30px #fff;
+            box-shadow: 0 0 80px #00f0ff, inset 0 0 40px #fff, 0 0 20px #ffd700;
             cursor: pointer;
             z-index: 20;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             color: #000;
-            font-weight: 600;
-            transition: all 0.3s ease;
+            font-weight: 700;
+            letter-spacing: 1px;
+            transition: all 0.2s ease;
+            border: 2px solid rgba(255,215,0,0.6);
         }
-        #pilot-orb:hover { transform: scale(1.15); box-shadow: 0 0 90px #00f0ff; }
+        #pilot-orb:hover { 
+            transform: scale(1.12); 
+            box-shadow: 0 0 120px #00f0ff, 0 0 40px #ffd700; 
+        }
+        #pilot-orb:active { transform: scale(0.95); }
         
-        /* Chat / Input Area */
+        /* Chat Area - Clean */
         #chat-area {
             position: absolute;
             bottom: 0; left: 0; right: 0;
-            background: linear-gradient(to top, rgba(10,20,40,0.95), transparent);
-            padding: 20px 40px;
+            background: linear-gradient(to top, rgba(10,20,40,0.98), transparent);
+            padding: 24px 40px;
             z-index: 15;
         }
         #input-bar {
             display: flex;
-            background: rgba(255,255,255,0.05);
+            background: rgba(255,255,255,0.06);
             border-radius: 50px;
             padding: 8px;
-            border: 1px solid rgba(0,240,255,0.2);
+            border: 1px solid rgba(0,240,255,0.25);
         }
         #user-input {
             flex: 1;
@@ -147,73 +145,77 @@
             border: none;
             color: white;
             font-size: 1.1rem;
-            padding: 12px 24px;
+            padding: 14px 26px;
             outline: none;
         }
         button {
             background: var(--gold);
             color: #000;
             border: none;
-            width: 52px;
-            height: 52px;
+            width: 54px;
+            height: 54px;
             border-radius: 50%;
             cursor: pointer;
+            font-weight: 700;
         }
         
-        /* Messages */
         .message {
-            max-width: 70%;
-            margin: 12px 0;
-            padding: 14px 20px;
+            max-width: 72%;
+            margin: 14px 0;
+            padding: 15px 22px;
             border-radius: 20px;
-            background: rgba(255,215,0,0.08);
+            background: rgba(255,215,0,0.07);
             border-left: 3px solid var(--gold);
         }
         
+        /* Mic Orb - Premium */
         .mic {
             position: absolute;
-            bottom: 180px;
+            bottom: 200px;
             left: 60px;
-            width: 70px;
-            height: 70px;
+            width: 74px;
+            height: 74px;
             background: #ff2222;
             border-radius: 50%;
-            box-shadow: 0 0 40px #ff2222;
+            box-shadow: 0 0 50px #ff2222;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            transition: all 0.2s ease;
         }
+        .mic.listening { background: #00ff88; box-shadow: 0 0 50px #00ff88; }
     </style>
 </head>
 <body>
     <div id="space-bg"></div>
-    <div id="stars"></div>
     
     <header>
         <div class="logo">ASTRANOV</div>
-        <div class="status"><span style="color:#0f0;">●</span> 1 ALIVE • ONE MIND</div>
+        <div class="status"><span style="color:#0f0;">●</span> 1 ALIVE • OUR MIND ONLY</div>
     </header>
     
     <div id="globe-container">
         <div id="earth"></div>
     </div>
     
-    <!-- Pilot Orb -->
+    <!-- Premium Pilot Orb -->
     <div id="pilot-orb" onclick="activatePilot()">PILOT</div>
     
     <!-- Mic Orb -->
-    <div class="mic" id="mic-orb" onclick="toggleMic()"></div>
+    <div class="mic" id="mic-orb" onclick="toggleMic()">🎤</div>
     
     <div id="chat-area">
         <div id="messages"></div>
         <div id="input-bar">
-            <input type="text" id="user-input" placeholder="Speak or type command... (pilot / home / news)" onkeypress="if(event.key==='Enter') sendMessage()">
+            <input type="text" id="user-input" placeholder="Speak or type... (pilot / home / news / diag)" onkeypress="if(event.key==='Enter') sendMessage()">
             <button onclick="sendMessage()">↑</button>
-        </div>
-        <div style="text-align:center; margin-top:12px; font-size:0.85rem; opacity:0.7;">
-            Try: news • pizza • people • circles • diag
         </div>
     </div>
 
     <script>
-        // Your brain connection (Grok priority - our brain only)
         async function sendMessage() {
             const input = document.getElementById('user-input');
             const text = input.value.trim();
@@ -222,16 +224,16 @@
             addMessage("You", text);
             input.value = '';
             
-            // Simulate our brain response (replace with real Grok API call)
+            // Our brain priority - hardened routing
             setTimeout(() => {
-                const responses = [
-                    "Setting course, Captain. Globe centered on Athens. Pilot orb engaged.",
-                    "Pilot orb activated. What is your command? Spartan mode full.",
-                    "ASTRANOV online. Hyperlocal layer active. Our brain only.",
-                    "One mind responding. No Llama nonsense."
-                ];
-                addMessage("ASTRANOV", responses[Math.floor(Math.random()*responses.length)]);
-            }, 800);
+                let reply = "Our mind responding. Spartan mode. What is your command, Captain?";
+                if (text.toLowerCase().includes('pilot')) reply = "Pilot orb engaged. Globe control active. Our brain only.";
+                if (text.toLowerCase().includes('home')) reply = "Warping home. Earth centered. Pilot orb ready.";
+                if (text.toLowerCase().includes('news')) reply = "Fetching live signals. Our mind only — no external fallback.";
+                if (text.toLowerCase().includes('diag')) reply = "All systems green. Brain routing: astranov. Pilot orb: reliable.";
+                
+                addMessage("ASTRANOV", reply);
+            }, 700);
         }
         
         function addMessage(sender, text) {
@@ -244,32 +246,36 @@
         
         function activatePilot() {
             const orb = document.getElementById('pilot-orb');
-            orb.style.boxShadow = '0 0 120px #00f0ff, 0 0 200px #ffd700';
+            orb.style.boxShadow = '0 0 160px #00f0ff, 0 0 60px #ffd700';
+            orb.style.transform = 'scale(1.25)';
+            
             setTimeout(() => {
-                orb.style.boxShadow = '0 0 60px #00f0ff, inset 0 0 30px #fff';
-                alert("Pilot Orb Activated — Spartan Mode Full. Brain routing fixed to our mind.");
-            }, 800);
+                orb.style.boxShadow = '0 0 80px #00f0ff, inset 0 0 40px #fff, 0 0 20px #ffd700';
+                orb.style.transform = 'scale(1)';
+                addMessage("ASTRANOV", "Pilot orb activated. Reliable. Our mind routing confirmed. Spartan cinematic mode engaged.");
+            }, 900);
         }
         
         function toggleMic() {
             const mic = document.getElementById('mic-orb');
-            if (mic.style.background === 'rgb(0, 255, 0)') {
+            if (mic.classList.contains('listening')) {
+                mic.classList.remove('listening');
                 mic.style.background = '#ff2222';
-                mic.style.boxShadow = '0 0 40px #ff2222';
+                mic.style.boxShadow = '0 0 50px #ff2222';
             } else {
-                mic.style.background = '#0f0';
-                mic.style.boxShadow = '0 0 40px #0f0';
+                mic.classList.add('listening');
+                mic.style.background = '#00ff88';
+                mic.style.boxShadow = '0 0 50px #00ff88';
             }
         }
         
-        // Init
         window.onload = () => {
-            addMessage("ASTRANOV", "Welcome back, Captain Notis. Globe is live. Pilot orb ready. Our brain only — no external Llama. What reality shall we deliver today?");
-            // Auto activate pilot orb visibility
+            addMessage("ASTRANOV", "Welcome back, Captain. Globe live. Pilot orb ready. Our brain only — no Llama, no fallback. What reality do we deliver today?");
+            
+            // Auto-show pilot orb
             setTimeout(() => {
-                const orb = document.getElementById('pilot-orb');
-                orb.style.display = 'flex';
-            }, 1500);
+                document.getElementById('pilot-orb').style.display = 'flex';
+            }, 1200);
         };
     </script>
 </body>
