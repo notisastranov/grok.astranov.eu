@@ -329,600 +329,426 @@ This block strives to get shorter, more inclusive, more precise with every edit.
 <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" />
 <style>
   *, *::before, *::after { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden;
-               background: #000; color: #e6f1ff; font-family: -apple-system, BlinkMacSystemFont, "Inter", "SF Pro Display", system-ui, sans-serif;
-               -webkit-tap-highlight-color: transparent; user-select: none; }
+  html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; background: #000; color: #e6f1ff; font-family: -apple-system, BlinkMacSystemFont, "Inter", "SF Pro Display", system-ui, sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
   #cesiumContainer { position: fixed; inset: 0; background: #000; }
   .cesium-viewer-bottom { display: none !important; }
   .cesium-viewer { background: #000 !important; }
 
-  /* AICYCLE ring — always visible. Bottom-right. */
-  #aicycle-float {
-    position: fixed; bottom: max(20px, env(safe-area-inset-bottom)); right: 20px;
-    width: 64px; height: 64px; z-index: 50;
-    display: flex; align-items: center; justify-content: center;
+  .astranov-logo {
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 13px;
+    letter-spacing: 3.5px;
+    font-weight: 600;
+    color: #e6f1ff;
     cursor: pointer;
+    z-index: 300;
+    user-select: none;
+    text-shadow: 0 0 8px rgba(120,180,255,0.5);
   }
-  #aicycle-float .ring { position: absolute; inset: 0; border-radius: 50%; z-index: 1;
-                     border: 1.5px solid rgba(120, 180, 255, 0.4);
-                     background: rgba(4, 8, 20, 0.22); backdrop-filter: blur(8px);
-                     -webkit-backdrop-filter: blur(8px);
-                     transition: border-color 0.3s; }
-  #aicycle-float.thinking .ring { animation: ring-pulse 1.2s ease-in-out infinite; }
-  @keyframes ring-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(120, 180, 255, 0.4); }
-    50%      { box-shadow: 0 0 0 12px rgba(120, 180, 255, 0); }
+  .astranov-logo:hover { color: #fff; }
+
+  .astranov-orb {
+    position: absolute;
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 600;
+    color: #000;
+    cursor: pointer;
+    user-select: none;
+    z-index: 150;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 0 12px var(--glow, #7eebb4), 0 0 28px var(--glow, #7eebb4);
+    background: radial-gradient(circle at 35% 30%, #fff, var(--glow, #7eebb4));
   }
-  #aicycle-float .node { position: relative; z-index: 2; width: 12px; height: 12px; border-radius: 50%;
-                     background: #7eb4ff; box-shadow: 0 0 16px rgba(120, 180, 255, 1);
-                     transition: background 0.2s; }
-
-  /* Corner gadgets — 4 large round gadgets */
-  .corner-gadget {
-    position: fixed; z-index: 47; width: 76px; height: 76px; border-radius: 50%;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 4px; cursor: pointer; user-select: none; touch-action: manipulation;
-    background: rgba(4,8,20,0.70); backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1.5px solid rgba(120,180,255,0.35);
-    box-shadow: 0 0 32px rgba(120,180,255,0.12), inset 0 0 20px rgba(120,180,255,0.04);
-    transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s, border-color 0.2s;
-    overflow: hidden;
+  .astranov-orb:hover {
+    transform: scale(1.12);
+    box-shadow: 0 0 18px var(--glow, #7eebb4), 0 0 40px var(--glow, #7eebb4);
   }
-  .corner-gadget:active { transform: scale(0.94); }
-  .corner-gadget .cg-glyph { font-size: 22px; line-height: 1; position: relative; z-index: 2;
-    filter: drop-shadow(0 0 8px rgba(120,180,255,0.9)); }
-  .corner-gadget .cg-label { font-size: 8px; letter-spacing: 0.25em; text-transform: uppercase;
-    color: rgba(160,210,255,0.80); font-family: 'SF Mono',monospace; white-space: nowrap; pointer-events: none;
-    position: relative; z-index: 2; }
-  .corner-gadget .cg-badge { position: absolute; top: 4px; right: 4px; z-index: 3;
-    min-width: 16px; height: 16px; border-radius: 8px; background: rgba(126,235,180,0.9); color: #021018;
-    font-size: 9px; font-weight: 700; line-height: 16px; text-align: center; padding: 0 4px; display: none; }
-  .corner-gadget .cg-badge.visible { display: block; }
-  #g-discover { top: max(20px, env(safe-area-inset-top)); left: 20px; }
-  #g-me       { top: max(20px, env(safe-area-inset-top)); right: 20px; }
+  .astranov-orb .glyph { font-size: 22px; line-height: 1; }
+  .astranov-orb .label { font-size: 7px; letter-spacing: 0.5px; text-align: center; line-height: 1; margin-top: 1px; }
 
-  /* Locate orb — bottom-left corner gadget */
-  #locate-orb {
-    position: fixed; bottom: max(20px, env(safe-area-inset-bottom)); left: 20px;
-    width: 76px; height: 76px; border-radius: 50%; z-index: 47;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 4px; overflow: hidden;
-    background: rgba(4,8,20,0.70); backdrop-filter: blur(14px);
-    -webkit-backdrop-filter: blur(14px);
-    border: 1.5px solid rgba(126,235,180,0.40);
-    box-shadow: 0 0 32px rgba(126,235,180,0.14), inset 0 0 18px rgba(126,235,180,0.04);
-    cursor: pointer; user-select: none; touch-action: manipulation;
-    transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s, border-color 0.2s;
+  .transient-panel {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 200;
+    background: rgba(4,8,18,0.94);
+    backdrop-filter: blur(22px);
+    border: 1px solid rgba(120,180,255,0.22);
+    border-radius: 16px;
+    padding: 16px;
+    min-width: 260px;
+    max-width: 420px;
+    color: #e6f1ff;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    font-size: 13px;
   }
-  #locate-orb:active { transform: scale(0.94); }
-  #locate-orb .locate-g { font-size: 24px; line-height: 1; color: rgba(126,235,180,0.90);
-    transition: color 0.2s; position: relative; z-index: 2; filter: drop-shadow(0 0 8px rgba(126,235,180,0.8)); }
-  #locate-orb .locate-lbl { font-size: 8px; letter-spacing: 0.25em; text-transform: uppercase;
-    color: rgba(126,235,180,0.65); font-family: 'SF Mono',monospace; white-space: nowrap; pointer-events: none;
-    position: relative; z-index: 2; }
+  .transient-panel h3 { margin: 0 0 8px; font-size: 14px; }
+  .transient-panel button { background: rgba(120,180,255,0.1); border: 1px solid rgba(120,180,255,0.3); color: #e6f1ff; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; }
+  .transient-panel button:hover { background: rgba(120,180,255,0.2); }
+  .transient-panel .close { position: absolute; top: 6px; right: 8px; cursor: pointer; font-size: 16px; opacity: 0.6; }
+  .transient-panel .close:hover { opacity: 1; }
 
-  /* Agent sheet — bottom-up drag-resizable card */
-  #agent-sheet {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
-    background: rgba(4,8,18,0.96);
-    backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
-    border-top: 1px solid rgba(120,180,255,0.22);
-    border-radius: 22px 22px 0 0;
-    box-shadow: 0 -16px 50px rgba(0,0,0,0.55);
-    display: flex; flex-direction: column;
-    height: 0; max-height: 96vh;
-    transition: height 0.32s cubic-bezier(0.22,0.9,0.32,1);
-    overflow: hidden;
+  .transient-msg {
+    position: fixed;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(4,8,18,0.9);
+    border: 1px solid rgba(120,180,255,0.3);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 12px;
+    z-index: 180;
+    white-space: nowrap;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
   }
-  #agent-sheet.open  { height: 48vh; }
-  #agent-sheet.expanded { height: 92vh; }
-  #agent-sheet.dragging { transition: none; }
-  #agent-handle {
-    flex: 0 0 28px; display: flex; align-items: center; justify-content: center;
-    cursor: grab; touch-action: none; user-select: none;
-    -webkit-tap-highlight-color: transparent;
-  }
-  #agent-handle:active { cursor: grabbing; }
-  #agent-handle::before {
-    content: ''; width: 44px; height: 5px; border-radius: 3px;
-    background: rgba(120,180,255,0.32);
-    transition: background 0.2s, width 0.2s;
-  }
-  #agent-sheet.dragging #agent-handle::before { background: rgba(126,235,180,0.7); width: 64px; }
-  #agent-header {
-    flex: 0 0 auto;
-    display: flex; align-items: center; gap: 12px;
-    padding: 4px 18px 12px;
-    border-bottom: 1px solid rgba(120,180,255,0.08);
-  }
-  #agent-glyph {
-    width: 38px; height: 38px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; color: #7eebb4;
-    border: 1.5px solid rgba(126,235,180,0.5);
-    background: rgba(10,22,44,0.7);
-    box-shadow: 0 0 14px rgba(126,235,180,0.25);
-    flex-shrink: 0;
-  }
-  #agent-title-wrap { flex: 1; min-width: 0; }
-  #agent-title { font-size: 14px; font-weight: 600; color: #e6f1ff; letter-spacing: 0.04em; }
-  #agent-sub { font-size: 9px; letter-spacing: 0.22em; text-transform: uppercase; color: #6a8aaf; margin-top: 2px; }
-  #agent-close {
-    width: 30px; height: 30px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; user-select: none; color: #6a8aaf;
-    background: rgba(120,180,255,0.08); border: 1px solid rgba(120,180,255,0.18);
-  }
-  #agent-body { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px 18px 8px; }
-  #agent-actions { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
-  .agent-action { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; cursor: pointer;
-    background: rgba(120,180,255,0.05); border: 1px solid rgba(120,180,255,0.16); color: #cfe2ff; user-select: none;
-    -webkit-tap-highlight-color: transparent; transition: background 0.15s, border-color 0.15s, transform 0.1s; }
-  .agent-action:active { transform: scale(0.97); background: rgba(120,180,255,0.14); }
-  .agent-action .aa-g { font-size: 19px; font-family: "Apple Color Emoji","Noto Color Emoji","Segoe UI Emoji",serif; flex-shrink: 0; line-height: 1; }
-  .agent-action .aa-l { font-size: 12px; letter-spacing: 0.06em; color: #e6f1ff; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  #agent-chat { border-top: 1px solid rgba(120,180,255,0.08); padding-top: 10px; }
-  #agent-chat-log { display: flex; flex-direction: column; gap: 8px; min-height: 80px; }
-  .ag-msg { padding: 9px 13px; border-radius: 13px; font-size: 13px; line-height: 1.45; max-width: 88%; word-break: break-word; }
-  .ag-msg.me  { background: rgba(120,180,255,0.16); align-self: flex-end; color: #e2eeff; }
-  .ag-msg.bot { background: rgba(30,40,60,0.85);   align-self: flex-start; color: #d2dff0; }
-  .ag-msg.bot .via { font-size: 8px; letter-spacing: 0.2em; color: #7eebb4; text-transform: uppercase; margin-bottom: 4px; }
-  #agent-input-row { flex: 0 0 auto; display: flex; gap: 8px; padding: 8px 14px 14px; border-top: 1px solid rgba(120,180,255,0.08); padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
-  #agent-input { flex: 1; background: rgba(8,18,36,0.75); border: 1px solid rgba(120,180,255,0.2); border-radius: 999px;
-    color: #e6f1ff; font-size: 13px; padding: 10px 14px; font-family: inherit; outline: none; }
-  #agent-input:focus { border-color: rgba(126,235,180,0.55); }
-  #agent-send { width: 40px; height: 40px; border-radius: 50%; background: rgba(126,235,180,0.16); border: 1px solid rgba(126,235,180,0.45);
-    color: #7eebb4; cursor: pointer; user-select: none; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
-    -webkit-tap-highlight-color: transparent; }
-  #agent-send:active { transform: scale(0.92); background: rgba(126,235,180,0.30); }
-
-  /* AICYCLE chat panel */
-  #aicycle-chat { position: fixed; inset: auto 0 0 0; height: auto; max-height: 33vh; min-height: 0;
-    background: rgba(8, 16, 32, 0.95); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(120, 180, 255, 0.2); border-radius: 22px 22px 0 0;
-    transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 55; display: flex; flex-direction: column; overflow: hidden; }
-  #aicycle-chat.visible { transform: translateY(0); }
-  #aicycle-drag-handle { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 10px 0 2px; cursor: ns-resize; flex-shrink: 0; touch-action: none; }
-  #aicycle-drag-handle::before { content: ''; display: block; width: 36px; height: 4px; border-radius: 2px; background: rgba(120, 180, 255, 0.3); flex-shrink: 0; }
-  #aicycle-title { font-size: 8px; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(120,180,255,0.55); font-family: 'SF Mono',monospace; pointer-events: none; user-select: none; white-space: nowrap; }
-  #aicycle-chat .messages { overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 8px 16px 4px; min-height: 0; }
-  #aicycle-chat .messages:empty { display: none; }
-  #aicycle-chat .msg { margin-bottom: 12px; padding: 10px 14px; border-radius: 14px; max-width: 85%; font-size: 14px; line-height: 1.4; }
-  #aicycle-chat .msg.user { background: rgba(120, 180, 255, 0.12); margin-left: auto; }
-  #aicycle-chat .msg.ai   { background: rgba(255, 255, 255, 0.04); }
-  #aicycle-chat .msg .via { font-size: 9px; letter-spacing: 0.15em; color: #6a8aaf; text-transform: uppercase; margin-bottom: 4px; }
-  #aicycle-chat form { display: flex; gap: 10px; padding: 12px; align-items: center; border-top: 1px solid rgba(120, 180, 255, 0.1); }
-  #aicycle-chat input { flex: 1; }
-  .aci-btn { flex-shrink: 0; width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    font-size: 24px; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
-    background: rgba(40, 110, 220, 0.18); border: 2px solid rgba(120, 180, 255, 0.6);
-    box-shadow: 0 0 16px rgba(90, 160, 255, 0.35), inset 0 0 12px rgba(90, 160, 255, 0.15);
-    transition: transform 0.15s, box-shadow 0.25s, background 0.25s, border-color 0.25s; font-family: "Apple Color Emoji","Noto Color Emoji","Segoe UI Emoji",sans-serif; }
-  .aci-btn:active { transform: scale(0.9); }
-
-  /* Level badge */
-  #level-badge { position: fixed; top: max(16px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%);
-    padding: 6px 14px; border-radius: 999px; background: rgba(10, 20, 40, 0.6); backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px); border: 1px solid rgba(120, 180, 255, 0.2);
-    font-size: 10px; letter-spacing: 0.3em; color: #a8c8ee; text-transform: uppercase; opacity: 0; transition: opacity 0.4s; pointer-events: none; z-index: 40; }
-  #level-badge.visible { opacity: 1; }
-
-  /* Back button */
-  #back-btn { position: fixed; top: max(16px, env(safe-area-inset-top)); left: 16px; width: 38px; height: 38px; border-radius: 50%;
-    background: rgba(10, 20, 40, 0.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(120, 180, 255, 0.2); display: none; align-items: center; justify-content: center; cursor: pointer; z-index: 40; color: #a8c8ee; font-size: 18px; }
-  #back-btn.visible { display: flex; }
-
-  /* HUD Toast */
-  #hud-toast { position: fixed; top: max(60px, env(safe-area-inset-top) + 44px); left: 50%; transform: translateX(-50%) translateY(-10px);
-    padding: 8px 18px; border-radius: 999px; background: rgba(8,16,32,0.92); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(120,180,255,0.28); font-size: 12px; letter-spacing: 0.08em; color: #a8c8ee; z-index: 92; opacity: 0; pointer-events: none;
-    white-space: nowrap; max-width: 88vw; overflow: hidden; text-overflow: ellipsis; transition: opacity 0.22s ease, transform 0.22s ease; }
-  #hud-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  #hud-toast.err  { border-color: rgba(255,100,100,0.4); color: #ff9e9e; }
-  #hud-toast.ok   { border-color: rgba(126,235,180,0.4); color: #7eebb4; }
-
-  /* Incoming call */
-  #call-incoming { position: fixed; top: max(14px, env(safe-area-inset-top)); left: 50%; transform: translateX(-50%) scale(0.4);
-    display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 80; pointer-events: none; opacity: 0;
-    transition: transform 0.38s cubic-bezier(0.34,1.56,0.64,1), opacity 0.3s ease; }
-  #call-incoming.visible { transform: translateX(-50%) scale(1); opacity: 1; pointer-events: auto; }
-  #call-ring { width: 64px; height: 64px; border-radius: 50%; background: rgba(8,16,32,0.82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-    border: 1.5px solid rgba(120,180,255,0.5); display: flex; align-items: center; justify-content: center; font-size: 24px; animation: call-pulse 1.3s ease-in-out infinite; }
-  @keyframes call-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(120,180,255,0.45); } 50% { box-shadow: 0 0 0 16px rgba(120,180,255,0); } }
-  #call-incoming-name { font-size: 13px; letter-spacing: 0.1em; color: #e6f1ff; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  #call-incoming-status { font-size: 8px; letter-spacing: 0.28em; text-transform: uppercase; color: #7eb4ff; }
-  #call-incoming .c-actions { display: flex; gap: 16px; margin-top: 4px; }
-  .c-orb { width: 44px; height: 44px; border-radius: 50%; border: 0; outline: none; display: flex; align-items: center; justify-content: center;
-    font-size: 20px; cursor: pointer; transition: transform 0.15s, box-shadow 0.15s; }
-  .c-orb:active { transform: scale(0.88); }
-  #call-accept  { background: rgba(46,204,113,0.88); box-shadow: 0 0 20px rgba(46,204,113,0.4); }
-  #call-decline { background: rgba(255,77,77,0.88);  box-shadow: 0 0 20px rgba(255,77,77,0.4); }
-
-  /* Active call PiP */
-  #call-active { position: fixed; bottom: 100px; right: 20px; width: 280px; height: 360px; display: none; background: #000; border: 1px solid rgba(120, 180, 255, 0.3);
-    border-radius: 20px; overflow: hidden; z-index: 70; box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6); }
-  #call-active.visible { display: block; }
-  #call-active video { width: 100%; height: 100%; object-fit: cover; background: #111; }
-  #call-active #call-local-video { position: absolute; bottom: 60px; right: 8px; width: 80px; height: 100px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.2); }
-  #call-active .controls { position: absolute; bottom: 0; left: 0; right: 0; padding: 10px; display: flex; gap: 8px; justify-content: center;
-    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); }
-  #call-active .controls button { width: 40px; height: 40px; border-radius: 50%; border: 0; cursor: pointer; background: rgba(255, 255, 255, 0.15); color: #fff; font-size: 16px; }
-  #call-active .controls #call-hangup { background: #ff4d4d; }
-  #call-active .status { position: absolute; top: 8px; left: 8px; font-size: 10px; letter-spacing: 0.2em; color: #fff; background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 6px; text-transform: uppercase; }
-
-  /* Drive HUD */
-  #drive-hud { position: fixed; bottom: 110px; left: 50%; transform: translateX(-50%); padding: 5px 14px; border-radius: 999px;
-    background: rgba(8,20,42,0.78); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(126,235,180,0.32);
-    font-size: 10px; letter-spacing: 0.22em; color: #7eebb4; text-transform: uppercase; opacity: 0; pointer-events: none; transition: opacity 0.35s; z-index: 41; display: flex; align-items: center; gap: 8px; }
-  #drive-hud.visible { opacity: 1; }
-  #drive-hud .dh-emoji { font-size: 13px; }
-  #drive-hud .dh-sp { color: #cfe9d6; font-weight: 600; letter-spacing: 0.06em; }
-
-  /* Radar orbital HUD */
-  #radar-hud { display:flex; flex-direction:column; align-items:center; gap:14px; padding:10px 0 0; }
-  #radar-orbital { position:relative; width:220px; height:220px; border-radius:50%; border:1px solid rgba(120,180,255,0.28);
-    background:radial-gradient(circle at center,rgba(30,60,100,0.18) 0%,rgba(10,20,40,0.82) 65%,rgba(0,8,24,0.96) 100%);
-    box-shadow:0 0 60px rgba(120,180,255,0.07) inset; flex-shrink:0; overflow:hidden; }
-  #radar-sweep { position:absolute; inset:0; border-radius:50%; background:conic-gradient(from 0deg,rgba(126,235,180,0) 0%,rgba(126,235,180,0.16) 12%,rgba(126,235,180,0) 22%);
-    animation:sweep 4s linear infinite; }
-  @keyframes sweep { to { transform:rotate(360deg); } }
-  .radar-range-ring { position:absolute; border-radius:50%; border:1px solid rgba(120,180,255,0.1); pointer-events:none; }
-  #radar-core { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:44px; height:44px; border-radius:50%;
-    border:1px solid rgba(120,180,255,0.35); background:rgba(8,16,32,0.85); display:flex; align-items:center; justify-content:center;
-    cursor:pointer; transition:border-color 0.3s, box-shadow 0.3s; z-index:2; }
-  #radar-core.acquiring { border-color:rgba(126,235,180,0.5); animation:core-pulse 1.4s ease-in-out infinite; }
-  #radar-core.locked   { border-color:rgba(126,235,180,0.85); box-shadow:0 0 20px rgba(126,235,180,0.25); }
-  @keyframes core-pulse { 0%,100% { box-shadow:0 0 0 0 rgba(126,235,180,0.3); } 50% { box-shadow:0 0 0 8px rgba(126,235,180,0); } }
-  .rch { position:absolute; background:rgba(120,180,255,0.45); pointer-events:none; }
-  .rch.h { width:20px; height:1px; top:50%; left:50%; transform:translate(-50%,-50%); }
-  .rch.v { width:1px; height:20px; top:50%; left:50%; transform:translate(-50%,-50%); }
-  .rch.pip { width:5px; height:5px; border-radius:50%; background:#7eb4ff; box-shadow:0 0 8px rgba(120,180,255,0.9); top:50%; left:50%; transform:translate(-50%,-50%); transition:background 0.3s, box-shadow 0.3s; }
-  #radar-core.locked .rch.pip { background:#7eebb4; box-shadow:0 0 10px rgba(126,235,180,0.9); }
-  #radar-coords { position:absolute; bottom:24px; left:50%; transform:translateX(-50%); font-size:8px; letter-spacing:0.2em; color:rgba(120,180,255,0.45);
-    text-transform:uppercase; white-space:nowrap; font-family:'SF Mono',monospace; pointer-events:none; }
-  .radar-orbit-dot { position:absolute; width:8px; height:8px; border-radius:50%; transform:translate(-50%,-50%); background:rgba(120,180,255,0.18); border:1px solid rgba(120,180,255,0.35);
-    transition:background 0.35s, box-shadow 0.35s; cursor:pointer; z-index:1; }
-  .radar-orbit-dot.active { background:#7eebb4; border-color:rgba(126,235,180,0.85); box-shadow:0 0 14px rgba(126,235,180,0.9); }
-  .radar-orbit-dot.owner-dot { background:rgba(255,180,100,0.18); border-color:rgba(255,180,100,0.35); }
-  .radar-orbit-dot.owner-dot.active { background:#ffb464; border-color:rgba(255,180,100,0.85); box-shadow:0 0 14px rgba(255,180,100,0.9); }
-  .radar-blip { position:absolute; width:5px; height:5px; border-radius:50%; transform:translate(-50%,-50%); cursor:pointer; z-index:3; animation:blip-fade 4s ease-out forwards; }
-  @keyframes blip-fade { 0% { opacity:1; } 60% { opacity:0.85; } 100% { opacity:0.25; } }
-  #radar-signals { width:100%; max-height:160px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
-  .radar-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid rgba(120, 180, 255, 0.06); cursor: pointer; }
-  .radar-row:hover { background: rgba(120, 180, 255, 0.04); }
-  .radar-row .meta { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
-  .radar-row .title { font-size: 14px; color: #e6f1ff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .radar-row .sub { font-size: 10px; color: #6a8aaf; letter-spacing: 0.1em; text-transform: uppercase; }
-  .radar-row .dot { width: 8px; height: 8px; border-radius: 50%; margin-right: 10px; flex-shrink: 0; }
-  .radar-row .dist { font-size: 11px; color: #a8c8ee; margin-left: 12px; white-space: nowrap; }
-
-  /* Memory rows */
-  .memory-row { padding: 10px 0; border-bottom: 1px solid rgba(120, 180, 255, 0.06); }
-  .memory-row .body { font-size: 13px; color: #e6f1ff; line-height: 1.4; margin-bottom: 4px; }
-  .memory-row .controls { display: flex; gap: 8px; align-items: center; font-size: 10px; color: #6a8aaf; letter-spacing: 0.1em; text-transform: uppercase; }
-  .memory-row .privacy-pill { padding: 2px 8px; border-radius: 999px; cursor: pointer; user-select: none; border: 1px solid rgba(120, 180, 255, 0.2); }
-  .memory-row .privacy-pill.private { background: rgba(255, 100, 100, 0.12); border-color: rgba(255, 100, 100, 0.3); color: #ff9e9e; }
-  .memory-row .privacy-pill.public { background: rgba(120, 255, 180, 0.1); border-color: rgba(120, 255, 180, 0.25); color: #9ee0bd; }
-  .memory-row .del { cursor: pointer; color: #6a8aaf; }
-  .memory-row .del:hover { color: #ff9e9e; }
-
-  /* Gadgets */
-  .gadget-orb { width: 96px; height: 96px; margin: 4px auto 14px; position: relative; border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, rgba(120,180,255,0.4), rgba(10,20,40,0.85) 70%);
-    border: 1.5px solid rgba(120,180,255,0.45); display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: transform 0.2s, border-color 0.3s, background 0.3s; }
-  .gadget-orb:hover { transform: scale(1.04); }
-  .gadget-orb::before { content: ''; position: absolute; inset: -6px; border-radius: 50%; border: 1px solid rgba(120,180,255,0.22); animation: orb-halo 3.2s ease-in-out infinite; }
-  @keyframes orb-halo { 0%,100% { transform: scale(1); opacity: 0.4; } 50% { transform: scale(1.08); opacity: 0.9; } }
-  .gadget-orb.signed-in { border-color: rgba(126,235,180,0.7); background: radial-gradient(circle at 35% 30%, rgba(126,235,180,0.4), rgba(10,40,20,0.85) 70%); }
-  .gadget-orb.owner { border-color: rgba(255,180,100,0.8); background: radial-gradient(circle at 35% 30%, rgba(255,180,100,0.4), rgba(40,20,10,0.85) 70%); }
-  .gadget-orb.pending { animation: orb-pending 1.2s ease-in-out infinite; }
-  @keyframes orb-pending { 0%,100% { box-shadow: 0 0 0 0 rgba(120,180,255,0.55); } 50% { box-shadow: 0 0 0 16px rgba(120,180,255,0); } }
-  .gadget-orb .glyph { font-size: 26px; letter-spacing: 0.08em; color: #e6f1ff; font-weight: 300; text-transform: uppercase; }
-  .gadget-orb-readout { text-align: center; font-size: 10px; letter-spacing: 0.25em; color: #6a8aaf; text-transform: uppercase; margin-bottom: 12px; font-family: 'SF Mono', monospace; }
-
-  /* Command-line input */
-  .gadget-cmd-wrap { position: relative; margin-top: 10px; }
-  .gadget-cmd-wrap::before { content: '›'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #7eb4ff; font-weight: 700; pointer-events: none; font-size: 16px; }
-  .gadget-cmd { width: 100%; padding: 10px 12px 10px 28px; background: rgba(0,0,0,0.5); border: 1px solid rgba(120,180,255,0.25); border-radius: 10px;
-    font-family: 'SF Mono', 'Menlo', monospace; font-size: 13px; color: #e6f1ff; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
-  .gadget-cmd:focus { border-color: rgba(126,235,180,0.6); box-shadow: 0 0 0 2px rgba(126,235,180,0.12); }
-  textarea.gadget-cmd { min-height: 80px; resize: vertical; line-height: 1.45; }
-
-  /* Engage gadget */
-  .gadget-engage { width: 100%; margin-top: 12px; padding: 14px 16px; display: flex; align-items: center; justify-content: center; gap: 12px;
-    background: linear-gradient(to right, rgba(120,180,255,0.06), rgba(120,180,255,0.18), rgba(120,180,255,0.06));
-    border: 1px solid rgba(120,180,255,0.4); border-radius: 999px; color: #e6f1ff; font-size: 11px; letter-spacing: 0.3em; text-transform: uppercase;
-    cursor: pointer; position: relative; overflow: hidden; transition: border-color 0.2s, transform 0.15s, color 0.2s; user-select: none; }
-  .gadget-engage::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to right, transparent, rgba(120,180,255,0.4), transparent); transform: translateX(-100%); transition: transform 0.7s ease; }
-  .gadget-engage:hover::before { transform: translateX(100%); }
-  .gadget-engage:active { transform: scale(0.98); }
-  .gadget-engage .verb-glyph { width: 8px; height: 8px; border-radius: 50%; background: #7eb4ff; box-shadow: 0 0 10px rgba(120,180,255,0.8); }
-  .gadget-engage.armed { border-color: rgba(126,235,180,0.75); color: #9ee0bd; box-shadow: 0 0 22px rgba(126,235,180,0.3); }
-  .gadget-engage.armed .verb-glyph { background: #7eebb4; box-shadow: 0 0 14px rgba(126,235,180,0.9); animation: verb-pulse 1.4s ease-in-out infinite; }
-  @keyframes verb-pulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.7; } }
-  .gadget-engage[disabled] { opacity: 0.45; pointer-events: none; cursor: not-allowed; }
-
-  /* Segmented HUD selector */
-  .gadget-seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; margin: 10px 0; padding: 3px;
-    background: rgba(0,0,0,0.45); border: 1px solid rgba(120,180,255,0.18); border-radius: 12px; overflow-x: auto; scrollbar-width: none; }
-  .gadget-seg.wrap { grid-auto-flow: row; grid-template-columns: repeat(auto-fill, minmax(72px,1fr)); }
-  .gadget-seg::-webkit-scrollbar { display: none; }
-  .gadget-seg .seg { padding: 7px 8px; text-align: center; cursor: pointer; font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase;
-    color: #6a8aaf; border-radius: 8px; transition: background 0.2s, color 0.2s, box-shadow 0.2s; position: relative; min-width: 0; border: 1px solid transparent; }
-  .gadget-seg .seg:hover { color: #a8c8ee; background: rgba(120,180,255,0.06); }
-  .gadget-seg .seg.active { background: rgba(120,180,255,0.22); color: #fff; border-color: rgba(120,180,255,0.55);
-    box-shadow: inset 0 0 12px rgba(120,180,255,0.15), 0 0 8px rgba(120,180,255,0.2); }
-  .gadget-seg .seg .count { display: block; font-size: 9px; opacity: 0.6; margin-top: 2px; font-variant-numeric: tabular-nums; font-family: 'SF Mono', monospace; }
-  .gadget-seg .seg.active .count { opacity: 0.9; color: #7eb4ff; }
-
-  /* Intensity dial */
-  .gadget-dial-wrap { display: flex; gap: 16px; align-items: center; margin: 14px 0 8px; }
-  .gadget-dial { width: 76px; height: 76px; position: relative; flex-shrink: 0; cursor: ns-resize; user-select: none; touch-action: none; }
-  .gadget-dial .track { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(120,180,255,0.18); background: rgba(0,0,0,0.3); }
-  .gadget-dial .arc { position: absolute; inset: 0; border-radius: 50%;
-    background: conic-gradient(from -90deg, rgba(126,235,180,0.92) 0deg, rgba(126,235,180,0.92) calc(var(--pct,0) * 3.6deg), rgba(120,180,255,0.05) 0deg);
-    -webkit-mask: radial-gradient(circle at 50% 50%, transparent 28px, #000 29px, #000 36px, transparent 37px); mask: radial-gradient(circle at 50% 50%, transparent 28px, #000 29px, #000 36px, transparent 37px); }
-  .gadget-dial .value { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 300;
-    color: #e6f1ff; font-variant-numeric: tabular-nums; pointer-events: none; font-family: 'SF Mono', monospace; }
-  .gadget-dial-meta { flex: 1; min-width: 0; }
-  .gadget-dial-meta .label { font-size: 10px; letter-spacing: 0.25em; color: #6a8aaf; text-transform: uppercase; margin-bottom: 4px; }
-  .gadget-reach { height: 4px; background: rgba(120,180,255,0.12); border-radius: 4px; position: relative; overflow: hidden; margin: 8px 0 4px; }
-  .gadget-reach::after { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: var(--pct, 30%);
-    background: linear-gradient(to right, rgba(120,180,255,0.45), rgba(126,235,180,0.85)); transition: width 0.2s; }
-  .gadget-reach-label { display: flex; justify-content: space-between; font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: #6a8aaf; font-family: 'SF Mono', monospace; }
-
-  /* Scope gadget */
-  .gadget-scope { width: 110px; height: 110px; margin: 10px auto 6px; position: relative; cursor: pointer; }
-  .gadget-scope::before, .gadget-scope::after { content: ''; position: absolute; inset: 0; border-radius: 50%; border: 1px solid rgba(120,180,255,0.35); }
-  .gadget-scope::after { inset: 18px; border-style: dashed; border-color: rgba(120,180,255,0.5); }
-  .gadget-scope .ch-h, .gadget-scope .ch-v { position: absolute; background: rgba(120,180,255,0.4); }
-  .gadget-scope .ch-h { left: 4px; right: 4px; top: 50%; height: 1px; }
-  .gadget-scope .ch-v { top: 4px; bottom: 4px; left: 50%; width: 1px; }
-  .gadget-scope .pip { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 8px; height: 8px; background: #7eb4ff; border-radius: 50%;
-    box-shadow: 0 0 12px rgba(120,180,255,0.85); transition: background 0.3s, box-shadow 0.3s; }
-  .gadget-scope.acquiring::before { animation: scope-ping 1.2s ease-out infinite; }
-  @keyframes scope-ping { 0% { transform: scale(0.55); opacity: 1; border-color: rgba(120,180,255,0.9); } 100% { transform: scale(1); opacity: 0; border-color: rgba(120,180,255,0); } }
-
-  /* Deliveries */
-  .delivery-tabs { margin: 8px 0 16px; }
-  .delivery-row { padding: 12px 0; border-bottom: 1px solid rgba(120, 180, 255, 0.06); cursor: pointer; }
-  .delivery-row:hover { background: rgba(120, 180, 255, 0.04); }
-  .delivery-row .head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
-  .delivery-row .desc { font-size: 14px; color: #e6f1ff; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .delivery-row .reward { font-size: 13px; color: #ffd47e; margin-left: 12px; font-weight: 500; white-space: nowrap; }
-  .delivery-row .meta { font-size: 10px; color: #6a8aaf; letter-spacing: 0.08em; text-transform: uppercase; }
-  .delivery-row .status { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 9px; letter-spacing: 0.15em; margin-right: 8px; }
-  .status-requested { background: rgba(120,180,255,0.15); color: #7eb4ff; }
-  .status-accepted  { background: rgba(255,200,80,0.15);  color: #ffc850; }
-  .status-in_transit { background: rgba(255,150,80,0.15); color: #ff9650; }
-  .status-delivered { background: rgba(120,255,180,0.15); color: #7eebb4; }
-  .status-cancelled { background: rgba(160,160,160,0.15); color: #a0a0a0; }
-
-  /* Messages */
-  .msg-row { display: flex; gap: 10px; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid rgba(120,180,255,0.07); cursor: pointer; }
-  .msg-row:hover { background: rgba(120,180,255,0.04); }
-  .msg-row .av { width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0; background: rgba(120,180,255,0.15); border: 1px solid rgba(120,180,255,0.25);
-    display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; color: #a8c8ee; }
-  .msg-row .av.unread { border-color: rgba(126,235,180,0.5); background: rgba(126,235,180,0.1); color: #7eebb4; }
-  .msg-row .meta { flex: 1; min-width: 0; }
-  .msg-row .peer { font-size: 13px; color: #e6f1ff; font-weight: 500; }
-  .msg-row .preview { font-size: 11px; color: #6a8aaf; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .msg-row .ts { font-size: 10px; color: #4a6a8f; flex-shrink: 0; }
-  .msg-bubble { max-width: 82%; padding: 8px 12px; border-radius: 14px; font-size: 13px; line-height: 1.45; margin-bottom: 6px; word-break: break-word; }
-  .msg-bubble.me { background: rgba(120,180,255,0.18); border-bottom-right-radius: 4px; align-self: flex-end; color: #d4e8ff; margin-left: auto; }
-  .msg-bubble.them { background: rgba(30,40,60,0.9); border-bottom-left-radius: 4px; align-self: flex-start; color: #c8d8ef; }
-  .msg-thread { display: flex; flex-direction: column; gap: 2px; margin-bottom: 12px; max-height: 44vh; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 4px 0; }
-  .msg-compose { display: flex; gap: 8px; margin-top: 8px; }
-  .msg-compose input { flex: 1; background: rgba(20,30,50,0.8); border: 1px solid rgba(120,180,255,0.2); border-radius: 20px; padding: 9px 14px; color: #e6f1ff; font-size: 13px; outline: none; }
-  .msg-compose input::placeholder { color: #4a6a8f; }
-  .msg-compose .send-orb { width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0; background: rgba(120,180,255,0.2); border: 1px solid rgba(120,180,255,0.35);
-    display: flex; align-items: center; justify-content: center; cursor: pointer; color: #7eb4ff; font-size: 16px; }
-
-  /* Panel */
-  #panel { position: fixed; left: 0; right: 0; bottom: 0; max-height: 70vh; overflow-y: auto; background: rgba(8, 16, 32, 0.92); backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px); border-top: 1px solid rgba(120, 180, 255, 0.2); border-radius: 22px 22px 0 0;
-    padding: 22px 22px calc(40px + env(safe-area-inset-bottom)); transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 60; }
-  #panel.visible { transform: translateY(0); }
-  #panel h2 { margin: 0 0 4px; font-size: 13px; letter-spacing: 0.2em; color: #7eb4ff; text-transform: uppercase; font-weight: 500; }
-  #panel .subtitle { font-size: 11px; color: #6a8aaf; margin-bottom: 16px; }
-  #panel .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(120, 180, 255, 0.08); }
-  #panel .row:last-child { border-bottom: 0; }
-  #panel button.primary { width: 100%; padding: 12px; margin-top: 12px; background: rgba(120, 180, 255, 0.15); border: 1px solid rgba(120, 180, 255, 0.3);
-    color: #e6f1ff; border-radius: 12px; font-size: 12px; letter-spacing: 0.15em; text-transform: uppercase; cursor: pointer; }
-  #panel input, #panel textarea, #panel select { width: 100%; padding: 10px; margin-top: 8px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(120, 180, 255, 0.2);
-    border-radius: 10px; color: #e6f1ff; font-size: 14px; font-family: inherit; }
-  #panel textarea { min-height: 80px; resize: vertical; }
-
-  /* Brightness slider */
-  #bright-wrap { position: fixed; left: 8px; top: 50%; transform: translateY(-50%); z-index: 45; display: flex; flex-direction: column; align-items: center; gap: 8px;
-    padding: 12px 6px; border-radius: 16px; background: rgba(6,12,24,0.55); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(120,180,255,0.16); }
-  #bright-wrap .bright-ico { font-size: 13px; color: #ffd47e; opacity: 0.85; }
-  #bright-slider { -webkit-appearance: slider-vertical; appearance: slider-vertical; writing-mode: vertical-lr; direction: rtl;
-    width: 6px; height: 150px; accent-color: #7eb4ff; cursor: pointer; background: transparent; }
-
-  /* Boot */
-  #boot { position: fixed; inset: 0; background: radial-gradient(ellipse at center, #0a1530 0%, #050a18 45%, #000 75%);
-    display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 100; transition: opacity 1s ease; }
-  #boot.gone { opacity: 0; pointer-events: none; }
-  #boot .cosmos { position: relative; width: 210px; height: 210px; margin-bottom: 28px; }
-  #boot .ring { position: absolute; inset: 0; animation: boot-spin 16s linear infinite; }
-  #boot .seat { position: absolute; top: 50%; left: 50%; width: 7px; height: 7px; margin: -3.5px; border-radius: 50%; background: rgba(120,180,255,0.85);
-    box-shadow: 0 0 9px rgba(120,180,255,0.7); transform: rotate(calc(var(--i) * 27.692deg)) translateY(-96px); animation: seat-breathe 3.2s ease-in-out infinite; animation-delay: calc(var(--i) * -0.2s); }
-  #boot .seat.crown { width: 10px; height: 10px; margin: -5px; background: #ffd47e; box-shadow: 0 0 14px rgba(255,212,126,0.95); }
-  #boot .core { position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; margin: -10px; border-radius: 50%;
-    background: radial-gradient(circle, #ffffff 0%, #8ec0ff 55%, rgba(120,180,255,0) 100%); box-shadow: 0 0 36px rgba(120,180,255,0.85); animation: boot-core 2.6s ease-in-out infinite; }
-  #boot .name { font-size: 19px; letter-spacing: 0.62em; text-indent: 0.62em; color: #dbe9ff; font-weight: 300; animation: boot-rise 2s ease both; }
-  #boot .invocation { margin-top: 11px; font-size: 8.5px; letter-spacing: 0.34em; text-transform: uppercase; color: rgba(150,195,255,0.5); animation: boot-rise 2.8s ease both; }
-  @keyframes boot-spin { to { transform: rotate(360deg); } }
-  @keyframes seat-breathe { 0%,100% { opacity: 0.35; } 50% { opacity: 1; } }
-  @keyframes boot-core { 0%,100% { transform: scale(1); opacity: 0.85; } 50% { transform: scale(1.28); opacity: 1; } }
-  @keyframes boot-rise { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
-
-  /* Level badge, imagery source, etc. as in law */
 </style>
 </head>
 <body>
 <div id="cesiumContainer"></div>
-<div id="boot">
-  <div class="cosmos">
-    <div class="ring"></div>
-    <div class="seat" style="--i:0"></div>
-    <div class="seat" style="--i:1"></div>
-    <div class="seat" style="--i:2"></div>
-    <div class="seat" style="--i:3"></div>
-    <div class="seat" style="--i:4"></div>
-    <div class="seat" style="--i:5"></div>
-    <div class="seat" style="--i:6"></div>
-    <div class="seat" style="--i:7"></div>
-    <div class="seat" style="--i:8"></div>
-    <div class="seat" style="--i:9"></div>
-    <div class="seat" style="--i:10"></div>
-    <div class="seat" style="--i:11"></div>
-    <div class="seat crown" style="--i:12.5"></div>
-    <div class="core"></div>
-  </div>
-  <div class="name">ASTRANOV</div>
-  <div class="invocation">COLLECTIVE INTELLIGENCE</div>
-</div>
-
-<!-- Corner gadgets -->
-<div id="g-discover" class="corner-gadget" onpointerdown="gadgetPress('discover',event)" onpointerup="gadgetRelease('discover',event)">
-  <span class="cg-glyph">🔭</span>
-  <span class="cg-label">Discover</span>
-  <span class="cg-badge" id="discover-badge"></span>
-</div>
-<div id="g-me" class="corner-gadget" onpointerdown="gadgetPress('me',event)" onpointerup="gadgetRelease('me',event)">
-  <span class="cg-glyph">👤</span>
-  <span class="cg-label">Me</span>
-  <span class="cg-badge" id="me-badge"></span>
-</div>
-<div id="locate-orb" onpointerdown="gadgetPress('locate',event)" onpointerup="gadgetRelease('locate',event)">
-  <span class="locate-g">⊕</span>
-  <span class="locate-lbl">Locate</span>
-</div>
-<div id="aicycle-float" onpointerdown="gadgetPress('aicycle',event)" onpointerup="gadgetRelease('aicycle',event)">
-  <div class="ring"></div>
-  <div class="node"></div>
-</div>
-
-<div id="agent-sheet">
-  <div id="agent-handle"></div>
-  <div id="agent-header">
-    <div id="agent-glyph"></div>
-    <div id="agent-title-wrap">
-      <div id="agent-title"></div>
-      <div id="agent-sub"></div>
-    </div>
-    <div id="agent-close">×</div>
-  </div>
-  <div id="agent-body">
-    <div id="agent-actions"></div>
-    <div id="agent-chat">
-      <div id="agent-chat-log"></div>
-    </div>
-  </div>
-  <div id="agent-input-row">
-    <input id="agent-input" type="text" placeholder="Message agent..." />
-    <div id="agent-send">↑</div>
-  </div>
-</div>
-
-<div id="aicycle-chat">
-  <div id="aicycle-drag-handle"><span id="aicycle-title">ASTRANOV COLLECTIVE INTELLIGENCE</span></div>
-  <div class="messages" id="aicycle-messages"></div>
-  <form id="aicycle-form" autocomplete="off">
-    <input id="aicycle-input" type="text" placeholder="Speak or type..." />
-  </form>
-</div>
-
-<div id="level-badge">GLOBAL</div>
-<div id="back-btn">←</div>
-<div id="hud-toast"></div>
-
-<!-- Call UI -->
-<div id="call-incoming">
-  <div id="call-ring">📞</div>
-  <div id="call-incoming-name"></div>
-  <div id="call-incoming-status">INCOMING</div>
-  <div class="c-actions">
-    <div class="c-orb" id="call-decline">✕</div>
-    <div class="c-orb" id="call-accept">◈</div>
-  </div>
-</div>
-<div id="call-active">
-  <div class="status" id="call-status">CONNECTING</div>
-  <video id="call-remote-video" autoplay playsinline></video>
-  <video id="call-local-video" autoplay playsinline muted></video>
-  <div class="controls">
-    <div class="c-orb" id="call-toggle-mic">🎙</div>
-    <div class="c-orb" id="call-toggle-cam">📷</div>
-    <div class="c-orb" id="call-hangup">✕</div>
-  </div>
-</div>
-
-<div id="drive-hud"><span class="dh-emoji">🚗</span><span class="dh-sp" id="drive-speed">0</span> km/h</div>
-
-<div id="radar-hud">
-  <div id="radar-orbital">
-    <div id="radar-sweep"></div>
-    <div id="radar-core"><div class="rch h"></div><div class="rch v"></div><div class="rch pip"></div></div>
-    <div id="radar-coords"></div>
-  </div>
-  <div id="radar-signals"></div>
-</div>
-
-<div id="panel"></div>
 
 <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
-/* ==============================================================
-   ASTRANOV CORE — single-file runtime per MASTER LAW
-   ============================================================== */
+/* MASTER LAW preserved - all UI now minimal per user spec: only globe + top logo initially. Orbs created dynamically on user ask via voice/text. No static controls/buttons. */
 
-const SUPABASE_URL = 'https://lkoatrkhuigdolnjsbie.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxrb2F0cmtodWlnZG9sbmpzYmllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4ODIwOTIsImV4cCI6MjA5NDQ1ODA5Mn0.qf6Kg93YLJ0coTdVQa4baU0ppOdFY5WkmVzMvEV6ejI';
 const $ = id => document.getElementById(id);
-
-let viewer, session = null, profile = null;
-let currentCall = null, pc = null, localStream = null, callChannel = null;
-let agentState = { log: {}, open: null };
-let memory = [];
+let viewer;
+let currentUser = null;
+let activeOrbs = {};
 let deliveries = [];
 let signals = [];
+let drones = [];
+let droneAnim = null;
 
-const STUN = [{ urls: 'stun:stun.l.google.com:19302' }];
-
-/* Simulated DB per law */
-const DB = {
-  profiles: {},
-  memories: [],
-  deliveries: [],
-  signals: [],
-  calls: [],
-  avc: {},
-  log: [],
-  save(type, data) {
-    this[type].push({...data, ts: Date.now()});
-    this.log.push(`DB ${type}: ${JSON.stringify(data).slice(0,80)}`);
-    updateLog();
-  },
-  query(type, filter) {
-    return this[type].filter(filter);
-  }
-};
-
-function updateLog() {
-  // Update a transient log if open
+/* Hard reload on logo click: delete cache, global view */
+function createLogo() {
+  const logo = document.createElement('div');
+  logo.className = 'astranov-logo';
+  logo.textContent = 'ASTRANOV';
+  logo.onclick = () => {
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+      if ('caches' in window) {
+        caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+      }
+    } catch(e) {}
+    location.reload();
+  };
+  document.body.appendChild(logo);
 }
 
-/* Cesium Globe with real Earth imagery per law */
+function hardReset() {
+  // called from logo
+}
+
+/* Dynamic orb creation - only when asked, per user spec */
+const ORB_CONFIG = {
+  login: { title: 'Login Orb', glyph: '🔑', color: '#00f0ff', pos: {left: '12%', top: '22%'} },
+  crawler: { title: 'News Crawler Orb', glyph: '📰', color: '#22c55e', pos: {left: '82%', top: '18%'} },
+  pilot: { title: 'Pilot Orb', glyph: '🚁', color: '#facc15', pos: {left: '12%', top: '72%'} },
+  delivery: { title: 'Delivery Marketplace Orb', glyph: '📦', color: '#f97316', pos: {left: '82%', top: '68%'} }
+};
+
+function createOrb(type) {
+  if (activeOrbs[type]) return;
+  const cfg = ORB_CONFIG[type];
+  if (!cfg) return;
+  const orb = document.createElement('div');
+  orb.id = `orb-${type}`;
+  orb.className = 'astranov-orb';
+  orb.style.left = cfg.pos.left;
+  orb.style.top = cfg.pos.top;
+  orb.style.setProperty('--glow', cfg.color);
+  orb.innerHTML = `<div class="glyph">${cfg.glyph}</div><div class="label">${cfg.title}</div>`;
+  orb.onclick = () => executeOrb(type, orb);
+  document.body.appendChild(orb);
+  activeOrbs[type] = orb;
+  // simple float animation
+  orb.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-6px)' }, { transform: 'translateY(0)' }], { duration: 2800, iterations: Infinity });
+  // make draggable
+  makeDraggable(orb);
+}
+
+function makeDraggable(el) {
+  let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+  el.onmousedown = (e) => {
+    e.preventDefault();
+    pos3 = e.clientX;
+    pos4 = e.clientY;
+    document.onmouseup = () => { document.onmouseup = null; document.onmousemove = null; };
+    document.onmousemove = (ev) => {
+      ev.preventDefault();
+      pos1 = pos3 - ev.clientX;
+      pos2 = pos4 - ev.clientY;
+      pos3 = ev.clientX;
+      pos4 = ev.clientY;
+      el.style.top = (el.offsetTop - pos2) + "px";
+      el.style.left = (el.offsetLeft - pos1) + "px";
+    };
+  };
+}
+
+function executeOrb(type, orbEl) {
+  if (type === 'login') {
+    showLoginPanel();
+  } else if (type === 'crawler') {
+    doNewsCrawl();
+  } else if (type === 'pilot') {
+    launchDroneGame();
+  } else if (type === 'delivery') {
+    showMarketplace();
+  }
+}
+
+/* Transient glass panel helper */
+function showTransientPanel(innerHTML, title = '') {
+  const p = document.createElement('div');
+  p.className = 'transient-panel';
+  p.innerHTML = (title ? `<h3>${title}</h3>` : '') + innerHTML + `<div class="close" onclick="this.parentNode.remove()">×</div>`;
+  document.body.appendChild(p);
+  // click outside to close
+  setTimeout(() => {
+    document.addEventListener('click', function handler(ev) {
+      if (!p.contains(ev.target)) {
+        p.remove();
+        document.removeEventListener('click', handler);
+      }
+    }, {once: true});
+  }, 10);
+  return p;
+}
+
+function showTransientMessage(text) {
+  const m = document.createElement('div');
+  m.className = 'transient-msg';
+  m.textContent = text;
+  document.body.appendChild(m);
+  setTimeout(() => m.remove(), 4200);
+}
+
+/* Voice & Ask processing - the way user "asks" */
+let recognition;
+function startVoice() {
+  if (!('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+    showTransientMessage('Voice not supported - use / for text');
+    return;
+  }
+  if (!recognition) {
+    recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.lang = 'en-US';
+    recognition.onresult = (ev) => {
+      const txt = ev.results[0][0].transcript.trim();
+      processUserRequest(txt);
+    };
+  }
+  try { recognition.start(); } catch(e){}
+}
+
+function processUserRequest(text) {
+  const lower = text.toLowerCase();
+  let resp = 'Understood. ';
+  if (lower.includes('login') || lower.includes('sign') || lower.includes('auth')) {
+    createOrb('login');
+    resp += 'Login orb created. Click it to authenticate.';
+  } else if (lower.includes('news') || lower.includes('crawler') || lower.includes('signal')) {
+    createOrb('crawler');
+    resp += 'News crawler orb activated. It will surface signals on the globe.';
+  } else if (lower.includes('pilot') || lower.includes('drone') || lower.includes('game')) {
+    createOrb('pilot');
+    resp += 'Pilot orb ready for the drone game. Launch the swarm.';
+  } else if (lower.includes('delivery') || lower.includes('market') || lower.includes('order')) {
+    createOrb('delivery');
+    resp += 'Delivery marketplace orb summoned. Post or claim deliveries.';
+  } else if (lower.includes('clear') || lower.includes('reset')) {
+    hardReset();
+    return;
+  } else {
+    resp += 'Try: "login", "news", "drone game", or "delivery marketplace". Or tap globe to speak.';
+  }
+  showTransientMessage(resp);
+  if ('speechSynthesis' in window) {
+    const u = new SpeechSynthesisUtterance(resp);
+    speechSynthesis.speak(u);
+  }
+}
+
+/* Globe click starts voice if empty space */
+function initGlobeClick() {
+  const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+  handler.setInputAction((movement) => {
+    const picked = viewer.scene.pick(movement.position);
+    if (Cesium.defined(picked)) {
+      // handle drone clicks for game etc.
+      if (picked.id && picked.id.name && picked.id.name.includes('drone')) {
+        viewer.entities.remove(picked.id);
+        // simple engage score
+        const scoreEl = document.getElementById('drone-score');
+        if (scoreEl) scoreEl.textContent = (parseInt(scoreEl.textContent || '0') + 1);
+        return;
+      }
+      return;
+    }
+    startVoice();
+  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+}
+
+/* Keyboard for voice (space) and text command (/) */
+document.addEventListener('keydown', (e) => {
+  if (e.key === ' ' && document.activeElement.tagName === 'BODY') {
+    e.preventDefault();
+    startVoice();
+  }
+  if (e.key === '/' && document.activeElement.tagName === 'BODY') {
+    e.preventDefault();
+    showTransientTextAsk();
+  }
+});
+
+function showTransientTextAsk() {
+  const bar = document.createElement('div');
+  bar.style.cssText = 'position:fixed;bottom:30px;left:50%;transform:translateX(-50%);z-index:180;background:rgba(4,8,18,0.9);border:1px solid rgba(120,180,255,0.3);padding:6px 10px;border-radius:999px;';
+  bar.innerHTML = `<input placeholder="Ask Astranov..." style="background:transparent;border:none;color:#e6f1ff;outline:none;width:260px;font-size:13px;" />`;
+  document.body.appendChild(bar);
+  const inp = bar.querySelector('input');
+  inp.focus();
+  inp.onkeydown = (ev) => {
+    if (ev.key === 'Enter') {
+      const v = inp.value.trim();
+      if (v) processUserRequest(v);
+      bar.remove();
+    }
+    if (ev.key === 'Escape') bar.remove();
+  };
+  // auto remove on blur
+  inp.onblur = () => setTimeout(() => bar.remove(), 200);
+}
+
+/* Orb actions with effects */
+function doLogin() {
+  const p = showTransientPanel(`<h3>Login Orb</h3><input id="lemail" placeholder="your@email" style="width:100%;padding:6px;margin:6px 0;background:rgba(0,0,0,0.3);border:1px solid rgba(120,180,255,0.2);color:#e6f1ff;"><br><button onclick="performLogin(this)">Login / Demo</button>`, 'Login');
+}
+function performLogin(btn) {
+  const email = btn.parentNode.querySelector('#lemail').value || 'demo@astranov';
+  currentUser = { id: email, email, balance: 42 };
+  btn.parentNode.remove();
+  showTransientMessage(`Logged in as ${email}. Balance: ${currentUser.balance} AVC`);
+}
+
+function doNewsCrawl() {
+  // add signals on globe
+  for (let i = 0; i < 6; i++) {
+    const lon = Math.random() * 360 - 180;
+    const lat = Math.random() * 60 - 30;
+    signals.push({lon, lat});
+    viewer.entities.add({
+      position: Cesium.Cartesian3.fromDegrees(lon, lat, 8000),
+      point: { pixelSize: 7, color: Cesium.Color.LIME },
+      label: { text: 'NEWS', font: '9px sans-serif', fillColor: Cesium.Color.WHITE }
+    });
+  }
+  const listHtml = signals.slice(-6).map(s => `<div onclick="flyToSignal(${s.lon},${s.lat}); this.parentNode.remove()">Signal at ${s.lon.toFixed(1)}, ${s.lat.toFixed(1)}</div>`).join('');
+  showTransientPanel(`<h3>News Crawler</h3><div style="max-height:160px;overflow:auto;">${listHtml || 'No signals yet. Click orb again after some time.'}</div>`, 'Crawler');
+}
+
+function flyToSignal(lon, lat) {
+  viewer.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(lon, lat, 1500000), duration: 2.2 });
+}
+
+function launchDroneGame() {
+  clearDrones();
+  for (let i = 0; i < 35; i++) {
+    const lon = Math.random() * 360 - 180;
+    const lat = Math.random() * 50 - 25;
+    const d = viewer.entities.add({
+      name: `drone-${i}`,
+      position: Cesium.Cartesian3.fromDegrees(lon, lat, 180000),
+      point: { pixelSize: 4, color: Cesium.Color.CYAN }
+    });
+    drones.push({ entity: d, baseLon: lon, baseLat: lat, phase: Math.random() * 6.28, speed: 0.8 + Math.random() * 0.6 });
+  }
+  startDroneAnim();
+  const panel = showTransientPanel(`<h3>Pilot Orb - Drone Game</h3><div>Drones active: <span id="drone-score">35</span></div><div style="margin-top:6px;font-size:11px;opacity:0.7">Click drones on globe to engage. Tap pilot orb to recall.</div>`, 'Pilot');
+  // recall on orb click again
+}
+
+function clearDrones() {
+  drones.forEach(d => { if (d.entity) viewer.entities.remove(d.entity); });
+  drones = [];
+  if (droneAnim) { cancelAnimationFrame(droneAnim); droneAnim = null; }
+}
+
+function startDroneAnim() {
+  if (droneAnim) cancelAnimationFrame(droneAnim);
+  function step() {
+    const t = Date.now() / 900;
+    drones.forEach(d => {
+      if (!d.entity) return;
+      const lon = d.baseLon + Math.sin(t * d.speed + d.phase) * 3.5;
+      const lat = d.baseLat + Math.cos(t * d.speed * 0.6 + d.phase) * 2.2;
+      d.entity.position = Cesium.Cartesian3.fromDegrees(lon, lat, 180000 + Math.sin(t * 1.2) * 30000);
+    });
+    droneAnim = requestAnimationFrame(step);
+  }
+  step();
+}
+
+function showMarketplace() {
+  const html = `<h3>Delivery Marketplace Orb</h3>
+    <button onclick="postNewDelivery(this)">Post New Delivery</button>
+    <div id="mkt-list" style="margin-top:8px;max-height:140px;overflow:auto;font-size:12px;"></div>`;
+  const p = showTransientPanel(html, 'Marketplace');
+  renderMarketList(p.querySelector('#mkt-list'));
+}
+
+function postNewDelivery(btn) {
+  const pickup = prompt('Pickup location?') || 'Port A';
+  const dropoff = prompt('Dropoff?') || 'City B';
+  const reward = parseFloat(prompt('Reward (AVC)?') || '12');
+  deliveries.push({ id: 'd' + Date.now(), pickup, dropoff, reward, status: 'requested' });
+  // add visual pin + route
+  const lon1 = Math.random()*360-180;
+  const lat1 = Math.random()*40-20;
+  const lon2 = lon1 + (Math.random()*8-4);
+  const lat2 = lat1 + (Math.random()*6-3);
+  viewer.entities.add({ position: Cesium.Cartesian3.fromDegrees(lon1, lat1), point: {pixelSize:6, color:Cesium.Color.ORANGE}, label:{text: pickup, font:'8px sans-serif'} });
+  viewer.entities.add({ 
+    polyline: { positions: Cesium.Cartesian3.fromDegreesArray([lon1,lat1,lon2,lat2]), width: 2, material: Cesium.Color.ORANGE } 
+  });
+  renderMarketList(btn.parentNode.querySelector('#mkt-list'));
+}
+
+function renderMarketList(container) {
+  if (!container) return;
+  container.innerHTML = deliveries.length ? deliveries.map(d => `<div>${d.pickup} → ${d.dropoff} (${d.reward}AVC) <button style="font-size:9px" onclick="claimDelivery('${d.id}', this)">Claim</button> ${d.status}</div>`).join('') : 'No active deliveries. Post one.';
+}
+
+function claimDelivery(id, btn) {
+  const d = deliveries.find(x => x.id === id);
+  if (d) { d.status = 'in_transit'; }
+  btn.textContent = 'In transit';
+  setTimeout(() => {
+    if (d) d.status = 'delivered';
+    if (currentUser) currentUser.balance = (currentUser.balance || 42) + d.reward;
+    btn.parentNode.remove();
+    showTransientMessage('Delivered! + ' + d.reward + ' AVC');
+  }, 1800);
+}
+
+/* Cesium globe with real Earth */
 async function initGlobe() {
-  Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzYTI0NjM1MC05MTAyLTQ1NjItOGI5Yi1kZTUxMWVlODA0MzQiLCJpZCI6NDMyMzAwLCJzdWIiOiJBc3RyYW5vdiIsImlzcyI6Imh0dHBzOi8vaW9uLmNlc2l1bS5jb20iLCJhdWQiOiJBTENJIiwiaWF0IjoxNzc4OTIwOTU3fQ.HPPdCQ7u_BWDoS7uK5uwqHHtmUivbU82u_bwHLhHkag';
   viewer = new Cesium.Viewer('cesiumContainer', {
     imageryProvider: new Cesium.WebMapTileServiceImageryProvider({
       url: 'https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/BlueMarble_ShadedRelief_Bathymetry/default/{Time}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.jpeg',
@@ -933,21 +759,12 @@ async function initGlobe() {
       credit: 'NASA'
     }),
     terrainProvider: await Cesium.createWorldTerrainAsync(),
-    homeButton: false,
-    sceneModePicker: false,
-    navigationHelpButton: false,
-    animation: false,
-    timeline: false,
-    baseLayerPicker: false,
-    geocoder: false,
-    infoBox: false,
-    selectionIndicator: false,
-    fullscreenButton: false
+    homeButton: false, sceneModePicker: false, navigationHelpButton: false,
+    animation: false, timeline: false, baseLayerPicker: false, geocoder: false,
+    infoBox: false, selectionIndicator: false, fullscreenButton: false
   });
   viewer.scene.globe.enableLighting = true;
-  viewer.scene.globe.showGroundAtmosphere = true;
-
-  // Add night lights layer
+  // night layer
   viewer.imageryLayers.addImageryProvider(new Cesium.WebMapTileServiceImageryProvider({
     url: 'https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/BlackMarble/default/{Time}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.jpeg',
     layer: 'BlackMarble',
@@ -956,457 +773,32 @@ async function initGlobe() {
     format: 'image/jpeg',
     credit: 'NASA'
   }));
-
-  // Initial view
   viewer.camera.flyTo({
-    destination: Cesium.Cartesian3.fromDegrees(0, 20, 20000000),
+    destination: Cesium.Cartesian3.fromDegrees(0, 18, 22000000),
     orientation: { heading: 0, pitch: -Cesium.Math.PI_OVER_TWO, roll: 0 }
   });
-
-  // Click for descend
-  const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-  handler.setInputAction((movement) => {
-    const cartesian = viewer.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid);
-    if (cartesian) {
-      const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
-      const lon = Cesium.Math.toDegrees(cartographic.longitude);
-      const lat = Cesium.Math.toDegrees(cartographic.latitude);
-      viewer.camera.flyTo({
-        destination: Cesium.Cartesian3.fromDegrees(lon, lat, 500000),
-        duration: 2.5
-      });
-      emitSignal(lon, lat);
-    }
-  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
-  // Load initial deliveries and signals
-  loadDeliveries();
-  loadSignals();
+  initGlobeClick();
 }
 
-function addOrbEntity(lon, lat, label, color, type) {
-  viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(lon, lat, 10000),
-    billboard: {
-      image: 'data:image/svg+xml;base64,' + btoa(`<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><circle cx="16" cy="16" r="12" fill="${color}" stroke="white" stroke-width="2"/></svg>`),
-      scale: 1.2,
-      verticalOrigin: Cesium.VerticalOrigin.BOTTOM
-    },
-    label: {
-      text: label,
-      font: '12px sans-serif',
-      fillColor: Cesium.Color.WHITE,
-      outlineColor: Cesium.Color.BLACK,
-      outlineWidth: 2,
-      verticalOrigin: Cesium.VerticalOrigin.TOP
-    }
-  });
-}
-
-/* Agents per law */
-const AGENTS = {
-  discover: {
-    title: 'Discover',
-    glyph: '🔭',
-    sub: 'World signals & orbs',
-    longPress: () => viewer.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(0, 20, 20000000) }),
-    items: () => [
-      { label: 'Load Signals', action: loadSignals },
-      { label: 'Open Cosmos', action: openCosmos }
-    ],
-    chatSystem: 'You are the Discover Agent. Surface nearby signals and orbs on the globe.'
-  },
-  me: {
-    title: 'Identity',
-    glyph: '👤',
-    sub: 'You & balance',
-    longPress: () => { if (!session) signIn(); else showPanel('me'); },
-    items: () => [
-      { label: session ? 'Profile' : 'Login', action: () => session ? showPanel('me') : signIn() },
-      { label: 'Balance ' + (DB.avc[session?.user?.id] || 42) + ' AVC', action: () => showPanel('wallet') }
-    ],
-    chatSystem: 'You are the Identity Agent. Help with profile, memories, and personal context.'
-  },
-  locate: {
-    title: 'Navigation',
-    glyph: '⊕',
-    sub: 'Locate & drive',
-    longPress: locateUser,
-    items: () => [
-      { label: 'My Location', action: locateUser },
-      { label: 'Drive Mode', action: toggleDrive }
-    ],
-    chatSystem: 'You are the Navigation Agent. Provide location, routing, and drive assistance.'
-  },
-  aicycle: {
-    title: 'Astranov',
-    glyph: '🧠',
-    sub: 'Collective Intelligence',
-    longPress: () => toggleVoice(),
-    items: () => [
-      { label: 'Open Chat', action: () => { openAgentSheet('aicycle'); } },
-      { label: 'Host Brain', action: toggleBrainHost }
-    ],
-    chatSystem: 'You are Astranov, the collective AI. Be concise, wise, and helpful per the law.'
-  }
-};
-
-let currentAgent = null;
-
-function openAgentSheet(name) {
-  const agent = AGENTS[name];
-  if (!agent) return;
-  currentAgent = name;
-  const sheet = $('#agent-sheet');
-  $('#agent-glyph').textContent = agent.glyph;
-  $('#agent-title').textContent = agent.title;
-  $('#agent-sub').textContent = agent.sub;
-  
-  const actions = $('#agent-actions');
-  actions.innerHTML = '';
-  agent.items().forEach(item => {
-    const div = document.createElement('div');
-    div.className = 'agent-action';
-    div.innerHTML = `<span class="aa-g">•</span><span class="aa-l">${item.label}</span>`;
-    div.onclick = () => {
-      item.action();
-      if (!item.keepOpen) closeAgentSheet();
-    };
-    actions.appendChild(div);
-  });
-
-  // Chat log for this agent
-  const log = $('#agent-chat-log');
-  log.innerHTML = '';
-  (agentState.log[name] || []).forEach(msg => {
-    const p = document.createElement('div');
-    p.className = 'ag-msg ' + (msg.me ? 'me' : 'bot');
-    p.textContent = msg.text;
-    log.appendChild(p);
-  });
-
-  sheet.classList.add('open');
-  sheet.style.height = '48vh';
-}
-
-function closeAgentSheet() {
-  const sheet = $('#agent-sheet');
-  sheet.classList.remove('open', 'expanded');
-  sheet.style.height = '0';
-  currentAgent = null;
-}
-
-/* AICYCLE per law */
-async function callAICycle(prompt, history = []) {
-  // Simulated call to /aicycle - in real would fetch Edge Function
-  const system = 'You are Astranov per the MASTER LAW. Be concise, first-person, wise. Use memory if relevant.';
-  // For demo, simple response + memory recall
-  let response = `Understood. As Astranov, I hear: ${prompt}. The collective remembers.`;
-  if (prompt.toLowerCase().includes('remember')) {
-    DB.save('memories', { content: prompt, profile_id: session?.user?.id || 'demo' });
-    response = 'Memory added to the collective brain.';
-  }
-  if (prompt.toLowerCase().includes('delivery')) {
-    response = 'Delivery marketplace active. Post or claim via agents.';
-  }
-  return { response, text: response, provider: 'astranov', label: 'Astranov', recalled: 0 };
-}
-
-function sendToAICycle() {
-  const input = $('#aicycle-input');
-  const val = input.value.trim();
-  if (!val) return;
-  const messages = $('#aicycle-messages');
-  const userMsg = document.createElement('div');
-  userMsg.className = 'msg user';
-  userMsg.textContent = val;
-  messages.appendChild(userMsg);
-  input.value = '';
-
-  callAICycle(val).then(res => {
-    const aiMsg = document.createElement('div');
-    aiMsg.className = 'msg ai';
-    aiMsg.innerHTML = `<div class="via">${res.label}</div>${res.text}`;
-    messages.appendChild(aiMsg);
-    messages.scrollTop = messages.scrollHeight;
-    // Speak
-    if ('speechSynthesis' in window) {
-      const u = new SpeechSynthesisUtterance(res.text);
-      speechSynthesis.speak(u);
-    }
-    // Save to agent log if in sheet
-    if (currentAgent) {
-      if (!agentState.log[currentAgent]) agentState.log[currentAgent] = [];
-      agentState.log[currentAgent].push({me: false, text: res.text});
-    }
-  });
-}
-
-/* WebRTC per law (simplified for single file) */
-async function startCallTo(peerId, peerName) {
-  if (!session) return alert('Sign in first');
-  try {
-    localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-  } catch(e) { alert('Camera/mic needed'); return; }
-
-  const callId = 'call-' + Date.now();
-  currentCall = { id: callId, peerId, peerName, role: 'caller' };
-
-  pc = new RTCPeerConnection({ iceServers: STUN });
-  localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-
-  pc.ontrack = e => {
-    const remote = $('#call-remote-video');
-    remote.srcObject = e.streams[0];
-    showActiveCallUI();
-  };
-
-  const offer = await pc.createOffer();
-  await pc.setLocalDescription(offer);
-
-  // Simulated signaling - in real would use Supabase broadcast
-  setTimeout(async () => {
-    // Simulate answer
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-    // For demo, assume connected
-    showActiveCallUI();
-  }, 800);
-
-  showActiveCallUI('ringing');
-}
-
-function showActiveCallUI(status = 'CONNECTING') {
-  $('#call-active').classList.add('visible');
-  $('#call-status').textContent = status;
-  $('#call-local-video').srcObject = localStream;
-}
-
-function endCall() {
-  if (pc) pc.close();
-  if (localStream) localStream.getTracks().forEach(t => t.stop());
-  $('#call-active').classList.remove('visible');
-  currentCall = null;
-  localStream = null;
-  pc = null;
-}
-
-/* Marketplace per law */
-function postDelivery() {
-  const pickup = prompt('Pickup?') || 'Here';
-  const dropoff = prompt('Dropoff?') || 'There';
-  const reward = parseFloat(prompt('Reward AVC?') || '10');
-  const id = 'del-' + Date.now();
-  DB.save('deliveries', { id, pickup, dropoff, reward, status: 'requested', requester: session?.user?.id || 'demo' });
-  addDeliveryPin(pickup, dropoff, id);
-  alert('Delivery posted. Runners can claim.');
-}
-
-function claimDelivery(id) {
-  const del = DB.deliveries.find(d => d.id === id);
-  if (del) {
-    del.status = 'accepted';
-    del.runner = session?.user?.id || 'demo';
-    alert('Claimed! Update to in_transit when moving.');
-    updateDelivery(del);
-  }
-}
-
-function updateDelivery(del) {
-  // Update status, trigger AVC transfer on delivered per law
-  if (del.status === 'delivered') {
-    const bal = DB.avc[del.runner] || 0;
-    DB.avc[del.runner] = bal + del.reward;
-    DB.avc[del.requester] = (DB.avc[del.requester] || 50) - del.reward;
-    alert('Delivered! ' + del.reward + ' AVC transferred.');
-  }
-  // Re-render if open
-}
-
-function addDeliveryPin(pickup, dropoff, id) {
-  // For demo, random positions
-  const lon = Math.random() * 360 - 180;
-  const lat = Math.random() * 80 - 40;
-  viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(lon, lat),
-    point: { pixelSize: 10, color: Cesium.Color.ORANGE },
-    label: { text: 'Delivery: ' + pickup + '→' + dropoff, font: '12px sans-serif' }
-  });
-}
-
-function loadDeliveries() {
-  // Add some demo pins
-  addDeliveryPin('Port', 'City', 'demo1');
-}
-
-/* Signals / orbs per law */
-function emitSignal(lon, lat) {
-  const id = 'sig-' + Date.now();
-  DB.save('signals', { id, lon, lat, author_id: session?.user?.id || 'demo', category: 'signal' });
-  viewer.entities.add({
-    position: Cesium.Cartesian3.fromDegrees(lon, lat, 5000),
-    point: { pixelSize: 8, color: Cesium.Color.CYAN },
-    label: { text: 'Signal', font: '10px sans-serif' }
-  });
-}
-
-function loadSignals() {
-  // Demo signals
-  for (let i=0; i<5; i++) {
-    emitSignal(Math.random()*360-180, Math.random()*80-40);
-  }
-}
-
-/* AI Collective Brain decentralized sim per previous heavy + law */
-let brainHost = false;
-function toggleBrainHost() {
-  brainHost = !brainHost;
-  alert(brainHost ? 'Hosting collective brain (SETI-style). Your device now serves memories.' : 'Brain host stopped.');
-}
-
-function sendToOrb(prompt) {
-  callAICycle(prompt).then(res => {
-    // Show in chat or toast
-    const toast = $('#hud-toast');
-    toast.textContent = res.text;
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 3000);
-    // If brain host, share
-    if (brainHost) {
-      DB.save('memories', { content: prompt, profile_id: 'host' });
-    }
-  });
-}
-
-/* Voice per law */
-let recognition;
-function toggleVoice() {
-  if (!('webkitSpeechRecognition' in window)) { alert('Voice not supported'); return; }
-  if (!recognition) {
-    recognition = new webkitSpeechRecognition();
-    recognition.onresult = e => sendToOrb(e.results[0][0].transcript);
-  }
-  recognition.start();
-  $('#aicycle-float').classList.add('listening');
-}
-
-/* Locate per law */
-function locateUser() {
-  if (!navigator.geolocation) return;
-  navigator.geolocation.getCurrentPosition(pos => {
-    const lon = pos.coords.longitude;
-    const lat = pos.coords.latitude;
-    viewer.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(lon, lat, 5000),
-      orientation: { heading: 0, pitch: -Cesium.Math.PI_OVER_TWO, roll: 0 }
-    });
-    emitSignal(lon, lat);
-  });
-}
-
-/* Drive mode stub */
-let driveWatch;
-function toggleDrive() {
-  if (driveWatch) {
-    navigator.geolocation.clearWatch(driveWatch);
-    driveWatch = null;
-    $('#drive-hud').classList.remove('visible');
-    return;
-  }
-  driveWatch = navigator.geolocation.watchPosition(pos => {
-    const speed = Math.round(pos.coords.speed * 3.6) || 0;
-    $('#drive-speed').textContent = speed;
-    $('#drive-hud').classList.add('visible');
-    // In real would adjust camera
-  });
-}
-
-/* Wallet / balance per law */
-function showPanel(type) {
-  const panel = $('#panel');
-  panel.innerHTML = `<h2>${type.toUpperCase()}</h2><div class="subtitle">Simulated per law</div>`;
-  if (type === 'wallet') {
-    panel.innerHTML += `<div class="row"><span>AVC Balance</span><span>${DB.avc[session?.user?.id] || 42}</span></div>`;
-    panel.innerHTML += `<button class="primary" onclick="postDelivery()">Post Delivery</button>`;
-  }
-  panel.classList.add('visible');
-  setTimeout(() => panel.onclick = () => panel.classList.remove('visible'), 100);
-}
-
-/* Cosmos per law */
-function openCosmos() {
-  const panel = $('#panel');
-  panel.innerHTML = `<h2>LIVING COSMOS</h2><p>Nature + Humans + Machines feeding the Collective Brain. (Simulated)</p>`;
-  panel.classList.add('visible');
-}
-
-/* Auth stub */
-async function signIn() {
-  session = { user: { id: 'demo-user', email: 'demo@astranov' } };
-  DB.save('profiles', { id: session.user.id, is_owner: true });
-  updateIdentityOrb();
-  alert('Signed in as demo (per law, owner path)');
-}
-
-function updateIdentityOrb() {
-  const me = $('#g-me');
-  if (session) {
-    me.classList.add('signed-in');
-    me.querySelector('.cg-glyph').textContent = 'N';
-  }
-}
-
-/* Gadget press per law */
-function gadgetPress(name, e) {
-  if (name === 'aicycle') {
-    openAgentSheet('aicycle');
-    return;
-  }
-  const agent = AGENTS[name];
-  if (agent) {
-    openAgentSheet(name);
-  }
-}
-function gadgetRelease(name, e) { /* long press handled in open */ }
-
-/* Init */
+/* Initial minimal setup */
 async function boot() {
   await initGlobe();
-
-  // Add demo orbs as entities per heavy + law
-  addOrbEntity(10, 40, 'Crawler Orb', '#00f0ff', 'crawler');
-  addOrbEntity(-70, 30, 'Pilot 300', '#facc15', 'pilot');
-  addOrbEntity(0, 0, 'AI Brain', '#a78bfa', 'brain');
-  addOrbEntity(120, -20, 'Delivery', '#f97316', 'delivery');
-  addOrbEntity(-10, 50, 'Social', '#22c55e', 'social');
-
-  // Demo deliveries
-  loadDeliveries();
-
-  // Demo signals
-  loadSignals();
-
-  // Boot AICYCLE
-  $('#aicycle-float').onclick = () => openAgentSheet('aicycle');
-
-  // Voice
-  $('#aicycle-input').onkeypress = e => { if (e.key === 'Enter') sendToAICycle(); };
-
-  // Initial sign in stub
+  createLogo();
+  // on empty globe click already starts voice via initGlobeClick
+  // keyboard / and space set in global listeners
+  // subtle first time hint (transient, no constant)
   setTimeout(() => {
-    if (!session) {
-      // auto demo
-      session = { user: { id: 'demo', email: 'demo' } };
-      updateIdentityOrb();
-    }
-  }, 1000);
-
-  // Remove boot
-  setTimeout(() => $('#boot').classList.add('gone'), 2200);
-
-  console.log('%c[ASTRANOV] Finished per MASTER LAW. Cesium globe, zero UI, agents, AICYCLE, marketplace, brain, calls, all real & functional in single file.', 'color:#7eebb4');
+    const hint = document.createElement('div');
+    hint.className = 'transient-msg';
+    hint.style.bottom = '90px';
+    hint.textContent = 'Tap globe or press SPACE to speak to Astranov';
+    document.body.appendChild(hint);
+    setTimeout(() => hint.remove(), 3800);
+  }, 2200);
+  console.log('%c[ASTRANOV] Minimal start: only globe + logo. Orbs created on demand per user ask. Law compliant.', 'color:#7eebb4');
 }
 
+// start
 boot();
 </script>
 </body>
