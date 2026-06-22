@@ -7,19 +7,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
   html, body { margin:0; padding:0; height:100%; width:100%; overflow:hidden; background:#00040a; color:#e8f4ff; font-family:system-ui,sans-serif; }
-  .phone { max-width: 390px; height: 780px; margin: 20px auto; border: 14px solid #111; border-radius: 55px; overflow: hidden; box-shadow: 0 0 60px rgba(0,0,0,0.9); position: relative; background: #000; display: flex; flex-direction: column; }
+  .phone { max-width: 390px; height: 780px; margin: 20px auto; border: 14px solid #111; border-radius: 55px; overflow: hidden; box-shadow: 0 0 60px rgba(0,0,0,0.9); position: relative; background: #000; }
   .phone-bezel { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 100px; height: 16px; background: #222; border-radius: 8px; z-index: 200; }
-  .astranov-logo { flex: 0 0 auto; margin: 2px auto; font-size: 9px; letter-spacing: 1px; font-weight: 700; color: #9fc4ff; z-index: 100; cursor: pointer; text-shadow: 0 0 6px rgba(120,180,255,0.6); background: rgba(6,10,20,0.3); padding: 0 6px; border-radius: 999px; border: 1px solid rgba(120,180,255,0.1); }
+  .astranov-logo { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-size: 9px; letter-spacing: 1px; font-weight: 700; color: #9fc4ff; z-index: 100; cursor: pointer; text-shadow: 0 0 6px rgba(120,180,255,0.6); background: rgba(6,10,20,0.3); padding: 0 6px; border-radius: 999px; border: 1px solid rgba(120,180,255,0.1); }
   .astranov-logo .a { display:inline-block; transform:scaleX(-1) rotate(-18deg); }
-  #globeContainer { flex: 0 0 auto; width: 100%; height: 620px; background: #00040a; position: relative; }
-  .controls { flex: 0 0 auto; background: rgba(5,10,20,0.8); z-index: 50; padding: 2px 3px; font-size: 5px; display: flex; flex-direction: column; gap: 1px; }
+  #globeContainer { position: absolute; top: 30px; left: 5px; right: 5px; bottom: 50px; background: #00040a; z-index: 10; }
+  .controls { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(5,10,20,0.8); z-index: 50; padding: 2px 3px; font-size: 5px; display: flex; flex-direction: column; gap: 1px; }
   .row { display: flex; gap: 1px; align-items: center; }
   button { background: #0a84ff; color: #fff; border: none; padding: 0 2px; border-radius: 1px; font-size: 4px; cursor: pointer; }
   .btn-trad { background: #0055A4; }
   .info { font-size: 4px; opacity: 0.8; }
-  .crete { width: 100%; height: 14px; background: rgba(255,255,255,0.01); }
-  #radio-log { font-size: 3.5px; max-height: 8px; overflow: auto; background: rgba(0,0,0,0.15); padding: 0; }
-  .hud { position: absolute; top: 5px; right: 8px; font-size: 4px; opacity: 0.4; z-index: 60; text-align: right; }
+  .crete { width: 100%; height: 12px; background: rgba(255,255,255,0.01); }
+  #radio-log { font-size: 3.5px; max-height: 6px; overflow: auto; background: rgba(0,0,0,0.15); padding: 0; }
+  .hud { position: absolute; top: 32px; right: 8px; font-size: 4px; opacity: 0.4; z-index: 60; text-align: right; }
 </style>
 </head>
 <body>
@@ -41,8 +41,8 @@
       <button onclick="playMood()">Mood</button>
     </div>
     <div class="section">
-      <svg class="crete" viewBox="0 0 200 14" fill="none" stroke="#ffeb3b" stroke-width="0.5">
-        <path d="M20 10 Q40 5 60 8 Q80 4 100 7 Q120 3 140 6 Q160 8 180 4" />
+      <svg class="crete" viewBox="0 0 200 12" fill="none" stroke="#ffeb3b" stroke-width="0.5">
+        <path d="M20 9 Q40 4 60 7 Q80 3 100 6 Q120 2 140 5 Q160 7 180 3" />
       </svg>
     </div>
     <div id="radio-log"></div>
@@ -155,7 +155,7 @@ function dangerWake(){ logRadio('DANGER'); }
 function boot(){
   initGlobe();
   logRadio('Ready - Pilot ΤΗΛΕΜΑΧΟΣ');
-  console.log('%c[ASTRANOV] Real Earth globe in phone screen.', 'color:#30d158');
+  console.log('%c[ASTRANOV] Real Earth globe in phone screen area.', 'color:#30d158');
 }
 window.addEventListener('load', boot);
 </script>
