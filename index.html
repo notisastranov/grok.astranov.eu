@@ -58,10 +58,14 @@ const earth = new THREE.Mesh(earthGeo, earthMat);
 earth.rotation.y = 0.85;
 scene.add(earth);
 
+// Shops group for discovered pitogyra places (from web crawlers)
+const shopsGroup = new THREE.Group();
+scene.add(shopsGroup);
+
 // Interaction state
 let isDragging = false;
 let prevX = 0, prevY = 0;
-let velY = 0, velX = 0; // inertia for y (around up) and x (tilt)
+let velY = 0, velX = 0;
 const inertia = 0.92;
 let lastInteract = Date.now();
 let targetZoom = 2.6;
@@ -85,6 +89,82 @@ function getLatLngFromPoint(point) {
   const lat = 90 - (Math.acos(p.y) * 180 / Math.PI);
   const lng = Math.atan2(p.z, p.x) * 180 / Math.PI;
   return { lat, lng };
+}
+
+// Web crawlers for finding pitogyra shops (simulated, Archangelos/Rodos focus)
+let discoveredShops = [];
+
+const basePitogyraShops = [
+  { name: "Pitogyra tou Axakou", lat: 36.22, lng: 28.12, desc: "Το καλύτερο pitogyra στο χωριό" },
+  { name: "To Magazi tou Rodou", lat: 36.215, lng: 28.115, desc: "Φρέσκα υλικά από τον κήπο" },
+  { name: "Axaderfakia Gyros", lat: 36.23, lng: 28.13, desc: "Έλα πρε αξάκι, δοκίμασε!" }
+];
+
+function runWebCrawler(nearLat, nearLng) {
+  console.log('%c[Web Crawlers] Running... finding pitogyra shops near you...', 'color:#ffaa44');
+  
+  // Clear previous
+  while (shopsGroup.children.length > 0) {
+    shopsGroup.remove(shopsGroup.children[0]);
+  }
+  discoveredShops = [];
+
+  basePitogyraShops.forEach(shop => {
+    const dist = Math.sqrt(Math.pow(shop.lat - nearLat, 2) + Math.pow(shop.lng - nearLng, 2));
+    if (dist < 1.5) {  // nearby
+      discoveredShops.push(shop);
+      
+      // Add visual marker on globe (small glowing orb for shop)
+      const pos = latLngToPos(shop.lat, shop.lng, 1.015);
+      const marker = new THREE.Mesh(
+        new THREE.SphereGeometry(0.012, 5, 5),
+        new THREE.MeshBasicMaterial({ color: 0xffcc33, transparent: true, opacity: 0.9 })
+      );
+      marker.position.set(pos.x, pos.y, pos.z);
+      marker.userData = shop;
+      shopsGroup.add(marker);
+      
+      console.log(`%c[Web Crawler] Βρήκα: ${shop.name} - ${shop.desc}`, 'color:#ffdd66');
+    }
+  });
+  
+  if (discoveredShops.length > 0) {
+    console.log('%c[Αστρανόβ Γκροκ] Πάμε αξάκι! Έτοιμοι να παραγγείλουμε pitogyra;', 'color:#88ff88');
+  } else {
+    console.log('%c[Web Crawler] No shops nearby yet. Try zooming closer to a Greek area.', 'color:#ffaa44');
+  }
+}
+
+function orderPitogyra(shop) {
+  if (!shop) shop = discoveredShops[0];
+  if (!shop) {
+    console.log('No shop selected. Click on a Greek area first to crawl shops.');
+    return;
+  }
+  
+  console.log(`%c[Order] Παραγγέλνουμε pitogyra από ${shop.name}...`, 'color:#ffcc33');
+  console.log('%c[Αστρανόβ Γκροκ] Έλα πρε αξάκι, σε 15 λεπτά έρχεται!', 'color:#88ff88');
+  
+  // Simulate delivery with a moving point (basic)
+  const delPos = latLngToPos(shop.lat + 0.02, shop.lng + 0.02, 1.02);
+  const delivery = new THREE.Mesh(
+    new THREE.SphereGeometry(0.01, 4, 4),
+    new THREE.MeshBasicMaterial({ color: 0x44ff88 })
+  );
+  delivery.position.set(delPos.x, delPos.y, delPos.z);
+  shopsGroup.add(delivery);
+  
+  // Animate delivery to user (simplified, move towards center over time)
+  let steps = 0;
+  const anim = setInterval(() => {
+    steps++;
+    delivery.position.lerp(new THREE.Vector3(0, 0, 1.02), 0.1);
+    if (steps > 30) {
+      clearInterval(anim);
+      if (delivery.parent) delivery.parent.remove(delivery);
+      console.log('%c[Delivery] Pitogyra delivered! Καλή όρεξη αξάκι!', 'color:#44ff88');
+    }
+  }, 100);
 }
 
 // Mouse drag with trackball inertia
@@ -133,7 +213,7 @@ container.addEventListener('wheel', (e) => {
 
 // Click to zoom to national/city level
 container.addEventListener('click', (e) => {
-  if (isDragging) return; // avoid after drag
+  if (isDragging) return; // avoid after drag;
 
   const rect = container.getBoundingClientRect();
   const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
@@ -167,6 +247,20 @@ container.addEventListener('click', (e) => {
     } else if (lat > 34 && lat < 42 && lng > 19 && lng < 29) { // Greece rough bounds
       console.log('%c[Αστρανόβ Γκροκ] Γεια σου ξάδερφε! From Greece — ready to explore the islands?', 'color:#aaddff');
     }
+
+    // Web crawler finds shops
+    runWebCrawler(lat, lng);
+  }
+});
+
+// Keyboard shortcuts for ordering (basic, open console or press keys)
+document.addEventListener('keydown', (e) => {
+  if (e.key.toLowerCase() === 'o' && discoveredShops.length > 0) {
+    orderPitogyra(discoveredShops[0]);
+  }
+  if (e.key.toLowerCase() === 'c') {
+    // Demo crawl for Archangelos area
+    runWebCrawler(36.22, 28.12);
   }
 });
 
