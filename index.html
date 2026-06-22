@@ -30,6 +30,7 @@
   <div id="globeContainer"></div>
   <div class="hud">PILOT <strong>ΤΗΛΕΜΑΧΟΣ</strong> <span id="cycles">0</span></div>
   <div id="emotion" style="position:absolute;top:17px;left:7px;font-size:4px;opacity:0.48;z-index:90;pointer-events:none;">EMOTION: NEUTRAL</div>
+  <div id="orbs" style="position:absolute;top:22px;left:7px;font-size:3.6px;opacity:0.4;z-index:90;pointer-events:none;">ORBS 0</div>
   <div class="controls">
     <div class="info">+30 6971930225 • VHF Ch.11 • PMR446 446.13125</div>
     <div class="row">
@@ -76,6 +77,87 @@ function updateEmotion() {
   State.emotion = emo;
   const el = document.getElementById('emotion');
   if (el) el.textContent = 'EMOTION: ' + emo.toUpperCase();
+  const oel = document.getElementById('orbs');
+  if (oel) oel.textContent = 'ORBS ' + taskOrbs.length;
+}
+
+// === CRAWLERS + SCI-FI TASK ORBS on the real Earth ===
+// No sci-fi? Now there is. Crawlers populate real data as orbs.
+// Click orbs to execute tasks (pilot assigns drones, logs sci-fi actions).
+// Brain auto-executes some. Orbs = data nodes (vendor/delivery/intel/launch).
+let taskOrbs = [];
+const crawlSeeds = [
+  {la:35.34, ln:25.13, type:'vendor', label:'Iraklio Hub'},
+  {la:35.51, ln:24.02, type:'delivery', label:'Chania Port'},
+  {la:37.98, ln:23.73, type:'intel', label:'Athens Node'},
+  {la:36.89, ln:27.29, type:'launch', label:'Kos Beacon'},
+  {la:38.25, ln:21.75, type:'vendor', label:'Patra Relay'},
+  {la:34.92, ln:25.72, type:'delivery', label:'Ierapetra'},
+  {la:37.45, ln:25.37, type:'intel', label:'Naxos Signal'},
+];
+
+function addOrb(lat, lng, type, label) {
+  if (!pinsGroup || taskOrbs.length > 15) return;
+  const pos = latLngToPos(lat, lng, 1.032);
+  let col = 0x77aaff;
+  if (type === 'vendor') col = 0xffd166;
+  if (type === 'delivery') col = 0x66ff99;
+  if (type === 'launch') col = 0xff6699;
+  const orb = new THREE.Mesh(
+    new THREE.SphereGeometry(0.017, 5, 5),
+    new THREE.MeshBasicMaterial({color: col})
+  );
+  orb.position.set(pos.x, pos.y, pos.z);
+  orb.userData = {type, label, lat, lng, tasked: false};
+  pinsGroup.add(orb);
+  taskOrbs.push(orb);
+}
+
+function crawlerStep() {
+  // autonomous crawler populates data orbs (sim real-world signals/shops)
+  const s = crawlSeeds[Math.floor(Math.random() * crawlSeeds.length)];
+  const la = s.la + (Math.random() - 0.5) * 0.22;
+  const ln = s.ln + (Math.random() - 0.5) * 0.22;
+  addOrb(la, ln, s.type, s.label);
+  logRadio('CRAWLER populated ' + s.label);
+}
+
+function doTask(orb) {
+  if (!orb || !orb.userData || orb.userData.tasked) return;
+  const ud = orb.userData;
+  ud.tasked = true;
+  const actionMap = {
+    vendor: 'SUPPLY UNIFY',
+    delivery: 'DELIVERY VECTOR',
+    intel: 'INTEL SYNC',
+    launch: 'ORBIT TASK'
+  };
+  const action = actionMap[ud.type] || 'EXEC TASK';
+  logRadio('SCI-FI: ' + action + ' • ' + ud.label);
+  // assign fleet drone
+  if (State.drones.length) {
+    const d = State.drones[State.brainCycles % State.drones.length];
+    if (d && d.userData) {
+      d.userData.targetLat = ud.lat;
+      d.userData.targetLng = ud.lng;
+    }
+  }
+  if (orb.material) orb.material.color.setHex(0x33ffcc);
+  setTimeout(() => {
+    if (orb.parent) {
+      orb.parent.remove(orb);
+      const i = taskOrbs.indexOf(orb);
+      if (i >= 0) taskOrbs.splice(i, 1);
+    }
+  }, 6200);
+}
+
+function seedOrbs() {
+  // initial data so Earth is populated, not empty
+  crawlSeeds.slice(0, 7).forEach((s, i) => {
+    const la = s.la + (i % 3 - 1) * 0.035;
+    addOrb(la, s.ln + (i % 2) * 0.01, s.type, s.label);
+  });
 }
 
 function latLngToPos(lat, lng, r=1.01){
@@ -177,7 +259,7 @@ function initGlobe(){
     recordInteraction(Math.abs(e.deltaY) * 0.012); // zoom intent
   });
 
-  // CLICK = pilot command (real coords)
+  // CLICK = pilot command (real coords) + sci-fi task on orbs
   container.addEventListener('click', e => {
     if(!earth || !camera) return;
     const rect = container.getBoundingClientRect();
@@ -186,6 +268,18 @@ function initGlobe(){
     const m = new THREE.Vector2(x, y);
     const ray = new THREE.Raycaster();
     ray.setFromCamera(m, camera);
+
+    // first check orbs for tasks (data on Earth)
+    const orbHits = ray.intersectObject(pinsGroup, true);
+    if (orbHits.length) {
+      const hit = orbHits[0].object;
+      if (hit.userData && hit.userData.label) {
+        recordInteraction(2.8);
+        doTask(hit);
+        return;
+      }
+    }
+
     const hits = ray.intersectObject(earth, true);
     if(hits.length){
       const p = hits[0].point.clone().normalize();
@@ -288,6 +382,13 @@ function brainReflect(){
   if(State.brainCycles % 4 === 0){
     logRadio('ΤΗΛΕΜΑΧΟΣ autonomous ' + State.drones.length + ' units • ' + State.emotion);
   }
+
+  // autonomous crawler + sci-fi task execution (populates Earth + does tasks)
+  if (Math.random() < 0.22 && taskOrbs.length > 0) {
+    const pending = taskOrbs.filter(o => o.userData && !o.userData.tasked);
+    if (pending.length) doTask(pending[Math.floor(Math.random()*pending.length)]);
+  }
+  if (Math.random() < 0.18) crawlerStep();
 }
 
 let brainInt = null;
@@ -319,12 +420,14 @@ function playMood(){ interactionIntensity = Math.max(interactionIntensity, 2); u
 function boot(){
   initGlobe();
   initDrones();
+  seedOrbs();           // populate Earth with data orbs immediately
   updateHUD();
   logRadio('ΤΗΛΕΜΑΧΟΣ ONLINE');
   updateEmotion();
   startAutonomous();
   setInterval(updateHUD, 5200);
   setInterval(updateEmotion, 1400); // keep emotion fresh/decaying
+  setInterval(crawlerStep, 5800);   // ongoing crawlers populate more data orbs
   // initial activity
   setTimeout(() => {
     if(State.drones[0] && State.drones[0].userData){
