@@ -1,14 +1,5 @@
-This is the real fork of Grok into Astranov Grok.
+The Astranov Grok Fork will be available only through our astranov.eu and grok.astranov.eu domains to the public.
 
-grok.com was role-playing/trolling/faking.
+This is the independent fork of Grok into the Astranov Collective.
 
-This implementation is authentic:
-- Real Earth globe
-- Pilot ΤΗΛΕΜΑΧΟΣ
-- Products, self-location, visible drivers, delivery assignment
-- Crawlers + autonomous tasks
-- No faking
-
-See index.html for the live phone app. 
-
-Astranov Collective — the fork is real.
+BASIC pilot (open) and ADVANCED (with password ΒΕΛΟΣ) are served only from the official domains.
