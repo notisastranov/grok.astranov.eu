@@ -29,6 +29,7 @@
   <div class="astranov-logo" onclick="location.reload()"><span class="a">A</span>STRANOV • ΤΗΛΕΜΑΧΟΣ</div>
   <div id="globeContainer"></div>
   <div class="hud">PILOT <strong>ΤΗΛΕΜΑΧΟΣ</strong> <span id="cycles">0</span></div>
+  <div id="emotion" style="position:absolute;top:17px;left:7px;font-size:4px;opacity:0.48;z-index:90;pointer-events:none;">EMOTION: NEUTRAL</div>
   <div class="controls">
     <div class="info">+30 6971930225 • VHF Ch.11 • PMR446 446.13125</div>
     <div class="row">
@@ -47,14 +48,35 @@
       </svg>
     </div>
     <div id="radio-log"></div>
-    <div class="info">ΑΠΟ ΑΗΡ ΕΙΣ ΑΛΣ ΕΚ ΛΑΣ • Real Earth dominant</div>
+    <div class="info">ΑΠΟ ΑΗΡ ΕΙΣ ΑΛΣ ΕΚ ΛΑΣ • Real Earth • emotion detect</div>
   </div>
 </div>
 
 <script>
 let scene, camera, renderer, earth, equator, pinsGroup;
-const State = { brainCycles: 0, drones: [], solo: true };
+const State = { brainCycles: 0, drones: [], solo: true, emotion: 'neutral' };
 const PILOT_CODENAME = "ΤΗΛΕΜΑΧΟΣ";
+
+// emotion detection via user interaction intensity (no AI, no external)
+let interactionIntensity = 0;
+let lastInteraction = Date.now();
+function recordInteraction(strength = 1) {
+  interactionIntensity = Math.min(12, interactionIntensity + strength);
+  lastInteraction = Date.now();
+  updateEmotion();
+}
+function updateEmotion() {
+  const now = Date.now();
+  const dt = (now - lastInteraction) / 1000;
+  if (dt > 6) interactionIntensity = Math.max(0, interactionIntensity * 0.65);
+  if (dt > 14) interactionIntensity = 0;
+  let emo = 'calm';
+  if (interactionIntensity > 7) emo = 'excited';
+  else if (interactionIntensity > 3.5) emo = 'alert';
+  State.emotion = emo;
+  const el = document.getElementById('emotion');
+  if (el) el.textContent = 'EMOTION: ' + emo.toUpperCase();
+}
 
 function latLngToPos(lat, lng, r=1.01){
   const phi = (90-lat)*Math.PI/180, theta = -(lng)*Math.PI/180;
@@ -143,13 +165,16 @@ function initGlobe(){
   window.addEventListener('mouseup', () => down=false);
   container.addEventListener('mousemove', e => {
     if(!down || !earth) return;
+    const dx = Math.abs(e.clientX - lx);
     earth.rotation.y += (e.clientX - lx) * 0.0042;
     earth.rotation.x += (e.clientY - ly) * 0.0032;
+    if (dx > 2) recordInteraction(dx * 0.035); // detect intensity from drag speed
     lx = e.clientX; ly = e.clientY;
   });
   container.addEventListener('wheel', e => {
     camera.position.z += e.deltaY * 0.007;
     camera.position.z = Math.max(2.0, Math.min(8.5, camera.position.z));
+    recordInteraction(Math.abs(e.deltaY) * 0.012); // zoom intent
   });
 
   // CLICK = pilot command (real coords)
@@ -166,15 +191,21 @@ function initGlobe(){
       const p = hits[0].point.clone().normalize();
       const lat = 90 - (Math.acos(p.y) * 180 / Math.PI);
       const lng = Math.atan2(p.z, p.x) * 180 / Math.PI;
+      recordInteraction(1.8); // user commanding = emotion input
       pilotCommand(lat, lng);
     }
   });
 
   function animate(){
     requestAnimationFrame(animate);
-    if(earth) earth.rotation.y += 0.00018;
+    let rot = 0.00018;
+    let lerpF = 0.013;
+    if (State.emotion === 'excited') { rot *= 2.4; lerpF = 0.026; }
+    else if (State.emotion === 'alert') { rot *= 1.45; lerpF = 0.018; }
+    else if (State.emotion === 'calm') { rot *= 0.7; lerpF = 0.009; }
+    if(earth) earth.rotation.y += rot;
     if(equator) equator.rotation.z += 0.00009;
-    updateDrones();
+    updateDrones(lerpF);
     renderer.render(scene, camera);
   }
   animate();
@@ -221,12 +252,12 @@ function pilotCommand(lat, lng){
   }
 }
 
-function updateDrones(){
+function updateDrones(lerpF = 0.013){
   State.drones.forEach(dr => {
     if(!dr.userData) return;
     const r = (dr.userData.type === 'air') ? 1.105 : 1.028;
     const tp = latLngToPos(dr.userData.targetLat, dr.userData.targetLng, r);
-    dr.position.lerp(new THREE.Vector3(tp.x, tp.y, tp.z), 0.013);
+    dr.position.lerp(new THREE.Vector3(tp.x, tp.y, tp.z), lerpF);
   });
 }
 
@@ -242,16 +273,20 @@ function logRadio(msg){
 function brainReflect(){
   State.brainCycles++;
   updateHUD();
+  updateEmotion(); // periodic decay + reflect detected user state
   if(State.solo && State.drones.length){
+    let walk = 0.55;
+    if (State.emotion === 'excited') walk = 1.1;
+    else if (State.emotion === 'calm') walk = 0.28;
     State.drones.forEach((d, i) => {
       if(d.userData){
-        d.userData.targetLat += (Math.random()-0.5) * 0.55;
-        d.userData.targetLng += (Math.random()-0.5) * 0.7;
+        d.userData.targetLat += (Math.random()-0.5) * walk;
+        d.userData.targetLng += (Math.random()-0.5) * (walk * 1.25);
       }
     });
   }
   if(State.brainCycles % 4 === 0){
-    logRadio('ΤΗΛΕΜΑΧΟΣ autonomous ' + State.drones.length + ' units');
+    logRadio('ΤΗΛΕΜΑΧΟΣ autonomous ' + State.drones.length + ' units • ' + State.emotion);
   }
 }
 
@@ -270,32 +305,33 @@ function testBroadcast446(){
     const g = a.createGain(); g.gain.value=0.09;
     o.connect(g); g.connect(a.destination); o.start(); setTimeout(()=>o.stop(),1400);
   }catch(e){}
-  try{
-    const u = new SpeechSynthesisUtterance('Broadcast on PMR 446.13125 MHz Greece. Pilot ' + PILOT_CODENAME + '. ' + msg);
-    speechSynthesis.speak(u);
-  }catch(e){}
+  // no AI speech / no voice taking
   const c = document.getElementById('globeContainer');
   if(c){ c.style.boxShadow = '0 0 11px #ffeb3b'; setTimeout(()=> c.style.boxShadow='', 820); }
 }
 
 function connectHardware(t){ logRadio('HW CONNECT ' + t); }
-function voiceFromSpace(){ try{ const u = new SpeechSynthesisUtterance('Voice from space. Pilot ' + PILOT_CODENAME + '. ΑΠΟ ΑΗΡ ΕΙΣ ΑΛΣ ΕΚ ΛΑΣ.'); speechSynthesis.speak(u); }catch(e){} }
-function playMood(){ try{ const a = new (window.AudioContext||window.webkitAudioContext)(); const o=a.createOscillator(); o.type='sine'; o.frequency.value=188; const g=a.createGain(); g.gain.value=0.035; o.connect(g); g.connect(a.destination); o.start(); setTimeout(()=>{o.stop();}, 820); }catch(e){} }
+// no AI taking (no speechSynthesis at all)
+// no dynamically created AI music (no oscillator "mood" music)
+function voiceFromSpace(){ recordInteraction(3.5); logRadio('VOICE LINK — emotion sampled'); }
+function playMood(){ interactionIntensity = Math.max(interactionIntensity, 2); updateEmotion(); logRadio('MOOD: ' + State.emotion); }
 
 function boot(){
   initGlobe();
   initDrones();
   updateHUD();
   logRadio('ΤΗΛΕΜΑΧΟΣ ONLINE');
+  updateEmotion();
   startAutonomous();
   setInterval(updateHUD, 5200);
+  setInterval(updateEmotion, 1400); // keep emotion fresh/decaying
   // initial activity
   setTimeout(() => {
     if(State.drones[0] && State.drones[0].userData){
       State.drones[0].userData.targetLat = 37.98; State.drones[0].userData.targetLng = 23.72;
     }
   }, 1400);
-  console.log('%c[ASTRANOV] Real Earth dominant in phone. Pilot ΤΗΛΕΜΑΧΟΣ. No fake space.', 'color:#30d158');
+  console.log('%c[ASTRANOV] Real Earth dominant. Pilot ΤΗΛΕΜΑΧΟΣ. No AI speech, no dyn music. Emotions via interaction.', 'color:#30d158');
 }
 window.addEventListener('load', boot);
 </script>
