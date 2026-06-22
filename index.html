@@ -36,7 +36,7 @@
   <div id="cesiumContainer"></div>
 
   <div class="controls">
-    <div class="info">+30 6971930225 | VHF Ch.11 | PMR446 446.13125 MHz | Hardware Connection Active</div>
+    <div class="info">Pilot: ΤΗΛΕΜΑΧΟΣ | +30 6971930225 | VHF Ch.11 | PMR446 446.13125 MHz | Hardware Active</div>
     <div class="row">
       <button class="btn-trad" onclick="connectHardware('VHF')">VHF 11</button>
       <button class="btn-trad" onclick="connectHardware('PMR')">PMR446</button>
@@ -53,8 +53,8 @@
         <circle cx="50" cy="30" r="2" fill="#ffeb3b"/><text x="55" y="28" font-size="4" fill="#ffeb3b">Crete Perigram</text>
       </svg>
     </div>
-    <div class="info">Delivery • Unification • War Obsolete • Space Launch • Advice • Mood</div>
-    <div class="info">Simple • Vertical Phone Format • Starry Blue • Glowing Logo • Globe Integrated</div>
+    <div class="info">Delivery • Unification • War Obsolete • Space Launch • Advice • Mood • Pilot ΤΗΛΕΜΑΧΟΣ</div>
+    <div class="info">Simple • Vertical Phone Format • Starry Blue • Glowing Logo • Globe Integrated • No Faking</div>
   </div>
 </div>
 
@@ -90,16 +90,16 @@ async function initGlobe() {
   } catch(e){ console.log('Globe ready (fallback)'); }
 }
 
-function connectHardware(type) { alert('Hardware connected: ' + type + ' | Freq active. Collective linked.'); }
-function voiceFromSpace() { const u = new SpeechSynthesisUtterance('Voice from space. The collective listens. Greek wisdom flows.'); u.rate = 0.9; speechSynthesis.speak(u); }
+function connectHardware(type) { alert('Hardware connected: ' + type + ' | Freq active. Pilot ΤΗΛΕΜΑΧΟΣ linked.'); }
+function voiceFromSpace() { const u = new SpeechSynthesisUtterance('Voice from space. Pilot Telemachos commands. The collective listens.'); u.rate = 0.9; speechSynthesis.speak(u); }
 function playMood() { const a = new (window.AudioContext||window.webkitAudioContext)(); const o = a.createOscillator(); o.type = 'sine'; o.frequency.value = 220; const g = a.createGain(); g.gain.value = 0.1; o.connect(g); g.connect(a.destination); o.start(); setTimeout(()=>{o.stop();}, 1800); }
-function greekWisdom() { const w = ['The wise man knows he knows nothing. - Socrates', 'Know thyself. - Delphi', 'All is flux. - Heraclitus']; alert(w[Math.floor(Math.random()*w.length)] + ' | War is obsolete. Launch to stars.'); }
-function dangerWake() { alert('DANGER WAKE: Collective alert active. Unification in progress. Delivery en route.'); }
+function greekWisdom() { const w = ['The wise man knows he knows nothing. - Socrates', 'Know thyself. - Delphi', 'All is flux. - Heraclitus']; alert(w[Math.floor(Math.random()*w.length)] + ' | War is obsolete. Launch to stars. Pilot ΤΗΛΕΜΑΧΟΣ.'); }
+function dangerWake() { alert('DANGER WAKE: Collective alert active. Pilot ΤΗΛΕΜΑΧΟΣ. Unification in progress. Delivery en route.'); }
 
 window.addEventListener('load', () => {
   initSpace();
   initGlobe();
-  console.log('%c[ASTRANOV COLLECTIVE GROK FULL BUILD] Starry blue, glowing logo, Crete perigram, phone +306971930225, VHF 11 & 446.13125 PMR446, vertical phone, globe, voice, music, advice, danger, Greek wisdom, space launch, no faking.', 'color:#30d158');
+  console.log('%c[ASTRANOV COLLECTIVE GROK FULL BUILD] Pilot: ΤΗΛΕΜΑΧΟΣ (user added). Starry blue, glowing logo, Crete perigram, phone +306971930225, VHF 11 & 446.13125 PMR446, vertical phone, globe, voice, music, advice, danger, Greek wisdom, space launch, no faking, perpetual.', 'color:#30d158');
 });
 </script>
 </body>
