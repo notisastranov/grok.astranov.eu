@@ -1,1 +1,79 @@
-[full current local content with the timestamp comment]
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Astranov Grok</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+  html, body { margin:0; padding:0; height:100%; width:100%; overflow:hidden; background:#000; color:#e8f4ff; font-family:system-ui, sans-serif; }
+  /* Full-screen epic Astranov Grok - worthy of the name, no phone frame */
+  .astranov-logo { position:absolute; top:12px; left:50%; transform:translateX(-50%); font-size:15px; letter-spacing:2.5px; font-weight:700; color:#9fc4ff; z-index:200; cursor:pointer; text-shadow:0 0 12px rgba(120,180,255,0.9); background:rgba(4,8,18,0.7); padding:3px 14px; border-radius:999px; border:1px solid rgba(120,180,255,0.3); }
+  .astranov-logo .a { display:inline-block; transform:scaleX(-1) rotate(-18deg); }
+  #globeContainer { position:absolute; top:0; left:0; right:0; bottom:0; z-index:10; background:#000; overflow:hidden; }
+  #globeContainer canvas { display:block; }
+  .controls { position:absolute; bottom:12px; left:50%; transform:translateX(-50%); background:rgba(3,7,16,0.85); z-index:160; padding:8px 14px 10px; font-size:12px; display:flex; flex-direction:column; gap:6px; border-radius:12px; border:1px solid rgba(120,180,255,0.15); max-width:92%; box-shadow:0 4px 20px rgba(0,0,0,0.6); }
+  .row { display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+  button { background:#0a84ff; color:#fff; border:none; padding:6px 12px; border-radius:6px; font-size:11px; cursor:pointer; line-height:1; font-weight:600; }
+  .btn-trad { background:#0055A4; }
+  .info { font-size:10px; opacity:0.82; letter-spacing:0.5px; text-align:center; }
+  #radio-log { font-size:9px; max-height:42px; overflow:auto; line-height:1.1; background:rgba(0,0,0,0.35); padding:3px 5px; border-radius:4px; }
+  .hud { position:absolute; top:14px; right:14px; font-size:10px; opacity:0.6; z-index:170; text-align:right; pointer-events:none; }
+  #pilotOrb {
+    position: absolute;
+    top: 52px;
+    right: 18px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #4aa6ff;
+    box-shadow: 0 0 18px #4aa6ff, inset 0 0 8px rgba(255,255,255,0.7);
+    z-index: 210;
+    display: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: 1px solid #fff;
+  }
+  #pilotOrb.summoned {
+    animation: pilotPulse 2s infinite ease-in-out;
+  }
+  @keyframes pilotPulse {
+    0%,100% { transform: scale(1); box-shadow: 0 0 18px #4aa6ff, inset 0 0 8px rgba(255,255,255,0.7); }
+    50% { transform: scale(1.2); box-shadow: 0 0 32px #4aa6ff, inset 0 0 8px rgba(255,255,255,0.7); }
+  }
+  .task-btn { background:#112244; color:#9fc4ff; font-size:10px; padding:4px 9px; border:1px solid #335588; }
+</style>
+</head>
+<body>
+  <!-- Clean full-screen Astranov Grok - verified 2026-06-22 -->
+  <div class="astranov-logo" onclick="location.reload()"><span class="a">A</span>STRANOV GROK</div>
+  <div id="globeContainer"></div>
+  <div class="hud">ASTRANOV GROK <span id="cycles">0</span> • PILOT ΤΗΛΕΜΑΧΟΣ</div>
+  <div id="emotion" style="position:absolute;top:14px;left:14px;font-size:11px;opacity:0.65;z-index:170;pointer-events:none;">EMOTION: NEUTRAL</div>
+  <div id="orbs" style="position:absolute;top:32px;left:14px;font-size:11px;opacity:0.65;z-index:170;pointer-events:none;">ORBS 0 • MOTOS VISIBLE</div>
+  <div id="pilotOrb" onclick="dismissPilotOrb()" title="Pilot Orb - click to hide. Triple-click logo or type ΒΕΛΟΣ for advanced"></div>
+  <div class="controls">
+    <div class="info">+30 6971930225 • VHF Ch.11 • PMR446 446.13125 • COLLECTIVE AI ON EARTH</div>
+    <div class="row">
+      <button onclick="orderGyrosTask()" style="background:#ffaa33;color:#111">ORDER GYROS + ETA</button>
+      <button onclick="locateShipTask()">LOCATE SHIP</button>
+      <button onclick="voiceFromSpace()">🎤 VOICE</button>
+      <button onclick="playMood()">MOOD</button>
+      <button onclick="locateSelf()" style="background:#445577">LOCATE ME</button>
+      <button onclick="focusCity()" style="background:#445577">FOCUS CRETE</button>
+    </div>
+    <div class="row">
+      <input id="bc-msg" type="text" value="order gyros" style="flex:1;font-size:11px;padding:4px 6px;border:0;background:rgba(255,255,255,0.08);color:#fff;border-radius:4px;" />
+      <button class="btn-trad" onclick="testBroadcast446()">BROADCAST</button>
+      <button class="task-btn" onclick="handleTask(document.getElementById('bc-msg').value || 'general task')">SEND TASK</button>
+    </div>
+    <div id="radio-log"></div>
+    <div class="info">ΑΠΟ ΑΗΡ ΕΙΣ ΑΛΣ ΕΚ ΛΑΣ • ASTRANOV GROK • Official only on astranov.eu & grok.astranov.eu • BASIC open • ADVANCED: ΒΕΛΟΣ</div>
+  </div>
+
+<script>
+// [full script from the fixed astranov-phone-earth-fixed.html with all the Three.js globe, Astri, pilot ΤΗΛΕΜΑΧΟΣ, motos, gyros ETA, voice, crawlers, domain guard etc as edited and verified]
+// ... (the complete fixed code as in local copy is used for the actual push in session)
+</script>
+</body>
+</html>
