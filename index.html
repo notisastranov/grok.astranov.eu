@@ -240,20 +240,40 @@ function groupOrder() {
 }
 
 function showPilotTelemachos() {
-  // Εμφάνισε τον Πιλότο ΤΗΛΕΜΑΧΟΣ (drone pilot)
+  // Εμφάνισε τον Πιλότο ΤΗΛΕΜΑΧΟΣ (drone pilot) - πιο έντονα
   if (window._pilot && window._pilot.parent) window._pilot.parent.remove(window._pilot);
   
-  const pos = latLngToPos(36.2, 28.1, 1.04); // πάνω από περιοχή Ρόδου / Αρχάγγελο
+  const pos = latLngToPos(36.2, 28.1, 1.04);
   const pilot = new THREE.Mesh(
-    new THREE.SphereGeometry(0.016, 6, 6),
-    new THREE.MeshBasicMaterial({ color: 0x66aaff, transparent: true, opacity: 0.85 })
+    new THREE.SphereGeometry(0.022, 8, 8),
+    new THREE.MeshBasicMaterial({ color: 0x00aaff, transparent: true, opacity: 0.9 })
   );
   pilot.position.set(pos.x, pos.y, pos.z);
   pilot.userData = { type: 'pilot', name: 'ΤΗΛΕΜΑΧΟΣ' };
   scene.add(pilot);
   window._pilot = pilot;
   
-  console.log('%c[Πιλότος ΤΗΛΕΜΑΧΟΣ] Αναλαμβάνω την παράδοση με drone! Pitogyra + μπίρες + τσιγάρα on the way.', 'color:#66aaff');
+  // Temporary label for the pilot
+  const label = document.createElement('div');
+  label.style.position = 'absolute';
+  label.style.color = '#00aaff';
+  label.style.fontSize = '11px';
+  label.style.fontWeight = 'bold';
+  label.style.textShadow = '0 0 4px #000';
+  label.style.pointerEvents = 'none';
+  label.textContent = 'Πιλότος ΤΗΛΕΜΑΧΟΣ';
+  document.body.appendChild(label);
+  
+  // Position label near the pilot (rough, updates once)
+  const rect = container.getBoundingClientRect();
+  label.style.left = (rect.left + rect.width * 0.55) + 'px';
+  label.style.top = (rect.top + rect.height * 0.35) + 'px';
+  
+  setTimeout(() => {
+    if (label.parentNode) label.parentNode.removeChild(label);
+  }, 6000);
+  
+  console.log('%c[Πιλότος ΤΗΛΕΜΑΧΟΣ] Αναλαμβάνω την παράδοση με drone! Pitogyra + μπίρες + τσιγάρα on the way. Aksako <3', 'color:#00aaff');
 }
 
 function latLngToPos(lat, lng, r = 1) {
