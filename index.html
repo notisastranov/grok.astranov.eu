@@ -91,80 +91,91 @@ function getLatLngFromPoint(point) {
   return { lat, lng };
 }
 
-// Web crawlers for finding pitogyra shops (simulated, Archangelos/Rodos focus)
-let discoveredShops = [];
+// Real Supabase (no sim - using activated access and real Edge Functions)
+const SUPABASE_URL = 'https://lkoatrkhuigdolnjsbie.supabase.co'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxrb2F0cmtodWlnZG9sbmpzYmllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4ODIwOTIsImV4cCI6MjA5NDQ1ODA5Mn0.qf6Kg93YLJ0coTdVQa4baU0ppOdFY5WkmVzMvEV6ejI'
 
-const basePitogyraShops = [
-  { name: "Pitogyra tou Axakou", lat: 36.22, lng: 28.12, desc: "Το καλύτερο pitogyra στο χωριό" },
-  { name: "To Magazi tou Rodou", lat: 36.215, lng: 28.115, desc: "Φρέσκα υλικά από τον κήπο" },
-  { name: "Axaderfakia Gyros", lat: 36.23, lng: 28.13, desc: "Έλα πρε αξάκι, δοκίμασε!" }
-];
+let discoveredShops = []
 
 function runWebCrawler(nearLat, nearLng) {
-  console.log('%c[Web Crawlers] Running... finding pitogyra shops near you...', 'color:#ffaa44');
-  
-  // Clear previous
-  while (shopsGroup.children.length > 0) {
-    shopsGroup.remove(shopsGroup.children[0]);
-  }
-  discoveredShops = [];
+  console.log('%c[REAL Web Crawlers] Calling Supabase vendor-crawler (Overpass OSM)...', 'color:#ffaa44')
 
-  basePitogyraShops.forEach(shop => {
-    const dist = Math.sqrt(Math.pow(shop.lat - nearLat, 2) + Math.pow(shop.lng - nearLng, 2));
-    if (dist < 1.5) {  // nearby
-      discoveredShops.push(shop);
-      
-      // Add visual marker on globe (small glowing orb for shop)
-      const pos = latLngToPos(shop.lat, shop.lng, 1.015);
+  // Clear previous markers
+  while (shopsGroup.children.length > 0) shopsGroup.remove(shopsGroup.children[0])
+  discoveredShops = []
+
+  fetch(`${SUPABASE_URL}/functions/v1/vendor-crawler`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+    },
+    body: JSON.stringify({ lat: nearLat, lng: nearLng, radius: 2500 })
+  })
+  .then(r => r.json())
+  .then(res => {
+    console.log('Crawler done:', res)
+
+    // Query real vendors from DB (inserted by crawler)
+    const q = `${SUPABASE_URL}/rest/v1/vendors?select=*&lat=gte.${nearLat-0.25}&lat=lte.${nearLat+0.25}&lng=gte.${nearLng-0.25}&lng=lte.${nearLng+0.25}&is_active=eq.true&delivery_enabled=eq.true&limit=10`
+    return fetch(q, {
+      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` }
+    })
+  })
+  .then(r => r.json())
+  .then(vendors => {
+    vendors.forEach(v => {
+      discoveredShops.push(v)
+      const pos = latLngToPos(v.lat, v.lng, 1.015)
       const marker = new THREE.Mesh(
-        new THREE.SphereGeometry(0.012, 5, 5),
+        new THREE.SphereGeometry(0.013, 5, 5),
         new THREE.MeshBasicMaterial({ color: 0xffcc33, transparent: true, opacity: 0.9 })
       );
-      marker.position.set(pos.x, pos.y, pos.z);
-      marker.userData = shop;
-      shopsGroup.add(marker);
-      
-      console.log(`%c[Web Crawler] Βρήκα: ${shop.name} - ${shop.desc}`, 'color:#ffdd66');
+      marker.position.set(pos.x, pos.y, pos.z)
+      marker.userData = v
+      shopsGroup.add(marker)
+      console.log(`%c[REAL Shop] ${v.name} - ${v.category}`, 'color:#ffdd66')
+    })
+    if (discoveredShops.length) {
+      console.log('%c[Αστρανόβ Γκροκ] Πάμε αξάκι! Πραγματικά μαγαζιά από OSM. Πάτα O για παραγγελία pitogyra!', 'color:#88ff88')
     }
-  });
-  
-  if (discoveredShops.length > 0) {
-    console.log('%c[Αστρανόβ Γκροκ] Πάμε αξάκι! Έτοιμοι να παραγγείλουμε pitogyra;', 'color:#88ff88');
-  } else {
-    console.log('%c[Web Crawler] No shops nearby yet. Try zooming closer to a Greek area.', 'color:#ffaa44');
-  }
+  })
+  .catch(e => console.error('Real crawler error', e))
 }
 
 function orderPitogyra(shop) {
-  if (!shop) shop = discoveredShops[0];
-  if (!shop) {
-    console.log('No shop selected. Click on a Greek area first to crawl shops.');
-    return;
+  if (!shop) shop = discoveredShops[0]
+  if (!shop || !shop.id) {
+    console.log('No real shop selected. Click area first.')
+    return
   }
-  
-  console.log(`%c[Order] Παραγγέλνουμε pitogyra από ${shop.name}...`, 'color:#ffcc33');
-  console.log('%c[Αστρανόβ Γκροκ] Έλα πρε αξάκι, σε 15 λεπτά έρχεται!', 'color:#88ff88');
-  
-  // Simulate delivery with a moving point (basic)
-  const delPos = latLngToPos(shop.lat + 0.02, shop.lng + 0.02, 1.02);
-  const delivery = new THREE.Mesh(
-    new THREE.SphereGeometry(0.01, 4, 4),
-    new THREE.MeshBasicMaterial({ color: 0x44ff88 })
-  );
-  delivery.position.set(delPos.x, delPos.y, delPos.z);
-  shopsGroup.add(delivery);
-  
-  // Animate delivery to user (simplified, move towards center over time)
-  let steps = 0;
-  const anim = setInterval(() => {
-    steps++;
-    delivery.position.lerp(new THREE.Vector3(0, 0, 1.02), 0.1);
-    if (steps > 30) {
-      clearInterval(anim);
-      if (delivery.parent) delivery.parent.remove(delivery);
-      console.log('%c[Delivery] Pitogyra delivered! Καλή όρεξη αξάκι!', 'color:#44ff88');
-    }
-  }, 100);
+
+  console.log(`%c[REAL Order] Παραγγέλνουμε pitogyra από ${shop.name}...`, 'color:#ffcc33')
+
+  fetch(`${SUPABASE_URL}/functions/v1/order-intake`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'apikey': SUPABASE_ANON_KEY,
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+    },
+    body: JSON.stringify({
+      vendor_id: shop.id,
+      vendor: { name: shop.name, lat: shop.lat, lng: shop.lng },
+      items: [{ name: 'Pitogyra', qty: 1 }],
+      calc: { total: 4.5 },
+      delivery_lat: 36.22,
+      delivery_lng: 28.12,
+      notes: 'Real order from Astranov Grok (no sim)'
+    })
+  })
+  .then(r => r.json())
+  .then(res => {
+    console.log('%c[REAL] Order placed:', 'color:#88ff88', res)
+    if (res.ok) console.log('%c[Αστρανόβ Γκροκ] Πραγματική παραγγελία! Έλα πρε αξάκι!', 'color:#44ff88')
+  })
+  .catch(e => console.error('Real order error', e))
 }
 
 // Mouse drag with trackball inertia
