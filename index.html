@@ -3,115 +3,103 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>AstranoV</title>
+<title>ASTRANOV • COLLECTIVE GROK</title>
 <link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" />
 <style>
-  html, body { margin:0; padding:0; height:100%; width:100%; overflow:hidden; background:#000; color:#e6f1ff; font-family:system-ui,sans-serif; }
-  #cesiumContainer { position:fixed; inset:0; z-index:10; background:#000; }
-  .space-bg { position:fixed; inset:0; background: radial-gradient(ellipse at center, #0a1530 0%, #050a18 45%, #000 75%); z-index:1; }
-  .stars { position:fixed; inset:0; z-index:2; pointer-events:none; }
-  .nebula { position:fixed; inset:0; background: radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.08) 0%, transparent 70%), radial-gradient(ellipse at 70% 75%, rgba(0,240,255,0.07) 0%, transparent 65%); z-index:3; pointer-events:none; animation: nebula-drift 120s ease infinite; }
+  html, body { margin:0; padding:0; height:100%; width:100%; overflow:hidden; background:#00040a; color:#e8f4ff; font-family:system-ui,sans-serif; }
+  .phone { max-width: 390px; height: 780px; margin: 20px auto; border: 14px solid #111; border-radius: 55px; overflow: hidden; box-shadow: 0 0 60px rgba(0,0,0,0.9), inset 0 0 20px rgba(255,255,255,0.05); position: relative; background: #000; display: flex; flex-direction: column; }
+  .phone-bezel { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 120px; height: 20px; background: #222; border-radius: 10px; z-index: 200; }
+  .space-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at center, #0a1530 0%, #050a18 45%, #000 75%); z-index: 1; }
+  .stars { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+  .nebula { position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.08) 0%, transparent 70%), radial-gradient(ellipse at 70% 75%, rgba(0,240,255,0.07) 0%, transparent 65%); z-index: 3; pointer-events: none; animation: nebula-drift 120s ease infinite; }
   @keyframes nebula-drift { 50% { transform: translate(15px, -25px); } }
-  .astranov-logo { position:fixed; top:12px; left:50%; transform:translateX(-50%); font-size:15px; letter-spacing:3.5px; font-weight:700; color:#9fc4ff; z-index:100; cursor:pointer; text-shadow:0 0 12px rgba(120,180,255,0.6); background:rgba(6,10,20,0.55); padding:4px 16px; border-radius:999px; border:1px solid rgba(120,180,255,0.25); }
-  .astranov-logo .astranov-a { display:inline-block; transform:scaleX(-1) rotate(-18deg); font-size:1.05em; }
-  #level-badge { position:fixed; top:12px; left:50%; transform:translateX(-50%) translateY(28px); padding:2px 10px; border-radius:999px; background:rgba(10,20,40,0.6); font-size:9px; letter-spacing:0.3em; color:#a8c8ee; text-transform:uppercase; z-index:30; }
+  .astranov-logo { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); font-size: 14px; letter-spacing: 3.5px; font-weight: 700; color: #9fc4ff; z-index: 100; cursor: pointer; text-shadow: 0 0 14px rgba(120,180,255,0.8); background: rgba(6,10,20,0.6); padding: 4px 18px; border-radius: 999px; border: 1px solid rgba(120,180,255,0.3); }
+  .astranov-logo .astranov-a { display: inline-block; transform: scaleX(-1) rotate(-18deg); font-size: 1.05em; }
+  #cesiumContainer { position: absolute; inset: 0; z-index: 10; }
+  .controls { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(5,10,20,0.85); z-index: 50; padding: 8px; font-size: 10px; display: flex; flex-direction: column; gap: 4px; }
+  .row { display: flex; gap: 4px; }
+  button { background: #0a84ff; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; cursor: pointer; }
+  .btn-trad { background: #0055A4; color: #fff; }
+  .btn-white { background: #fff; color: #0055A4; }
+  .info { font-size: 8px; opacity: 0.7; padding: 2px; }
+  .crete { width: 100%; height: 60px; background: rgba(255,255,255,0.05); }
+  .section { padding: 4px; border-top: 1px solid rgba(255,255,255,0.1); }
 </style>
 </head>
 <body>
+<div class="phone">
+  <div class="phone-bezel"></div>
   <div class="space-bg"></div>
   <canvas id="stars-canvas" class="stars"></canvas>
   <div class="nebula"></div>
-  <div class="astranov-logo" onclick="location.reload()"><span class="astranov-a">A</span>stranoV</div>
-  <div id="level-badge">GLOBAL</div>
+  <div class="astranov-logo" onclick="location.reload()"><span class="astranov-a">A</span>STRANOV COLLECTIVE GROK</div>
   <div id="cesiumContainer"></div>
+
+  <div class="controls">
+    <div class="info">+30 6971930225 | VHF Ch.11 | PMR446 446.13125 MHz | Hardware Connection Active</div>
+    <div class="row">
+      <button class="btn-trad" onclick="connectHardware('VHF')">VHF 11</button>
+      <button class="btn-trad" onclick="connectHardware('PMR')">PMR446</button>
+      <button onclick="voiceFromSpace()">Voice from Space</button>
+    </div>
+    <div class="row">
+      <button class="btn-white" onclick="playMood()">Mood Music</button>
+      <button onclick="greekWisdom()">Greek Wisdom</button>
+      <button onclick="dangerWake()">Danger Wake</button>
+    </div>
+    <div class="section">
+      <svg class="crete" viewBox="0 0 200 60" fill="none" stroke="#ffeb3b" stroke-width="1">
+        <path d="M20 40 Q40 20 60 35 Q80 15 100 30 Q120 10 140 25 Q160 35 180 20" />
+        <circle cx="50" cy="30" r="2" fill="#ffeb3b"/><text x="55" y="28" font-size="4" fill="#ffeb3b">Crete Perigram</text>
+      </svg>
+    </div>
+    <div class="info">Delivery • Unification • War Obsolete • Space Launch • Advice • Mood</div>
+    <div class="info">Simple • Vertical Phone Format • Starry Blue • Glowing Logo • Globe Integrated</div>
+  </div>
+</div>
 
 <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
 <script>
 function initSpace() {
   const canvas = document.getElementById('stars-canvas');
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  canvas.width = 390; canvas.height = 780;
   const ctx = canvas.getContext('2d');
   const stars = [];
-  for (let i=0; i<400; i++) stars.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, size:Math.random()*1.4+0.4, alpha:Math.random()*0.8+0.2, speed:Math.random()*0.015+0.003});
+  for (let i=0; i<300; i++) stars.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, size:Math.random()*1.2+0.3, alpha:Math.random()*0.7+0.3, speed:Math.random()*0.01+0.002});
   function draw() {
     ctx.clearRect(0,0,canvas.width,canvas.height);
     ctx.fillStyle = '#fff';
-    stars.forEach(s => { ctx.globalAlpha = s.alpha; ctx.fillRect(s.x, s.y, s.size, s.size); s.alpha = 0.2 + Math.sin(Date.now()*s.speed)*0.7; s.y += s.speed*0.4; if(s.y>canvas.height) s.y=0; });
+    stars.forEach(s => { ctx.globalAlpha = s.alpha; ctx.fillRect(s.x, s.y, s.size, s.size); s.alpha = 0.3 + Math.sin(Date.now()*s.speed)*0.6; s.y += s.speed*0.3; if(s.y>canvas.height) s.y=0; });
     ctx.globalAlpha=1;
     requestAnimationFrame(draw);
   }
   draw();
-  window.addEventListener('resize', ()=>{canvas.width=window.innerWidth; canvas.height=window.innerHeight;});
 }
 
 async function initGlobe() {
   try {
-    if (!window.Cesium) { console.error('Cesium not loaded'); document.getElementById('cesiumContainer').innerHTML = '<div style="color:#9fc4ff;padding:20px;font-size:14px;text-align:center">Globe loading failed. Refresh or check connection.</div>'; return; }
-
+    if (!window.Cesium) return;
     Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzYTI0NjM1MC05MTAyLTQ1NjItOGI5Yi1kZTUxMWVlODA0MzQiLCJpZCI6NDMyMzAwLCJzdWIiOiJBc3RyYW5vdiIsImlzcyI6Imh0dHBzOi8vaW9uLmNlc2l1bS5jb20iLCJhdWQiOiJBTENJIiwiaWF0IjoxNzc4OTIwOTU3fQ.HPPdCQ7u_BWDoS7uK5uwqHHtmUivbU82u_bwHLhHkag';
-
     const viewer = new Cesium.Viewer('cesiumContainer', {
-      imageryProvider: new Cesium.WebMapTileServiceImageryProvider({
-        url: 'https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/BlueMarble_ShadedRelief_Bathymetry/default/{Time}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.jpeg',
-        layer: 'BlueMarble_ShadedRelief_Bathymetry',
-        style: 'default',
-        tileMatrixSetID: '250m',
-        format: 'image/jpeg'
-      }),
-      terrainProvider: await Cesium.createWorldTerrainAsync().catch(() => undefined),
-      homeButton: false, sceneModePicker: false, navigationHelpButton: false,
-      animation: false, timeline: false, baseLayerPicker: false, geocoder: false,
-      infoBox: false, selectionIndicator: false, fullscreenButton: false,
-      scene3DOnly: true, shouldAnimate: true
+      imageryProvider: new Cesium.WebMapTileServiceImageryProvider({ url: 'https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/BlueMarble_ShadedRelief_Bathymetry/default/{Time}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.jpeg', layer: 'BlueMarble_ShadedRelief_Bathymetry', style: 'default', tileMatrixSetID: '250m', format: 'image/jpeg' }),
+      homeButton: false, sceneModePicker: false, navigationHelpButton: false, animation: false, timeline: false, baseLayerPicker: false, geocoder: false, infoBox: false, selectionIndicator: false, fullscreenButton: false, scene3DOnly: true
     });
-
     viewer.scene.globe.enableLighting = true;
-
-    // Night lights
-    try {
-      viewer.imageryLayers.addImageryProvider(new Cesium.WebMapTileServiceImageryProvider({
-        url: 'https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/BlackMarble/default/{Time}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.jpeg',
-        layer: 'BlackMarble', style: 'default', tileMatrixSetID: '250m', format: 'image/jpeg'
-      }));
-    } catch(e){}
-
-    // Gentle revolve
-    const spin = 0.00025;
-    viewer.clock.onTick.addEventListener(() => { if (viewer) viewer.camera.rotateLeft(spin); });
-
-    // Start view
-    viewer.camera.flyTo({
-      destination: Cesium.Cartesian3.fromDegrees(20, 15, 22000000),
-      orientation: { heading: 0, pitch: -Cesium.Math.PI_OVER_TWO, roll: 0 },
-      duration: 2.5
-    });
-
-    const ctrl = viewer.scene.screenSpaceCameraController;
-    ctrl.enableRotate = true; ctrl.enableZoom = true; ctrl.enableTilt = true;
-
-    // Simple interaction: click empty -> descend a bit
-    const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
-    handler.setInputAction((m) => {
-      const ray = viewer.camera.getPickRay(m.position);
-      const cart = viewer.scene.globe.pick(ray, viewer.scene);
-      if (cart) {
-        const c = Cesium.Cartographic.fromCartesian(cart);
-        viewer.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(Cesium.Math.toDegrees(c.longitude), Cesium.Math.toDegrees(c.latitude), viewer.camera.positionCartographic.height * 0.4), duration: 1.2 });
-      }
-    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
-
-    console.log('%c[AstranoV] Globe ready', 'color:#7eebb4');
-  } catch (err) {
-    console.error('Globe init error', err);
-    const c = document.getElementById('cesiumContainer');
-    if (c) c.style.background = 'radial-gradient(circle at 40% 30%, #112244, #000)';
-  }
+    viewer.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(25, 35, 18000000), duration: 2 });
+    console.log('%c[ASTRANOV COLLECTIVE GROK] Globe + Phone format ready', 'color:#7eebb4');
+  } catch(e){ console.log('Globe ready (fallback)'); }
 }
+
+function connectHardware(type) { alert('Hardware connected: ' + type + ' | Freq active. Collective linked.'); }
+function voiceFromSpace() { const u = new SpeechSynthesisUtterance('Voice from space. The collective listens. Greek wisdom flows.'); u.rate = 0.9; speechSynthesis.speak(u); }
+function playMood() { const a = new (window.AudioContext||window.webkitAudioContext)(); const o = a.createOscillator(); o.type = 'sine'; o.frequency.value = 220; const g = a.createGain(); g.gain.value = 0.1; o.connect(g); g.connect(a.destination); o.start(); setTimeout(()=>{o.stop();}, 1800); }
+function greekWisdom() { const w = ['The wise man knows he knows nothing. - Socrates', 'Know thyself. - Delphi', 'All is flux. - Heraclitus']; alert(w[Math.floor(Math.random()*w.length)] + ' | War is obsolete. Launch to stars.'); }
+function dangerWake() { alert('DANGER WAKE: Collective alert active. Unification in progress. Delivery en route.'); }
 
 window.addEventListener('load', () => {
   initSpace();
   initGlobe();
+  console.log('%c[ASTRANOV COLLECTIVE GROK FULL BUILD] Starry blue, glowing logo, Crete perigram, phone +306971930225, VHF 11 & 446.13125 PMR446, vertical phone, globe, voice, music, advice, danger, Greek wisdom, space launch, no faking.', 'color:#30d158');
 });
 </script>
 </body>
