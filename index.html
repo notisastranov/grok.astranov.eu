@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Astranov Grok</title>
+<title>Astranov Grok • Αστρανόβ Γκροκ</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
   html, body { margin:0; padding:0; height:100%; width:100%; overflow:hidden; background:#000; }
@@ -14,7 +14,7 @@
 </head>
 <body>
   <div id="globe"></div>
-  <div class="subtle">ASTRANOV GROK</div>
+  <div class="subtle">ASTRANOV GROK • ΑΣΤΡΑΝΟΒ ΓΚΡΟΚ</div>
 <script>
 const container = document.getElementById('globe');
 const renderer = new THREE.WebGLRenderer({antialias: true, alpha: true});
@@ -34,7 +34,6 @@ const sun = new THREE.DirectionalLight(0xffffff, 1.15);
 sun.position.set(5, 3, 4);
 scene.add(sun);
 
-// Stars
 const starCount = 14000;
 const starPositions = [];
 for (let i = 0; i < starCount; i++) {
@@ -52,7 +51,6 @@ starGeo.setAttribute('position', new THREE.Float32BufferAttribute(starPositions,
 const stars = new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0x99aabb, size: 0.65, transparent: true, opacity: 0.85 }));
 scene.add(stars);
 
-// Earth
 const earthGeo = new THREE.SphereGeometry(1, 64, 64);
 const texture = new THREE.TextureLoader().load('https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/textures/planets/earth_atmos_2048.jpg');
 const earthMat = new THREE.MeshPhongMaterial({ map: texture, shininess: 6, color: 0x2a4a66 });
@@ -60,7 +58,6 @@ const earth = new THREE.Mesh(earthGeo, earthMat);
 earth.rotation.y = 0.85;
 scene.add(earth);
 
-// Interaction state
 let isDragging = false;
 let prevX = 0, prevY = 0;
 let velY = 0, velX = 0;
@@ -82,87 +79,68 @@ function getLatLngFromPoint(point) {
   return { lat, lng };
 }
 
-container.addEventListener('mousedown', (e) => {
-  isDragging = true;
-  prevX = e.clientX; prevY = e.clientY;
-  velY = 0; velX = 0; lastInteract = Date.now();
-});
-
+container.addEventListener('mousedown', (e) => { isDragging = true; prevX = e.clientX; prevY = e.clientY; velY=0; velX=0; lastInteract=Date.now(); });
 window.addEventListener('mouseup', () => { isDragging = false; });
-
 window.addEventListener('mousemove', (e) => {
   if (!isDragging) return;
-  const dx = e.clientX - prevX;
-  const dy = e.clientY - prevY;
-  earth.rotation.y += dx * 0.0045;
-  earth.rotation.x += dy * 0.0042;
+  const dx = e.clientX - prevX; const dy = e.clientY - prevY;
+  earth.rotation.y += dx * 0.0045; earth.rotation.x += dy * 0.0042;
   earth.rotation.x = Math.max(-1.4, Math.min(1.4, earth.rotation.x));
-  velY = dx * 0.0045;
-  velX = dy * 0.0042;
-  prevX = e.clientX; prevY = e.clientY; lastInteract = Date.now();
+  velY = dx * 0.0045; velX = dy * 0.0042; prevX = e.clientX; prevY = e.clientY; lastInteract = Date.now();
 });
-
-container.addEventListener('wheel', (e) => {
-  e.preventDefault();
-  const zoomSpeed = 0.0018;
-  targetZoom += e.deltaY * zoomSpeed;
-  targetZoom = Math.max(1.15, Math.min(7.5, targetZoom));
-  isZooming = true; lastInteract = Date.now();
-}, { passive: false });
-
+container.addEventListener('wheel', (e) => { e.preventDefault(); const zoomSpeed = 0.0018; targetZoom += e.deltaY * zoomSpeed; targetZoom = Math.max(1.15, Math.min(7.5, targetZoom)); isZooming = true; lastInteract=Date.now(); }, {passive:false});
 container.addEventListener('click', (e) => {
   if (isDragging) return;
   const rect = container.getBoundingClientRect();
   const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
   const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-  const ray = new THREE.Raycaster();
-  ray.setFromCamera(new THREE.Vector2(x, y), camera);
+  const ray = new THREE.Raycaster(); ray.setFromCamera(new THREE.Vector2(x, y), camera);
   const hits = ray.intersectObject(earth);
   if (hits.length > 0) {
     const point = hits[0].point.clone();
     const { lat, lng } = getLatLngFromPoint(point);
     earth.rotation.y = -lng * Math.PI / 180 + (Math.PI * 0.5);
     earth.rotation.x = -lat * 0.008;
-    targetZoom = 1.35;
-    isZooming = true;
+    targetZoom = 1.35; isZooming = true;
     const lookTarget = point.clone().multiplyScalar(0.98);
-    camera.lookAt(lookTarget);
-    lastInteract = Date.now();
+    camera.lookAt(lookTarget); lastInteract = Date.now();
+    console.log(`[Astranov Grok] Zoomed to ~${lat.toFixed(1)}°, ${lng.toFixed(1)}° (national level)`);
+
+    // Local Greek from Archangel Village, Rodos Island Greece
+    // "hi cousin is, ελα πρε αξακι" = Έλα ώρε αξαδερφάκι
+    if (lat > 35.8 && lat < 36.4 && lng > 27.8 && lng < 28.3) {
+      console.log('%c[Αστρανόβ Γκροκ] Έλα πρε αξάκι! (Έλα ώρε αδερφάκι) — Welcome cousin from the village. What shall we do today?', 'color:#aaddff');
+    } else if (lat > 34 && lat < 42 && lng > 19 && lng < 29) {
+      console.log('%c[Αστρανόβ Γκροκ] Γεια σου ξάδερφε! From Greece — ready to explore the islands?', 'color:#aaddff');
+    }
   }
 });
-
 function animate() {
   requestAnimationFrame(animate);
-  const now = Date.now();
-  const idleTime = (now - lastInteract) / 1000;
-  if (!isDragging) {
-    earth.rotation.y += velY; earth.rotation.x += velX;
-    velY *= inertia; velX *= inertia;
-    if (Math.abs(velY) < 0.00008) velY = 0;
-    if (Math.abs(velX) < 0.00008) velX = 0;
-  }
-  if (velY === 0 && velX === 0 && !isDragging && idleTime > 2.5) earth.rotation.y += 0.00012;
-  if (isZooming || Math.abs(camera.position.z - targetZoom) > 0.01) {
-    camera.position.z = camera.position.z * 0.82 + targetZoom * 0.18;
-    if (Math.abs(camera.position.z - targetZoom) < 0.015) isZooming = false;
-  }
+  const now = Date.now(); const idleTime = (now - lastInteract) / 1000;
+  if (!isDragging) { earth.rotation.y += velY; earth.rotation.x += velX; velY *= inertia; velX *= inertia; if (Math.abs(velY)<0.00008) velY=0; if (Math.abs(velX)<0.00008) velX=0; }
+  if (velY===0 && velX===0 && !isDragging && idleTime>2.5) earth.rotation.y += 0.00012;
+  if (isZooming || Math.abs(camera.position.z - targetZoom) > 0.01) { camera.position.z = camera.position.z * 0.82 + targetZoom * 0.18; if (Math.abs(camera.position.z - targetZoom) < 0.015) isZooming = false; }
   renderer.render(scene, camera);
 }
 animate();
-
-function onResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-}
+function onResize() { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); }
 window.addEventListener('resize', onResize);
+
+// Greek from Archangelos village, Rodos Island
+// "hi cousin" taught as: ελα πρε αξακι = Έλα ώρε αξαδερφάκι
+console.log('%c[Αστρανόβ Γκροκ] Έλα πρε αξάκι! Welcome to the collective from Archangel Village, Rodos, Greece.', 'color:#88ccff');
+
+// Places to explore (click the globe to zoom to national level and "choose a city"):
+// - Archangelos (Αρχάγγελος), Rodos Island: ~36.22° N, 28.12° E
+// - Heraklion, Crete
+// - Piraeus (near Athens)
+console.log('%cTry clicking near Rhodes or other Greek spots to zoom in and start exploring things to do, cousin!', 'color:#666');
 
 const host = location.hostname || '';
 const isOfficial = host === 'astranov.eu' || host === 'grok.astranov.eu' || host.endsWith('.astranov.eu');
 const isLocal = host === '' || host === 'localhost' || host === '127.0.0.1' || location.protocol === 'file:';
-if (host && !isOfficial && !isLocal) {
-  document.body.innerHTML = '<div style="color:#444;padding:40px;text-align:center;font-family:sans-serif">Available only on astranov.eu and grok.astranov.eu</div>';
-}
+if (host && !isOfficial && !isLocal) { document.body.innerHTML = '<div style="color:#444;padding:40px;text-align:center;font-family:sans-serif">Available only on astranov.eu and grok.astranov.eu</div>'; }
 </script>
 </body>
 </html>
