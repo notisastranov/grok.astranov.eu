@@ -7,40 +7,31 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
   html, body { margin:0; padding:0; height:100%; width:100%; overflow:hidden; background:#00040a; color:#e8f4ff; font-family:system-ui,sans-serif; }
-  .phone { max-width:390px; height:780px; margin:20px auto; border:14px solid #111; border-radius:55px; overflow:hidden; box-shadow:0 0 60px rgba(0,0,0,0.9), inset 0 0 20px rgba(255,255,255,0.05); position:relative; background:#000; display:flex; flex-direction:column; }
-  .phone-bezel { position:absolute; top:10px; left:50%; transform:translateX(-50%); width:120px; height:20px; background:#222; border-radius:10px; z-index:200; }
-  .space-bg { position:absolute; inset:0; background:radial-gradient(ellipse at center, #0a1530 0%, #050a18 45%, #000 75%); z-index:1; }
-  .stars { position:absolute; inset:0; z-index:2; pointer-events:none; }
-  .nebula { position:absolute; inset:0; background:radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.08) 0%, transparent 70%), radial-gradient(ellipse at 70% 75%, rgba(0,240,255,0.07) 0%, transparent 65%); z-index:3; pointer-events:none; animation:nebula-drift 120s ease infinite; }
-  @keyframes nebula-drift { 50% { transform:translate(15px,-25px); } }
-  .astranov-logo { position:absolute; top:25px; left:50%; transform:translateX(-50%); font-size:13px; letter-spacing:3px; font-weight:700; color:#9fc4ff; z-index:100; cursor:pointer; text-shadow:0 0 14px rgba(120,180,255,0.9); background:rgba(6,10,20,0.6); padding:3px 14px; border-radius:999px; border:1px solid rgba(120,180,255,0.3); }
+  .phone { max-width: 390px; height: 780px; margin: 20px auto; border: 14px solid #111; border-radius: 55px; overflow: hidden; box-shadow: 0 0 60px rgba(0,0,0,0.9), inset 0 0 20px rgba(255,255,255,0.05); position: relative; background: #000; display: flex; flex-direction: column; }
+  .phone-bezel { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 120px; height: 20px; background: #222; border-radius: 10px; z-index: 200; }
+  .astranov-logo { position: absolute; top: 22px; left: 50%; transform: translateX(-50%); font-size: 12px; letter-spacing: 2.5px; font-weight: 700; color: #9fc4ff; z-index: 100; cursor: pointer; text-shadow: 0 0 12px rgba(120,180,255,0.9); background: rgba(6,10,20,0.55); padding: 2px 12px; border-radius: 999px; border: 1px solid rgba(120,180,255,0.25); }
   .astranov-logo .a { display:inline-block; transform:scaleX(-1) rotate(-18deg); }
-  #globeContainer { position:absolute; inset:0; z-index:10; }
-  .controls { position:absolute; bottom:0; left:0; right:0; background:rgba(5,10,20,0.9); z-index:50; padding:6px 8px; font-size:9px; display:flex; flex-direction:column; gap:3px; }
-  .row { display:flex; gap:4px; align-items:center; }
-  button { background:#0a84ff; color:#fff; border:none; padding:3px 6px; border-radius:3px; font-size:8px; cursor:pointer; }
-  .btn-trad { background:#0055A4; color:#fff; }
-  .info { font-size:7px; opacity:0.75; }
-  .crete { width:100%; height:48px; background:rgba(255,255,255,0.04); }
-  #radio-log { font-size:6px; max-height:28px; overflow:auto; background:rgba(0,0,0,0.3); padding:1px; line-height:1; }
-  .hud { position:absolute; top:55px; right:8px; font-size:7px; opacity:0.7; z-index:60; text-align:right; }
+  #globeContainer { position: absolute; top: 50px; left: 0; right: 0; bottom: 110px; z-index: 10; }
+  .controls { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(5,10,20,0.92); z-index: 50; padding: 5px 6px; font-size: 8px; display: flex; flex-direction: column; gap: 2px; }
+  .row { display: flex; gap: 3px; align-items: center; }
+  button { background: #0a84ff; color: #fff; border: none; padding: 2px 5px; border-radius: 2px; font-size: 7px; cursor: pointer; }
+  .btn-trad { background: #0055A4; }
+  .info { font-size: 6.5px; opacity: 0.8; }
+  .crete { width: 100%; height: 36px; background: rgba(255,255,255,0.03); }
+  #radio-log { font-size: 5.5px; max-height: 22px; overflow: auto; background: rgba(0,0,0,0.25); padding: 1px; }
+  .hud { position: absolute; top: 52px; right: 6px; font-size: 6px; opacity: 0.65; z-index: 60; text-align: right; }
 </style>
 </head>
 <body>
 <div class="phone">
   <div class="phone-bezel"></div>
-  <div class="space-bg"></div>
-  <canvas id="stars-canvas" class="stars"></canvas>
-  <div class="nebula"></div>
   <div class="astranov-logo" onclick="location.reload()"><span class="a">A</span>STRANOV • GROK</div>
   <div id="globeContainer"></div>
-
   <div class="hud">PILOT: <strong>ΤΗΛΕΜΑΧΟΣ</strong></div>
-
   <div class="controls">
     <div class="info">+30 6971930225 | VHF Ch.11 | PMR446 446.13125 MHz • Pilot ΤΗΛΕΜΑΧΟΣ</div>
     <div class="row">
-      <input id="bc-msg" type="text" value="TEST from ASTRANOV Greece" style="flex:1;font-size:7px;padding:1px;" />
+      <input id="bc-msg" type="text" value="TEST from ASTRANOV Greece" style="flex:1; font-size:6px; padding:1px;" />
       <button class="btn-trad" onclick="testBroadcast446()">BROADCAST 446.13125</button>
     </div>
     <div class="row">
@@ -50,18 +41,18 @@
       <button onclick="playMood()">Mood</button>
     </div>
     <div class="section">
-      <svg class="crete" viewBox="0 0 200 48" fill="none" stroke="#ffeb3b" stroke-width="1">
-        <path d="M20 32 Q40 16 60 28 Q80 12 100 24 Q120 8 140 20 Q160 28 180 16" />
+      <svg class="crete" viewBox="0 0 200 36" fill="none" stroke="#ffeb3b" stroke-width="1">
+        <path d="M20 26 Q40 13 60 23 Q80 10 100 20 Q120 7 140 17 Q160 23 180 13" />
       </svg>
     </div>
     <div id="radio-log"></div>
-    <div class="info">Crete Perigram • Starry Blue • Glowing Logo • Real Globe • Voice from Space • Greek Wisdom • Space Launch • War Obsolete</div>
+    <div class="info">Real Globe • Starry Space • Crete Perigram • Greek Wisdom • Space Launch</div>
   </div>
 </div>
 
 <script>
-let scene, camera, renderer, earth, equator, pinsGroup;
-const State = { brainCycles:0, drones:[] };
+let scene, camera, renderer, earth, equator;
+const State = { brainCycles: 0, drones: [] };
 const PILOT_CODENAME = "ΤΗΛΕΜΑΧΟΣ";
 
 function latLngToPos(lat, lng, r=1.01){
@@ -74,13 +65,13 @@ function initGlobe(){
   renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
   renderer.setSize(container.clientWidth || 360, container.clientHeight || 500);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
-  renderer.setClearColor(0x00040a,1);
+  renderer.setClearColor(0x00040a, 1);
   container.appendChild(renderer.domElement);
 
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x00040a);
 
-  camera = new THREE.PerspectiveCamera(48, (container.clientWidth || 360)/(container.clientHeight || 500), 0.1, 1000);
+  camera = new THREE.PerspectiveCamera(48, (container.clientWidth || 360) / (container.clientHeight || 500), 0.1, 1000);
   camera.position.set(0,0,5.5); camera.lookAt(0,0,0);
 
   scene.add(new THREE.AmbientLight(0x334455,0.7));
@@ -99,130 +90,79 @@ function initGlobe(){
   const ring = new THREE.Mesh(new THREE.TorusGeometry(1.03,0.022,6,72), new THREE.MeshBasicMaterial({color:0xffcc44, transparent:true, opacity:0.92}));
   ring.rotation.x = Math.PI/2; earth.add(ring); equator = ring;
 
-  const atmos = new THREE.Mesh(new THREE.SphereGeometry(1.09,48,48), new THREE.MeshPhongMaterial({color:0x66aaff,transparent:true,opacity:0.07,blending:THREE.AdditiveBlending,depthWrite:false}));
-  scene.add(atmos);
+  scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.09,48,48), new THREE.MeshPhongMaterial({color:0x66aaff,transparent:true,opacity:0.07,blending:THREE.AdditiveBlending,depthWrite:false})));
 
   const sg = new THREE.BufferGeometry(); const sp=[];
-  for(let i=0;i<14000;i++){ sp.push((Math.random()-0.5)*2400); sp.push((Math.random()-0.5)*2400); sp.push((Math.random()-0.5)*2400); }
+  for(let i=0;i<12000;i++){ sp.push((Math.random()-0.5)*2400); sp.push((Math.random()-0.5)*2400); sp.push((Math.random()-0.5)*2400); }
   sg.setAttribute('position', new THREE.Float32BufferAttribute(sp,3));
-  scene.add(new THREE.Points(sg, new THREE.PointsMaterial({color:0x8899aa,size:0.55})));
+  scene.add(new THREE.Points(sg, new THREE.PointsMaterial({color:0x8899aa,size:0.5})));
 
-  for(let i=0;i<9;i++){
+  for(let i=0;i<8;i++){
     const p = new THREE.Mesh(new THREE.SphereGeometry(0.026,6,6), new THREE.MeshBasicMaterial({color:(i%3==0)?0xffff44:0x33ff88}));
     const a = i*0.72; p.position.set(Math.cos(a)*1.015, Math.sin(a*0.6)*0.4, Math.sin(a)*1.015);
     earth.add(p);
   }
-
-  pinsGroup = new THREE.Group(); earth.add(pinsGroup);
 
   let down=false, lx=0,ly=0;
   container.addEventListener('mousedown',e=>{down=true;lx=e.clientX;ly=e.clientY;});
   window.addEventListener('mouseup',()=>down=false);
   container.addEventListener('mousemove',e=>{
     if(!down||!earth)return;
-    earth.rotation.y += (e.clientX-lx)*0.0045;
-    earth.rotation.x += (e.clientY-ly)*0.0035;
+    earth.rotation.y += (e.clientX-lx)*0.004;
+    earth.rotation.x += (e.clientY-ly)*0.003;
     lx=e.clientX;ly=e.clientY;
   });
   container.addEventListener('wheel',e=>{
-    camera.position.z += e.deltaY*0.01; camera.position.z=Math.max(2.1,Math.min(9,camera.position.z));
-  });
-
-  // Globe click = command for pilot ΤΗΛΕΜΑΧΟΣ
-  container.addEventListener('click',e=>{
-    if(!earth||!camera)return;
-    const m=new THREE.Vector2((e.clientX/container.clientWidth)*2-1, -(e.clientY/container.clientHeight)*2+1);
-    const r=new THREE.Raycaster(); r.setFromCamera(m,camera);
-    const h=r.intersectObject(earth,true);
-    if(h.length){
-      const p=h[0].point.clone().normalize();
-      const lat=90-(Math.acos(p.y)*180/Math.PI);
-      const lng=Math.atan2(p.z,p.x)*180/Math.PI;
-      pilotCommand(lat,lng);
-    }
+    camera.position.z += e.deltaY*0.008; camera.position.z=Math.max(2.2,Math.min(8.5,camera.position.z));
   });
 
   function animate(){
     requestAnimationFrame(animate);
-    if(earth) earth.rotation.y += 0.0002;
-    if(equator) equator.rotation.z += 0.0001;
-    updateDrones();
+    if(earth) earth.rotation.y += 0.00018;
+    if(equator) equator.rotation.z += 0.00008;
     renderer.render(scene,camera);
   }
   animate();
 
   window.addEventListener('resize',()=>{
-    if(renderer && camera){
-      const w = container.clientWidth || 360;
-      const h = container.clientHeight || 500;
-      camera.aspect = w/h; camera.updateProjectionMatrix();
-      renderer.setSize(w,h);
-    }
+    const w = container.clientWidth || 360;
+    const h = container.clientHeight || 500;
+    camera.aspect = w/h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w,h);
   });
 }
 
-function pilotCommand(lat,lng){
-  if(!State.drones.length) return;
-  const d = State.drones[State.brainCycles % State.drones.length];
-  if(d && d.userData){ d.userData.targetLat=lat; d.userData.targetLng=lng; showToast('COMMAND TO ΤΗΛΕΜΑΧΟΣ SENT'); }
-}
-
-function updateDrones(){ }
-
-function showToast(t){ const el=document.createElement('div'); el.textContent=t; el.style.cssText='position:fixed;bottom:10px;left:50%;transform:translateX(-50%);background:#112;color:#4aa6ff;padding:1px 6px;font-size:8px;border-radius:2px;z-index:400'; document.body.appendChild(el); setTimeout(()=>el.remove(),1600); }
+function showToast(t){ const el=document.createElement('div'); el.textContent=t; el.style.cssText='position:fixed;bottom:8px;left:50%;transform:translateX(-50%);background:#112;color:#4aa6ff;padding:1px 5px;font-size:7px;border-radius:2px;z-index:400'; document.body.appendChild(el); setTimeout(()=>el.remove(),1400); }
 
 function logRadio(msg){
-  const log = document.getElementById('radio-log'); if(!log) return;
-  const d=document.createElement('div'); d.textContent = new Date().toLocaleTimeString().slice(3,8) + ' ' + msg;
+  const log=document.getElementById('radio-log');
+  if(!log) return;
+  const d=document.createElement('div'); d.textContent = new Date().toLocaleTimeString().slice(3,8)+' '+msg;
   log.appendChild(d); while(log.children.length>3) log.removeChild(log.children[0]);
 }
 
 function testBroadcast446(){
   const msg = document.getElementById('bc-msg').value || 'TEST from ASTRANOV Greece';
-  logRadio('TX 446.13125 MHz PMR446 Greece: ' + msg);
-  try{
-    const audio = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audio.createOscillator(); osc.type='square'; osc.frequency.value=850;
-    const g = audio.createGain(); g.gain.value=0.15;
-    const f = audio.createBiquadFilter(); f.type='bandpass'; f.frequency.value=1200;
-    osc.connect(f); f.connect(g); g.connect(audio.destination); osc.start();
-    setTimeout(()=>osc.stop(),2500);
-  }catch(e){}
-  try{
-    const u = new SpeechSynthesisUtterance('Broadcasting on 446.13125 megahertz PMR446 in Greece. ' + msg + '. Pilot Telemachos.');
-    speechSynthesis.speak(u);
-  }catch(e){}
-  const c = document.getElementById('globeContainer'); if(c){ c.style.boxShadow='0 0 30px #ffeb3b'; setTimeout(()=>c.style.boxShadow='',2000); }
+  logRadio('TX 446.13125 MHz: ' + msg);
+  try { const a=new (window.AudioContext||window.webkitAudioContext)(); const o=a.createOscillator(); o.type='square'; o.frequency.value=820; const g=a.createGain(); g.gain.value=0.12; o.connect(g); g.connect(a.destination); o.start(); setTimeout(()=>o.stop(),2200); }catch(e){}
+  try { const u=new SpeechSynthesisUtterance('Broadcast on 446.13125 PMR446 Greece. ' + msg + '. Pilot Telemachos.'); speechSynthesis.speak(u); }catch(e){}
+  const c=document.getElementById('globeContainer'); if(c){ c.style.boxShadow='0 0 25px #ffeb3b'; setTimeout(()=>c.style.boxShadow='',1800); }
 }
 
-function connectHardware(type){ logRadio('Hardware: ' + type); alert('Connected ' + type + ' | Pilot ΤΗΛΕΜΑΧΟΣ'); }
-function voiceFromSpace(){ const u = new SpeechSynthesisUtterance('Voice from space. Pilot ΤΗΛΕΜΑΧΟΣ commands.'); speechSynthesis.speak(u); logRadio('Voice RX'); }
-function playMood(){ const a = new (window.AudioContext||window.webkitAudioContext)(); const o=a.createOscillator(); o.type='sine'; o.frequency.value=220; const g=a.createGain(); g.gain.value=0.1; o.connect(g); g.connect(a.destination); o.start(); setTimeout(()=>{o.stop(); logRadio('Mood');},1800); }
-function greekWisdom(){ alert('Know thyself. War obsolete. Launch to stars.'); }
-function dangerWake(){ alert('DANGER WAKE active. ΤΗΛΕΜΑΧΟΣ.'); logRadio('Danger'); }
-
-function initSpace(){
-  const canvas = document.getElementById('stars-canvas'); if(!canvas) return;
-  canvas.width=360; canvas.height=700;
-  const ctx=canvas.getContext('2d'); const stars=[];
-  for(let i=0;i<250;i++) stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,size:Math.random()*1.1+0.3,alpha:Math.random()*0.6+0.3,speed:Math.random()*0.01+0.002});
-  function draw(){ ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle='#fff'; stars.forEach(s=>{ ctx.globalAlpha=s.alpha; ctx.fillRect(s.x,s.y,s.size,s.size); s.alpha=0.25+Math.sin(Date.now()*s.speed)*0.6; s.y+=s.speed*0.3; if(s.y>canvas.height)s.y=0; }); ctx.globalAlpha=1; requestAnimationFrame(draw); }
-  draw();
-}
-
-function initDrones(){ }
+function connectHardware(t){ logRadio('HW: '+t); }
+function voiceFromSpace(){ try{ const u=new SpeechSynthesisUtterance('Voice from space. Pilot ΤΗΛΕΜΑΧΟΣ.'); speechSynthesis.speak(u); }catch(e){} }
+function playMood(){ try{ const a=new (window.AudioContext||window.webkitAudioContext)(); const o=a.createOscillator(); o.type='sine'; o.frequency.value=210; const g=a.createGain(); g.gain.value=0.08; o.connect(g); g.connect(a.destination); o.start(); setTimeout(()=>{o.stop();},1600); }catch(e){} }
+function greekWisdom(){ alert('Know thyself. War is obsolete.'); }
+function dangerWake(){ logRadio('DANGER WAKE'); }
 
 function boot(){
-  initSpace();
   initGlobe();
-  initDrones();
-  const cn = document.getElementById('pilot-codename'); if(cn) cn.textContent = PILOT_CODENAME;
-  logRadio('System ready - Pilot ΤΗΛΕΜΑΧΟΣ');
-  console.log('%c[ASTRANOV GROK] Refined: Real globe (no blue ball), phone frame, pilot ΤΗΛΕΜΑΧΟΣ, 446.13125 test. Starry blue + perigram.', 'color:#30d158');
+  logRadio('Ready - Pilot ΤΗΛΕΜΑΧΟΣ');
+  console.log('%c[ASTRANOV] Real Earth globe in phone frame. Perigram in controls. No fake space covering.', 'color:#30d158');
 }
-
 window.addEventListener('load', boot);
-window.addEventListener('resize', ()=> { if(renderer && camera) { const c=document.getElementById('globeContainer'); if(c){ camera.aspect = c.clientWidth/c.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(c.clientWidth, c.clientHeight); } } });
+window.addEventListener('resize', ()=>{ const c=document.getElementById('globeContainer'); if(c && renderer && camera){ camera.aspect=c.clientWidth/c.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(c.clientWidth, c.clientHeight); } });
 </script>
 </body>
 </html>
