@@ -4,27 +4,26 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>ASTRANOV • COLLECTIVE GROK</title>
-<link rel="stylesheet" href="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Widgets/widgets.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
   html, body { margin:0; padding:0; height:100%; width:100%; overflow:hidden; background:#00040a; color:#e8f4ff; font-family:system-ui,sans-serif; }
-  .phone { max-width: 390px; height: 780px; margin: 20px auto; border: 14px solid #111; border-radius: 55px; overflow: hidden; box-shadow: 0 0 60px rgba(0,0,0,0.9), inset 0 0 20px rgba(255,255,255,0.05); position: relative; background: #000; display: flex; flex-direction: column; }
-  .phone-bezel { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); width: 120px; height: 20px; background: #222; border-radius: 10px; z-index: 200; }
-  .space-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at center, #0a1530 0%, #050a18 45%, #000 75%); z-index: 1; }
-  .stars { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
-  .nebula { position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.08) 0%, transparent 70%), radial-gradient(ellipse at 70% 75%, rgba(0,240,255,0.07) 0%, transparent 65%); z-index: 3; pointer-events: none; animation: nebula-drift 120s ease infinite; }
-  @keyframes nebula-drift { 50% { transform: translate(15px, -25px); } }
-  .astranov-logo { position: absolute; top: 30px; left: 50%; transform: translateX(-50%); font-size: 14px; letter-spacing: 3.5px; font-weight: 700; color: #9fc4ff; z-index: 100; cursor: pointer; text-shadow: 0 0 14px rgba(120,180,255,0.8); background: rgba(6,10,20,0.6); padding: 4px 18px; border-radius: 999px; border: 1px solid rgba(120,180,255,0.3); }
-  .astranov-logo .astranov-a { display: inline-block; transform: scaleX(-1) rotate(-18deg); font-size: 1.05em; }
-  #cesiumContainer { position: absolute; inset: 0; z-index: 10; }
-  .controls { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(5,10,20,0.85); z-index: 50; padding: 8px; font-size: 10px; display: flex; flex-direction: column; gap: 4px; }
-  .row { display: flex; gap: 4px; align-items:center; }
-  button { background: #0a84ff; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; cursor: pointer; }
-  .btn-trad { background: #0055A4; color: #fff; }
-  .btn-white { background: #fff; color: #0055A4; }
-  .info { font-size: 8px; opacity: 0.7; padding: 2px; }
-  .crete { width: 100%; height: 60px; background: rgba(255,255,255,0.05); }
-  .section { padding: 4px; border-top: 1px solid rgba(255,255,255,0.1); }
-  #radio-log { font-size: 7px; max-height: 40px; overflow:auto; background:rgba(0,0,0,0.3); padding:2px; }
+  .phone { max-width:390px; height:780px; margin:20px auto; border:14px solid #111; border-radius:55px; overflow:hidden; box-shadow:0 0 60px rgba(0,0,0,0.9), inset 0 0 20px rgba(255,255,255,0.05); position:relative; background:#000; display:flex; flex-direction:column; }
+  .phone-bezel { position:absolute; top:10px; left:50%; transform:translateX(-50%); width:120px; height:20px; background:#222; border-radius:10px; z-index:200; }
+  .space-bg { position:absolute; inset:0; background:radial-gradient(ellipse at center, #0a1530 0%, #050a18 45%, #000 75%); z-index:1; }
+  .stars { position:absolute; inset:0; z-index:2; pointer-events:none; }
+  .nebula { position:absolute; inset:0; background:radial-gradient(ellipse at 30% 20%, rgba(139,92,246,0.08) 0%, transparent 70%), radial-gradient(ellipse at 70% 75%, rgba(0,240,255,0.07) 0%, transparent 65%); z-index:3; pointer-events:none; animation:nebula-drift 120s ease infinite; }
+  @keyframes nebula-drift { 50% { transform:translate(15px,-25px); } }
+  .astranov-logo { position:absolute; top:25px; left:50%; transform:translateX(-50%); font-size:13px; letter-spacing:3px; font-weight:700; color:#9fc4ff; z-index:100; cursor:pointer; text-shadow:0 0 14px rgba(120,180,255,0.9); background:rgba(6,10,20,0.6); padding:3px 14px; border-radius:999px; border:1px solid rgba(120,180,255,0.3); }
+  .astranov-logo .a { display:inline-block; transform:scaleX(-1) rotate(-18deg); }
+  #globeContainer { position:absolute; inset:0; z-index:10; }
+  .controls { position:absolute; bottom:0; left:0; right:0; background:rgba(5,10,20,0.9); z-index:50; padding:6px 8px; font-size:9px; display:flex; flex-direction:column; gap:3px; }
+  .row { display:flex; gap:4px; align-items:center; }
+  button { background:#0a84ff; color:#fff; border:none; padding:3px 6px; border-radius:3px; font-size:8px; cursor:pointer; }
+  .btn-trad { background:#0055A4; color:#fff; }
+  .info { font-size:7px; opacity:0.75; }
+  .crete { width:100%; height:48px; background:rgba(255,255,255,0.04); }
+  #radio-log { font-size:6px; max-height:28px; overflow:auto; background:rgba(0,0,0,0.3); padding:1px; line-height:1; }
+  .hud { position:absolute; top:55px; right:8px; font-size:7px; opacity:0.7; z-index:60; text-align:right; }
 </style>
 </head>
 <body>
@@ -33,153 +32,197 @@
   <div class="space-bg"></div>
   <canvas id="stars-canvas" class="stars"></canvas>
   <div class="nebula"></div>
-  <div class="astranov-logo" onclick="location.reload()"><span class="astranov-a">A</span>STRANOV COLLECTIVE GROK</div>
-  <div id="cesiumContainer"></div>
+  <div class="astranov-logo" onclick="location.reload()"><span class="a">A</span>STRANOV • GROK</div>
+  <div id="globeContainer"></div>
+
+  <div class="hud">PILOT: <strong>ΤΗΛΕΜΑΧΟΣ</strong></div>
 
   <div class="controls">
-    <div class="info">Pilot: ΤΗΛΕΜΑΧΟΣ | +30 6971930225 | VHF Ch.11 | PMR446 446.13125 MHz</div>
+    <div class="info">+30 6971930225 | VHF Ch.11 | PMR446 446.13125 MHz • Pilot ΤΗΛΕΜΑΧΟΣ</div>
     <div class="row">
-      <input id="bc-msg" type="text" value="TEST broadcast from ASTRANOV Collective - Greece" style="flex:1;font-size:8px;padding:2px;" />
-      <button class="btn-trad" onclick="testBroadcast446()">TEST BROADCAST 446.13125</button>
+      <input id="bc-msg" type="text" value="TEST from ASTRANOV Greece" style="flex:1;font-size:7px;padding:1px;" />
+      <button class="btn-trad" onclick="testBroadcast446()">BROADCAST 446.13125</button>
     </div>
     <div class="row">
-      <button class="btn-trad" onclick="connectHardware('VHF')">VHF 11</button>
-      <button class="btn-trad" onclick="connectHardware('PMR')">PMR446</button>
-      <button onclick="voiceFromSpace()">Voice from Space</button>
-    </div>
-    <div class="row">
-      <button class="btn-white" onclick="playMood()">Mood Music</button>
-      <button onclick="greekWisdom()">Greek Wisdom</button>
-      <button onclick="dangerWake()">Danger Wake</button>
+      <button onclick="connectHardware('VHF')">VHF</button>
+      <button onclick="connectHardware('PMR')">PMR</button>
+      <button onclick="voiceFromSpace()">Voice</button>
+      <button onclick="playMood()">Mood</button>
     </div>
     <div class="section">
-      <svg class="crete" viewBox="0 0 200 60" fill="none" stroke="#ffeb3b" stroke-width="1">
-        <path d="M20 40 Q40 20 60 35 Q80 15 100 30 Q120 10 140 25 Q160 35 180 20" />
-        <circle cx="50" cy="30" r="2" fill="#ffeb3b"/><text x="55" y="28" font-size="4" fill="#ffeb3b">Crete Perigram</text>
+      <svg class="crete" viewBox="0 0 200 48" fill="none" stroke="#ffeb3b" stroke-width="1">
+        <path d="M20 32 Q40 16 60 28 Q80 12 100 24 Q120 8 140 20 Q160 28 180 16" />
       </svg>
     </div>
     <div id="radio-log"></div>
-    <div class="info">Delivery • Unification • War Obsolete • Space Launch • Pilot ΤΗΛΕΜΑΧΟΣ</div>
-    <div class="info">Simple • Vertical Phone • Starry Blue • Glowing Logo • Globe Integrated</div>
+    <div class="info">Crete Perigram • Starry Blue • Glowing Logo • Real Globe • Voice from Space • Greek Wisdom • Space Launch • War Obsolete</div>
   </div>
 </div>
 
-<script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
 <script>
-function logRadio(msg) {
-  const log = document.getElementById('radio-log');
-  const d = document.createElement('div');
-  d.textContent = new Date().toLocaleTimeString().slice(0,8) + ' ' + msg;
-  log.appendChild(d);
-  if (log.children.length > 3) log.removeChild(log.children[0]);
+let scene, camera, renderer, earth, equator, pinsGroup;
+const State = { brainCycles:0, drones:[] };
+const PILOT_CODENAME = "ΤΗΛΕΜΑΧΟΣ";
+
+function latLngToPos(lat, lng, r=1.01){
+  const phi=(90-lat)*Math.PI/180, theta=-(lng)*Math.PI/180;
+  return { x:-r*Math.sin(phi)*Math.cos(theta), y:r*Math.cos(phi), z:r*Math.sin(phi)*Math.sin(theta) };
 }
 
-function testBroadcast446() {
+function initGlobe(){
+  const container = document.getElementById('globeContainer');
+  renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
+  renderer.setSize(container.clientWidth || 360, container.clientHeight || 500);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  renderer.setClearColor(0x00040a,1);
+  container.appendChild(renderer.domElement);
+
+  scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x00040a);
+
+  camera = new THREE.PerspectiveCamera(48, (container.clientWidth || 360)/(container.clientHeight || 500), 0.1, 1000);
+  camera.position.set(0,0,5.5); camera.lookAt(0,0,0);
+
+  scene.add(new THREE.AmbientLight(0x334455,0.7));
+  const sun = new THREE.DirectionalLight(0xffffff,1.15); sun.position.set(5,3,4); scene.add(sun);
+
+  const geo = new THREE.SphereGeometry(1,64,64);
+  const loader = new THREE.TextureLoader();
+  const tex = loader.load('https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/textures/planets/earth_atmos_2048.jpg');
+  earth = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({map:tex, shininess:6}));
+  earth.rotation.y = -0.65;
+  scene.add(earth);
+
+  const grid = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({color:0xffffff, wireframe:true, transparent:true, opacity:0.6}));
+  earth.add(grid);
+
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(1.03,0.022,6,72), new THREE.MeshBasicMaterial({color:0xffcc44, transparent:true, opacity:0.92}));
+  ring.rotation.x = Math.PI/2; earth.add(ring); equator = ring;
+
+  const atmos = new THREE.Mesh(new THREE.SphereGeometry(1.09,48,48), new THREE.MeshPhongMaterial({color:0x66aaff,transparent:true,opacity:0.07,blending:THREE.AdditiveBlending,depthWrite:false}));
+  scene.add(atmos);
+
+  const sg = new THREE.BufferGeometry(); const sp=[];
+  for(let i=0;i<14000;i++){ sp.push((Math.random()-0.5)*2400); sp.push((Math.random()-0.5)*2400); sp.push((Math.random()-0.5)*2400); }
+  sg.setAttribute('position', new THREE.Float32BufferAttribute(sp,3));
+  scene.add(new THREE.Points(sg, new THREE.PointsMaterial({color:0x8899aa,size:0.55})));
+
+  for(let i=0;i<9;i++){
+    const p = new THREE.Mesh(new THREE.SphereGeometry(0.026,6,6), new THREE.MeshBasicMaterial({color:(i%3==0)?0xffff44:0x33ff88}));
+    const a = i*0.72; p.position.set(Math.cos(a)*1.015, Math.sin(a*0.6)*0.4, Math.sin(a)*1.015);
+    earth.add(p);
+  }
+
+  pinsGroup = new THREE.Group(); earth.add(pinsGroup);
+
+  let down=false, lx=0,ly=0;
+  container.addEventListener('mousedown',e=>{down=true;lx=e.clientX;ly=e.clientY;});
+  window.addEventListener('mouseup',()=>down=false);
+  container.addEventListener('mousemove',e=>{
+    if(!down||!earth)return;
+    earth.rotation.y += (e.clientX-lx)*0.0045;
+    earth.rotation.x += (e.clientY-ly)*0.0035;
+    lx=e.clientX;ly=e.clientY;
+  });
+  container.addEventListener('wheel',e=>{
+    camera.position.z += e.deltaY*0.01; camera.position.z=Math.max(2.1,Math.min(9,camera.position.z));
+  });
+
+  // Globe click = command for pilot ΤΗΛΕΜΑΧΟΣ
+  container.addEventListener('click',e=>{
+    if(!earth||!camera)return;
+    const m=new THREE.Vector2((e.clientX/container.clientWidth)*2-1, -(e.clientY/container.clientHeight)*2+1);
+    const r=new THREE.Raycaster(); r.setFromCamera(m,camera);
+    const h=r.intersectObject(earth,true);
+    if(h.length){
+      const p=h[0].point.clone().normalize();
+      const lat=90-(Math.acos(p.y)*180/Math.PI);
+      const lng=Math.atan2(p.z,p.x)*180/Math.PI;
+      pilotCommand(lat,lng);
+    }
+  });
+
+  function animate(){
+    requestAnimationFrame(animate);
+    if(earth) earth.rotation.y += 0.0002;
+    if(equator) equator.rotation.z += 0.0001;
+    updateDrones();
+    renderer.render(scene,camera);
+  }
+  animate();
+
+  window.addEventListener('resize',()=>{
+    if(renderer && camera){
+      const w = container.clientWidth || 360;
+      const h = container.clientHeight || 500;
+      camera.aspect = w/h; camera.updateProjectionMatrix();
+      renderer.setSize(w,h);
+    }
+  });
+}
+
+function pilotCommand(lat,lng){
+  if(!State.drones.length) return;
+  const d = State.drones[State.brainCycles % State.drones.length];
+  if(d && d.userData){ d.userData.targetLat=lat; d.userData.targetLng=lng; showToast('COMMAND TO ΤΗΛΕΜΑΧΟΣ SENT'); }
+}
+
+function updateDrones(){ }
+
+function showToast(t){ const el=document.createElement('div'); el.textContent=t; el.style.cssText='position:fixed;bottom:10px;left:50%;transform:translateX(-50%);background:#112;color:#4aa6ff;padding:1px 6px;font-size:8px;border-radius:2px;z-index:400'; document.body.appendChild(el); setTimeout(()=>el.remove(),1600); }
+
+function logRadio(msg){
+  const log = document.getElementById('radio-log'); if(!log) return;
+  const d=document.createElement('div'); d.textContent = new Date().toLocaleTimeString().slice(3,8) + ' ' + msg;
+  log.appendChild(d); while(log.children.length>3) log.removeChild(log.children[0]);
+}
+
+function testBroadcast446(){
   const msg = document.getElementById('bc-msg').value || 'TEST from ASTRANOV Greece';
   logRadio('TX 446.13125 MHz PMR446 Greece: ' + msg);
-  
-  // Audio simulation of broadcast (carrier tone)
-  try {
+  try{
     const audio = new (window.AudioContext || window.webkitAudioContext)();
-    const osc = audio.createOscillator();
-    osc.type = 'square';
-    osc.frequency.value = 800; // audible sim of tx
-    const gain = audio.createGain();
-    gain.gain.value = 0.15;
-    const filter = audio.createBiquadFilter();
-    filter.type = 'bandpass';
-    filter.frequency.value = 1200;
-    osc.connect(filter);
-    filter.connect(gain);
-    gain.connect(audio.destination);
-    osc.start();
-    setTimeout(() => { osc.stop(); }, 2500);
-  } catch(e){}
-  
-  // Voice broadcast
-  try {
-    const u = new SpeechSynthesisUtterance('Broadcasting on four four six point one three one two five megahertz in Greece. ' + msg + '. Pilot Telemachos standing by.');
-    u.rate = 0.95;
-    u.pitch = 1.0;
+    const osc = audio.createOscillator(); osc.type='square'; osc.frequency.value=850;
+    const g = audio.createGain(); g.gain.value=0.15;
+    const f = audio.createBiquadFilter(); f.type='bandpass'; f.frequency.value=1200;
+    osc.connect(f); f.connect(g); g.connect(audio.destination); osc.start();
+    setTimeout(()=>osc.stop(),2500);
+  }catch(e){}
+  try{
+    const u = new SpeechSynthesisUtterance('Broadcasting on 446.13125 megahertz PMR446 in Greece. ' + msg + '. Pilot Telemachos.');
     speechSynthesis.speak(u);
-  } catch(e){}
-  
-  // Visual feedback on globe area
-  const c = document.getElementById('cesiumContainer');
-  if (c) { c.style.boxShadow = '0 0 30px #ffeb3b'; setTimeout(()=> c.style.boxShadow='', 2000); }
-  
-  alert('Broadcast TEST sent on 446.13125 MHz (PMR446) Greece.'); 
+  }catch(e){}
+  const c = document.getElementById('globeContainer'); if(c){ c.style.boxShadow='0 0 30px #ffeb3b'; setTimeout(()=>c.style.boxShadow='',2000); }
 }
 
-function initSpace() {
-  const canvas = document.getElementById('stars-canvas');
-  canvas.width = 390; canvas.height = 780;
-  const ctx = canvas.getContext('2d');
-  const stars = [];
-  for (let i=0; i<300; i++) stars.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height, size:Math.random()*1.2+0.3, alpha:Math.random()*0.7+0.3, speed:Math.random()*0.01+0.002});
-  function draw() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.fillStyle = '#fff';
-    stars.forEach(s => { ctx.globalAlpha = s.alpha; ctx.fillRect(s.x, s.y, s.size, s.size); s.alpha = 0.3 + Math.sin(Date.now()*s.speed)*0.6; s.y += s.speed*0.3; if(s.y>canvas.height) s.y=0; });
-    ctx.globalAlpha=1;
-    requestAnimationFrame(draw);
-  }
+function connectHardware(type){ logRadio('Hardware: ' + type); alert('Connected ' + type + ' | Pilot ΤΗΛΕΜΑΧΟΣ'); }
+function voiceFromSpace(){ const u = new SpeechSynthesisUtterance('Voice from space. Pilot ΤΗΛΕΜΑΧΟΣ commands.'); speechSynthesis.speak(u); logRadio('Voice RX'); }
+function playMood(){ const a = new (window.AudioContext||window.webkitAudioContext)(); const o=a.createOscillator(); o.type='sine'; o.frequency.value=220; const g=a.createGain(); g.gain.value=0.1; o.connect(g); g.connect(a.destination); o.start(); setTimeout(()=>{o.stop(); logRadio('Mood');},1800); }
+function greekWisdom(){ alert('Know thyself. War obsolete. Launch to stars.'); }
+function dangerWake(){ alert('DANGER WAKE active. ΤΗΛΕΜΑΧΟΣ.'); logRadio('Danger'); }
+
+function initSpace(){
+  const canvas = document.getElementById('stars-canvas'); if(!canvas) return;
+  canvas.width=360; canvas.height=700;
+  const ctx=canvas.getContext('2d'); const stars=[];
+  for(let i=0;i<250;i++) stars.push({x:Math.random()*canvas.width,y:Math.random()*canvas.height,size:Math.random()*1.1+0.3,alpha:Math.random()*0.6+0.3,speed:Math.random()*0.01+0.002});
+  function draw(){ ctx.clearRect(0,0,canvas.width,canvas.height); ctx.fillStyle='#fff'; stars.forEach(s=>{ ctx.globalAlpha=s.alpha; ctx.fillRect(s.x,s.y,s.size,s.size); s.alpha=0.25+Math.sin(Date.now()*s.speed)*0.6; s.y+=s.speed*0.3; if(s.y>canvas.height)s.y=0; }); ctx.globalAlpha=1; requestAnimationFrame(draw); }
   draw();
 }
 
-async function initGlobe() {
-  try {
-    if (!window.Cesium) return;
-    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzYTI0NjM1MC05MTAyLTQ1NjItOGI5Yi1kZTUxMWVlODA0MzQiLCJpZCI6NDMyMzAwLCJzdWIiOiJBc3RyYW5vdiIsImlzccI6Imh0dHBzOi8vaW9uLmNlc2l1bS5jb20iLCJhdWQiOiJBTENJIiwiaWF0IjoxNzc4OTIwOTU3fQ.HPPdCQ7u_BWDoS7uK5uwqHHtmUivbU82u_bwHLhHkag';
-    const viewer = new Cesium.Viewer('cesiumContainer', {
-      imageryProvider: new Cesium.WebMapTileServiceImageryProvider({ url: 'https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/BlueMarble_ShadedRelief_Bathymetry/default/{Time}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.jpeg', layer: 'BlueMarble_ShadedRelief_Bathymetry', style: 'default', tileMatrixSetID: '250m', format: 'image/jpeg' }),
-      homeButton: false, sceneModePicker: false, navigationHelpButton: false, animation: false, timeline: false, baseLayerPicker: false, geocoder: false, infoBox: false, selectionIndicator: false, fullscreenButton: false, scene3DOnly: true
-    });
-    viewer.scene.globe.enableLighting = true;
-    viewer.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(25, 35, 18000000), duration: 2 });
-    console.log('%c[ASTRANOV COLLECTIVE GROK] Globe + Phone format ready', 'color:#7eebb4');
-  } catch(e){ console.log('Globe ready (fallback)'); }
-}
+function initDrones(){ }
 
-function connectHardware(type) { 
-  logRadio('Hardware connected: ' + type);
-  alert('Hardware connected: ' + type + ' | Freq active. Pilot ΤΗΛΕΜΑΧΟΣ linked.'); 
-}
-function voiceFromSpace() { 
-  const u = new SpeechSynthesisUtterance('Voice from space. Pilot Telemachos commands the collective.');
-  u.rate = 0.9; 
-  speechSynthesis.speak(u); 
-  logRadio('RX voice from space');
-}
-function playMood() { 
-  const a = new (window.AudioContext||window.webkitAudioContext)(); 
-  const o = a.createOscillator(); 
-  o.type = 'sine'; 
-  o.frequency.value = 220; 
-  const g = a.createGain(); 
-  g.gain.value = 0.1; 
-  o.connect(g); 
-  g.connect(a.destination); 
-  o.start(); 
-  setTimeout(()=>{o.stop(); logRadio('Mood music played');}, 1800); 
-}
-function greekWisdom() { 
-  const w = ['The wise man knows he knows nothing. - Socrates', 'Know thyself. - Delphi', 'All is flux. - Heraclitus']; 
-  const txt = w[Math.floor(Math.random()*w.length)] + ' | War is obsolete. Launch to stars.';
-  alert(txt); 
-  logRadio('Wisdom: ' + txt.slice(0,30));
-}
-function dangerWake() { 
-  alert('DANGER WAKE: Collective alert active. Pilot ΤΗΛΕΜΑΧΟΣ.');
-  logRadio('DANGER WAKE activated');
-}
-
-window.addEventListener('load', () => {
+function boot(){
   initSpace();
   initGlobe();
-  logRadio('System ready - 446.13125 broadcast test available');
-  console.log('%c[ASTRANOV COLLECTIVE GROK] Pilot ΤΗΛΕΜΑΧΟΣ. TEST broadcast 446.13125 ready.', 'color:#30d158');
-});
+  initDrones();
+  const cn = document.getElementById('pilot-codename'); if(cn) cn.textContent = PILOT_CODENAME;
+  logRadio('System ready - Pilot ΤΗΛΕΜΑΧΟΣ');
+  console.log('%c[ASTRANOV GROK] Refined: Real globe (no blue ball), phone frame, pilot ΤΗΛΕΜΑΧΟΣ, 446.13125 test. Starry blue + perigram.', 'color:#30d158');
+}
+
+window.addEventListener('load', boot);
+window.addEventListener('resize', ()=> { if(renderer && camera) { const c=document.getElementById('globeContainer'); if(c){ camera.aspect = c.clientWidth/c.clientHeight; camera.updateProjectionMatrix(); renderer.setSize(c.clientWidth, c.clientHeight); } } });
 </script>
 </body>
 </html>
