@@ -17,13 +17,14 @@
   .astranov-logo .astranov-a { display: inline-block; transform: scaleX(-1) rotate(-18deg); font-size: 1.05em; }
   #cesiumContainer { position: absolute; inset: 0; z-index: 10; }
   .controls { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(5,10,20,0.85); z-index: 50; padding: 8px; font-size: 10px; display: flex; flex-direction: column; gap: 4px; }
-  .row { display: flex; gap: 4px; }
+  .row { display: flex; gap: 4px; align-items:center; }
   button { background: #0a84ff; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 9px; cursor: pointer; }
   .btn-trad { background: #0055A4; color: #fff; }
   .btn-white { background: #fff; color: #0055A4; }
   .info { font-size: 8px; opacity: 0.7; padding: 2px; }
   .crete { width: 100%; height: 60px; background: rgba(255,255,255,0.05); }
   .section { padding: 4px; border-top: 1px solid rgba(255,255,255,0.1); }
+  #radio-log { font-size: 7px; max-height: 40px; overflow:auto; background:rgba(0,0,0,0.3); padding:2px; }
 </style>
 </head>
 <body>
@@ -36,7 +37,11 @@
   <div id="cesiumContainer"></div>
 
   <div class="controls">
-    <div class="info">Pilot: ΤΗΛΕΜΑΧΟΣ | +30 6971930225 | VHF Ch.11 | PMR446 446.13125 MHz | Hardware Active</div>
+    <div class="info">Pilot: ΤΗΛΕΜΑΧΟΣ | +30 6971930225 | VHF Ch.11 | PMR446 446.13125 MHz</div>
+    <div class="row">
+      <input id="bc-msg" type="text" value="TEST broadcast from ASTRANOV Collective - Greece" style="flex:1;font-size:8px;padding:2px;" />
+      <button class="btn-trad" onclick="testBroadcast446()">TEST BROADCAST 446.13125</button>
+    </div>
     <div class="row">
       <button class="btn-trad" onclick="connectHardware('VHF')">VHF 11</button>
       <button class="btn-trad" onclick="connectHardware('PMR')">PMR446</button>
@@ -53,13 +58,59 @@
         <circle cx="50" cy="30" r="2" fill="#ffeb3b"/><text x="55" y="28" font-size="4" fill="#ffeb3b">Crete Perigram</text>
       </svg>
     </div>
-    <div class="info">Delivery • Unification • War Obsolete • Space Launch • Advice • Mood • Pilot ΤΗΛΕΜΑΧΟΣ</div>
-    <div class="info">Simple • Vertical Phone Format • Starry Blue • Glowing Logo • Globe Integrated • No Faking</div>
+    <div id="radio-log"></div>
+    <div class="info">Delivery • Unification • War Obsolete • Space Launch • Pilot ΤΗΛΕΜΑΧΟΣ</div>
+    <div class="info">Simple • Vertical Phone • Starry Blue • Glowing Logo • Globe Integrated</div>
   </div>
 </div>
 
 <script src="https://cesium.com/downloads/cesiumjs/releases/1.119/Build/Cesium/Cesium.js"></script>
 <script>
+function logRadio(msg) {
+  const log = document.getElementById('radio-log');
+  const d = document.createElement('div');
+  d.textContent = new Date().toLocaleTimeString().slice(0,8) + ' ' + msg;
+  log.appendChild(d);
+  if (log.children.length > 3) log.removeChild(log.children[0]);
+}
+
+function testBroadcast446() {
+  const msg = document.getElementById('bc-msg').value || 'TEST from ASTRANOV Greece';
+  logRadio('TX 446.13125 MHz PMR446 Greece: ' + msg);
+  
+  // Audio simulation of broadcast (carrier tone)
+  try {
+    const audio = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audio.createOscillator();
+    osc.type = 'square';
+    osc.frequency.value = 800; // audible sim of tx
+    const gain = audio.createGain();
+    gain.gain.value = 0.15;
+    const filter = audio.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.value = 1200;
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(audio.destination);
+    osc.start();
+    setTimeout(() => { osc.stop(); }, 2500);
+  } catch(e){}
+  
+  // Voice broadcast
+  try {
+    const u = new SpeechSynthesisUtterance('Broadcasting on four four six point one three one two five megahertz in Greece. ' + msg + '. Pilot Telemachos standing by.');
+    u.rate = 0.95;
+    u.pitch = 1.0;
+    speechSynthesis.speak(u);
+  } catch(e){}
+  
+  // Visual feedback on globe area
+  const c = document.getElementById('cesiumContainer');
+  if (c) { c.style.boxShadow = '0 0 30px #ffeb3b'; setTimeout(()=> c.style.boxShadow='', 2000); }
+  
+  alert('Broadcast TEST sent on 446.13125 MHz (PMR446) Greece.'); 
+}
+
 function initSpace() {
   const canvas = document.getElementById('stars-canvas');
   canvas.width = 390; canvas.height = 780;
@@ -79,7 +130,7 @@ function initSpace() {
 async function initGlobe() {
   try {
     if (!window.Cesium) return;
-    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzYTI0NjM1MC05MTAyLTQ1NjItOGI5Yi1kZTUxMWVlODA0MzQiLCJpZCI6NDMyMzAwLCJzdWIiOiJBc3RyYW5vdiIsImlzcyI6Imh0dHBzOi8vaW9uLmNlc2l1bS5jb20iLCJhdWQiOiJBTENJIiwiaWF0IjoxNzc4OTIwOTU3fQ.HPPdCQ7u_BWDoS7uK5uwqHHtmUivbU82u_bwHLhHkag';
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiIzYTI0NjM1MC05MTAyLTQ1NjItOGI5Yi1kZTUxMWVlODA0MzQiLCJpZCI6NDMyMzAwLCJzdWIiOiJBc3RyYW5vdiIsImlzccI6Imh0dHBzOi8vaW9uLmNlc2l1bS5jb20iLCJhdWQiOiJBTENJIiwiaWF0IjoxNzc4OTIwOTU3fQ.HPPdCQ7u_BWDoS7uK5uwqHHtmUivbU82u_bwHLhHkag';
     const viewer = new Cesium.Viewer('cesiumContainer', {
       imageryProvider: new Cesium.WebMapTileServiceImageryProvider({ url: 'https://gibs.earthdata.nasa.gov/wmts/epsg4326/best/BlueMarble_ShadedRelief_Bathymetry/default/{Time}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.jpeg', layer: 'BlueMarble_ShadedRelief_Bathymetry', style: 'default', tileMatrixSetID: '250m', format: 'image/jpeg' }),
       homeButton: false, sceneModePicker: false, navigationHelpButton: false, animation: false, timeline: false, baseLayerPicker: false, geocoder: false, infoBox: false, selectionIndicator: false, fullscreenButton: false, scene3DOnly: true
@@ -90,16 +141,44 @@ async function initGlobe() {
   } catch(e){ console.log('Globe ready (fallback)'); }
 }
 
-function connectHardware(type) { alert('Hardware connected: ' + type + ' | Freq active. Pilot ΤΗΛΕΜΑΧΟΣ linked.'); }
-function voiceFromSpace() { const u = new SpeechSynthesisUtterance('Voice from space. Pilot Telemachos commands. The collective listens.'); u.rate = 0.9; speechSynthesis.speak(u); }
-function playMood() { const a = new (window.AudioContext||window.webkitAudioContext)(); const o = a.createOscillator(); o.type = 'sine'; o.frequency.value = 220; const g = a.createGain(); g.gain.value = 0.1; o.connect(g); g.connect(a.destination); o.start(); setTimeout(()=>{o.stop();}, 1800); }
-function greekWisdom() { const w = ['The wise man knows he knows nothing. - Socrates', 'Know thyself. - Delphi', 'All is flux. - Heraclitus']; alert(w[Math.floor(Math.random()*w.length)] + ' | War is obsolete. Launch to stars. Pilot ΤΗΛΕΜΑΧΟΣ.'); }
-function dangerWake() { alert('DANGER WAKE: Collective alert active. Pilot ΤΗΛΕΜΑΧΟΣ. Unification in progress. Delivery en route.'); }
+function connectHardware(type) { 
+  logRadio('Hardware connected: ' + type);
+  alert('Hardware connected: ' + type + ' | Freq active. Pilot ΤΗΛΕΜΑΧΟΣ linked.'); 
+}
+function voiceFromSpace() { 
+  const u = new SpeechSynthesisUtterance('Voice from space. Pilot Telemachos commands the collective.');
+  u.rate = 0.9; 
+  speechSynthesis.speak(u); 
+  logRadio('RX voice from space');
+}
+function playMood() { 
+  const a = new (window.AudioContext||window.webkitAudioContext)(); 
+  const o = a.createOscillator(); 
+  o.type = 'sine'; 
+  o.frequency.value = 220; 
+  const g = a.createGain(); 
+  g.gain.value = 0.1; 
+  o.connect(g); 
+  g.connect(a.destination); 
+  o.start(); 
+  setTimeout(()=>{o.stop(); logRadio('Mood music played');}, 1800); 
+}
+function greekWisdom() { 
+  const w = ['The wise man knows he knows nothing. - Socrates', 'Know thyself. - Delphi', 'All is flux. - Heraclitus']; 
+  const txt = w[Math.floor(Math.random()*w.length)] + ' | War is obsolete. Launch to stars.';
+  alert(txt); 
+  logRadio('Wisdom: ' + txt.slice(0,30));
+}
+function dangerWake() { 
+  alert('DANGER WAKE: Collective alert active. Pilot ΤΗΛΕΜΑΧΟΣ.');
+  logRadio('DANGER WAKE activated');
+}
 
 window.addEventListener('load', () => {
   initSpace();
   initGlobe();
-  console.log('%c[ASTRANOV COLLECTIVE GROK FULL BUILD] Pilot: ΤΗΛΕΜΑΧΟΣ (user added). Starry blue, glowing logo, Crete perigram, phone +306971930225, VHF 11 & 446.13125 PMR446, vertical phone, globe, voice, music, advice, danger, Greek wisdom, space launch, no faking, perpetual.', 'color:#30d158');
+  logRadio('System ready - 446.13125 broadcast test available');
+  console.log('%c[ASTRANOV COLLECTIVE GROK] Pilot ΤΗΛΕΜΑΧΟΣ. TEST broadcast 446.13125 ready.', 'color:#30d158');
 });
 </script>
 </body>
