@@ -42,7 +42,7 @@
     <strong>Online Crew</strong>
     <div id="crew-list" style="margin:6px 0;font-size:11px;"></div>
     <button onclick="toggleKryfto()" style="font-size:10px;padding:3px 8px;">Play Kryfto</button>
-    <button onclick="groupOrder()" style="font-size:10px;padding:3px 8px;">Order Pitogyra + Mpires</button>
+    <button onclick="groupOrder()" style="font-size:10px;padding:3px 8px;">Pitogyra + Mpires + Τσιγάρα με Drone</button>
   </div>
 
 <script>
@@ -154,7 +154,7 @@ async function askPermissions() {
 
   try { await navigator.mediaDevices.getUserMedia({ video: true }); } catch(e){}
 
-  if (navigator.storage && navigator.storage.persist) await navigator.storage.persist();
+  if (navigator.storage?.persist) await navigator.storage.persist();
 
   p.style.display = 'none';
   showUsers();
@@ -213,14 +213,47 @@ function toggleKryfto() {
 }
 
 function groupOrder() {
-  console.log('%c[Order] Ordering pitogyra + mpires for crew...', 'color:#ffaa33');
-  const del = new THREE.Mesh(new THREE.SphereGeometry(0.01,4,4), new THREE.MeshBasicMaterial({color:0xffdd44}));
-  del.position.set(0.3,0.1,1.1);
-  scene.add(del);
-  setTimeout(() => {
-    if (del.parent) del.parent.remove(del);
-    console.log('%c[Arrival] Delivered! Καλή όρεξη αξά <3', 'color:#ffdd44');
-  }, 4200);
+  console.log('%c[Order] Ζητάω pitogyra + μπίρες + τσιγάρα με drone...', 'color:#ffaa33');
+  
+  // Εμφάνισε τον Πιλότο ΤΗΛΕΜΑΧΟΣ να κάνει την δουλειά
+  showPilotTelemachos();
+  
+  // Drone delivery animation (ο πιλότος αναλαμβάνει)
+  const drone = new THREE.Mesh(
+    new THREE.SphereGeometry(0.013, 5, 5),
+    new THREE.MeshBasicMaterial({ color: 0x44ccff })
+  );
+  drone.position.set(0.35, 0.15, 1.15);
+  scene.add(drone);
+  
+  let steps = 0;
+  const anim = setInterval(() => {
+    steps++;
+    drone.position.lerp(new THREE.Vector3(0.05, 0.02, 1.02), 0.07);
+    
+    if (steps > 28) {
+      clearInterval(anim);
+      if (drone.parent) drone.parent.remove(drone);
+      console.log('%c[Drone Arrival - Πιλότος ΤΗΛΕΜΑΧΟΣ] Pitogyra, μπίρες & τσιγάρα παραδόθηκαν! Καλή απόλαυση αξά <3', 'color:#44ff88');
+    }
+  }, 70);
+}
+
+function showPilotTelemachos() {
+  // Εμφάνισε τον Πιλότο ΤΗΛΕΜΑΧΟΣ (drone pilot)
+  if (window._pilot && window._pilot.parent) window._pilot.parent.remove(window._pilot);
+  
+  const pos = latLngToPos(36.2, 28.1, 1.04); // πάνω από περιοχή Ρόδου / Αρχάγγελο
+  const pilot = new THREE.Mesh(
+    new THREE.SphereGeometry(0.016, 6, 6),
+    new THREE.MeshBasicMaterial({ color: 0x66aaff, transparent: true, opacity: 0.85 })
+  );
+  pilot.position.set(pos.x, pos.y, pos.z);
+  pilot.userData = { type: 'pilot', name: 'ΤΗΛΕΜΑΧΟΣ' };
+  scene.add(pilot);
+  window._pilot = pilot;
+  
+  console.log('%c[Πιλότος ΤΗΛΕΜΑΧΟΣ] Αναλαμβάνω την παράδοση με drone! Pitogyra + μπίρες + τσιγάρα on the way.', 'color:#66aaff');
 }
 
 function latLngToPos(lat, lng, r = 1) {
