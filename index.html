@@ -218,6 +218,21 @@ function groupOrder() {
   // Εμφάνισε τον Πιλότο ΤΗΛΕΜΑΧΟΣ να κάνει την δουλειά
   showPilotTelemachos();
   
+  // Show obvious pilot action overlay
+  const pilotDiv = document.getElementById('pilot-action');
+  if (pilotDiv) {
+    pilotDiv.style.display = 'block';
+    setTimeout(() => {
+      if (pilotDiv) pilotDiv.style.display = 'none';
+    }, 8000);
+  }
+  
+  // Focus view on the pilot area so user sees it clearly
+  earth.rotation.y = -28.1 * Math.PI / 180 + Math.PI/2;
+  earth.rotation.x = -0.01;
+  camera.position.z = 1.6;
+  camera.lookAt(0, 0, 0);
+  
   // Drone delivery animation (ο πιλότος αναλαμβάνει)
   const drone = new THREE.Mesh(
     new THREE.SphereGeometry(0.013, 5, 5),
@@ -240,7 +255,6 @@ function groupOrder() {
       clearInterval(anim);
       if (drone.parent) drone.parent.remove(drone);
       if (window._pilot && window._pilot.parent) {
-        // keep pilot visible a bit longer or remove
         setTimeout(() => {
           if (window._pilot && window._pilot.parent) window._pilot.parent.remove(window._pilot);
         }, 3000);
