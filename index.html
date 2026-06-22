@@ -44,7 +44,6 @@
 </head>
 <body>
   <!-- Clean full-screen Astranov Grok - no iPhone frame, no perigram -->
-  <!-- ASTRANOV GROK IS LIVE 2026-06-22 -->
   <div class="astranov-logo" onclick="location.reload()"><span class="a">A</span>STRANOV GROK</div>
   <div id="globeContainer"></div>
   <div class="hud">ASTRANOV GROK <span id="cycles">0</span></div>
@@ -252,14 +251,15 @@ function addDriverOrb() {
 
 function addOrb(lat, lng, type, label) {
   if (!pinsGroup || taskOrbs.length > 16) return;
-  const pos = latLngToPos(lat, lng, 1.032);
+  const r = (type === 'driver') ? 1.04 : 1.032;
+  const pos = latLngToPos(lat, lng, r);
   let col = 0x77aaff;
   if (type === 'vendor') col = 0xffd166;
   if (type === 'delivery') col = 0x66ff99;
   if (type === 'launch') col = 0xff6699;
   if (type === 'driver') col = 0x88ffdd; // visible drivers on city map
   const orb = new THREE.Mesh(
-    new THREE.SphereGeometry(type==='driver' ? 0.019 : 0.017, 5, 5),
+    new THREE.SphereGeometry(type==='driver' ? 0.025 : 0.017, 5, 5),
     new THREE.MeshBasicMaterial({color: col})
   );
   orb.position.set(pos.x, pos.y, pos.z);
@@ -354,8 +354,8 @@ function seedOrbs() {
     const la = s.la + (i % 3 - 1) * 0.035;
     addOrb(la, s.ln + (i % 2) * 0.01, s.type, s.label);
   });
-  // make some visible drivers on city map
-  for (let i=0; i<3; i++) addDriverOrb();
+  // make some visible drivers on city map (motos)
+  for (let i=0; i<6; i++) addDriverOrb();
 }
 
 // User's ship orb - for locating and ETA tasks
@@ -804,7 +804,7 @@ function brainReflect(){
 
   // autonomous crawler + sci-fi task execution (populates Earth + does tasks)
   if (Math.random() < 0.22 && taskOrbs.length > 0) {
-    const pending = taskOrbs.filter(o => o.userData && !o.userData.tasked);
+    const pending = taskOrbs.filter(o => o.userData && !o.userData.tasked && o.userData.type !== 'driver');
     if (pending.length) doTask(pending[Math.floor(Math.random()*pending.length)]);
   }
   if (Math.random() < 0.18) crawlerStep();
@@ -813,7 +813,7 @@ function brainReflect(){
   if (pilotLevel === 'advanced' && Math.random() < 0.15) {
     // extra autonomous activity for advanced testers
     if (taskOrbs.length > 0) {
-      const pending = taskOrbs.filter(o => o.userData && !o.userData.tasked);
+      const pending = taskOrbs.filter(o => o.userData && !o.userData.tasked && o.userData.type !== 'driver');
       if (pending.length) doTask(pending[0]);
     }
   }
@@ -905,7 +905,7 @@ function boot(){
     return;
   }
 
-  console.log('%c[ASTRANOV GROK FORK] Official only on astranov.eu and grok.astranov.eu. BASIC open, ADVANCED with ΒΕΛΟΣ. LIVE 2026-06-22', 'color:#30d158');
+  console.log('%c[ASTRANOV GROK FORK] Official only on astranov.eu and grok.astranov.eu. BASIC open, ADVANCED with ΒΕΛΟΣ.', 'color:#30d158');
 }
 window.addEventListener('load', boot);
 </script>
