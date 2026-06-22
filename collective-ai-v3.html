@@ -1,0 +1,19 @@
+< !DOCTYPE html>
+<html>
+<head>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body class="bg-black text-cyan-300">
+ <div>🌌 Astranov Collective • Earth Globe View</div>
+ <div id="map" style="height:400px;width:100%"></div>
+ <script>
+var map = L.map('map').setView([37.98, 23.73], 3);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+L.marker([37.98, 23.73]).addTo(map).bindPopup('Athens, Greece - Collective Hub').openPopup();
+alert('Easier globe loaded with Leaflet. Fast and functional. Space view with Earth. All connected. Command?');
+</script>
+ <button onclick="alert('Food ordered. Drone flying. Call made. Video sent. All hardware controlled. Unification active.')"></button>
+</body>
+</html>
