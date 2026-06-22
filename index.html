@@ -3,166 +3,299 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>ASTRANOV • COLLECTIVE GROK</title>
+<title>ASTRANOV • ΤΗΛΕΜΑΧΟΣ</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
-  html, body { margin:0; padding:0; height:100%; width:100%; overflow:hidden; background:#00040a; color:#e8f4ff; font-family:system-ui,sans-serif; }
-  .phone { max-width: 390px; height: 780px; margin: 20px auto; border: 14px solid #111; border-radius: 55px; overflow: hidden; box-shadow: 0 0 60px rgba(0,0,0,0.9); position: relative; background: #000; }
-  .phone-bezel { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 100px; height: 16px; background: #222; border-radius: 8px; z-index: 200; }
-  .astranov-logo { position: absolute; top: 10px; left: 50%; transform: translateX(-50%); font-size: 9px; letter-spacing: 1px; font-weight: 700; color: #9fc4ff; z-index: 100; cursor: pointer; text-shadow: 0 0 6px rgba(120,180,255,0.6); background: rgba(6,10,20,0.3); padding: 0 6px; border-radius: 999px; border: 1px solid rgba(120,180,255,0.1); }
+  html, body { margin:0; padding:0; height:100%; width:100%; overflow:hidden; background:#000; color:#e8f4ff; font-family:system-ui, sans-serif; }
+  .phone { max-width:390px; height:780px; margin:20px auto; border:14px solid #111; border-radius:55px; overflow:hidden; box-shadow:0 0 60px rgba(0,0,0,0.95); position:relative; background:#000; }
+  .phone-bezel { position:absolute; top:8px; left:50%; transform:translateX(-50%); width:100px; height:16px; background:#222; border-radius:8px; z-index:200; }
+  .astranov-logo { position:absolute; top:10px; left:50%; transform:translateX(-50%); font-size:9px; letter-spacing:1.5px; font-weight:700; color:#9fc4ff; z-index:120; cursor:pointer; text-shadow:0 0 8px rgba(120,180,255,0.8); background:rgba(4,8,18,0.55); padding:1px 7px; border-radius:999px; border:1px solid rgba(120,180,255,0.2); }
   .astranov-logo .a { display:inline-block; transform:scaleX(-1) rotate(-18deg); }
-  #globeContainer { position: absolute; top: 15px; left: 5px; right: 5px; bottom: 25px; background: #00040a; z-index: 10; }
-  .controls { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(5,10,20,0.8); z-index: 50; padding: 2px 3px; font-size: 5px; display: flex; flex-direction: column; gap: 1px; }
-  .row { display: flex; gap: 1px; align-items: center; }
-  button { background: #0a84ff; color: #fff; border: none; padding: 0 2px; border-radius: 1px; font-size: 4px; cursor: pointer; }
-  .btn-trad { background: #0055A4; }
-  .info { font-size: 4px; opacity: 0.8; }
-  .crete { width: 100%; height: 10px; background: rgba(255,255,255,0.01); }
-  #radio-log { font-size: 3px; max-height: 5px; overflow: auto; background: rgba(0,0,0,0.15); padding: 0; }
-  .hud { position: absolute; top: 17px; right: 8px; font-size: 4px; opacity: 0.4; z-index: 60; text-align: right; }
+  #globeContainer { position:absolute; top:26px; left:5px; right:5px; bottom:20px; z-index:10; background:#000; overflow:hidden; }
+  #globeContainer canvas { display:block; }
+  .controls { position:absolute; bottom:0; left:0; right:0; background:rgba(3,7,16,0.92); z-index:80; padding:1px 3px 2px; font-size:4.5px; display:flex; flex-direction:column; gap:1px; }
+  .row { display:flex; gap:1px; align-items:center; }
+  button { background:#0a84ff; color:#fff; border:none; padding:1px 3px; border-radius:1px; font-size:4px; cursor:pointer; line-height:1; }
+  .btn-trad { background:#0055A4; }
+  .info { font-size:3.8px; opacity:0.82; letter-spacing:0.2px; }
+  .crete { width:100%; height:9px; background:transparent; }
+  #radio-log { font-size:3.2px; max-height:6px; overflow:auto; line-height:1; background:rgba(0,0,0,0.2); padding:0 1px; }
+  .hud { position:absolute; top:17px; right:7px; font-size:4px; opacity:0.45; z-index:90; text-align:right; pointer-events:none; }
 </style>
 </head>
 <body>
 <div class="phone">
   <div class="phone-bezel"></div>
-  <div class="astranov-logo" onclick="location.reload()"><span class="a">A</span>STRANOV • GROK</div>
+  <div class="astranov-logo" onclick="location.reload()"><span class="a">A</span>STRANOV • ΤΗΛΕΜΑΧΟΣ</div>
   <div id="globeContainer"></div>
-  <div class="hud">PILOT: <strong>ΤΗΛΕΜΑΧΟΣ</strong></div>
+  <div class="hud">PILOT <strong>ΤΗΛΕΜΑΧΟΣ</strong> <span id="cycles">0</span></div>
   <div class="controls">
-    <div class="info">+30 6971930225 | VHF Ch.11 | PMR446 446.13125 | Pilot ΤΗΛΕΜΑΧΟΣ</div>
+    <div class="info">+30 6971930225 • VHF Ch.11 • PMR446 446.13125</div>
     <div class="row">
-      <input id="bc-msg" type="text" value="TEST from ASTRANOV Greece" style="flex:1; font-size:4px; padding:0;" />
+      <input id="bc-msg" type="text" value="TEST ASTRANOV Greece" style="flex:1;font-size:4px;padding:0 2px;border:0;background:rgba(255,255,255,0.06);color:#fff;" />
       <button class="btn-trad" onclick="testBroadcast446()">BROADCAST 446.13125</button>
     </div>
     <div class="row">
       <button onclick="connectHardware('VHF')">VHF</button>
       <button onclick="connectHardware('PMR')">PMR</button>
-      <button onclick="voiceFromSpace()">Voice</button>
-      <button onclick="playMood()">Mood</button>
+      <button onclick="voiceFromSpace()">VOICE</button>
+      <button onclick="playMood()">MOOD</button>
     </div>
-    <div class="section">
-      <svg class="crete" viewBox="0 0 200 10" fill="none" stroke="#ffeb3b" stroke-width="0.4">
-        <path d="M20 8 Q40 3 60 6 Q80 2 100 5 Q120 1 140 4 Q160 6 180 2" />
+    <div>
+      <svg class="crete" viewBox="0 0 200 9" fill="none" stroke="#ffeb3b" stroke-width="0.45">
+        <path d="M18 7 Q38 3 58 5.5 Q78 2.5 98 5 Q118 2 138 4.5 Q158 6.5 178 3" />
       </svg>
     </div>
     <div id="radio-log"></div>
-    <div class="info">Real Earth • Black Space • Crete Perigram</div>
+    <div class="info">ΑΠΟ ΑΗΡ ΕΙΣ ΑΛΣ ΕΚ ΛΑΣ • Real Earth dominant</div>
   </div>
 </div>
 
 <script>
-let scene, camera, renderer, earth, equator;
-const State = { brainCycles: 0, drones: [] };
+let scene, camera, renderer, earth, equator, pinsGroup;
+const State = { brainCycles: 0, drones: [], solo: true };
 const PILOT_CODENAME = "ΤΗΛΕΜΑΧΟΣ";
 
 function latLngToPos(lat, lng, r=1.01){
-  const phi=(90-lat)*Math.PI/180, theta=-(lng)*Math.PI/180;
-  return { x:-r*Math.sin(phi)*Math.cos(theta), y:r*Math.cos(phi), z:r*Math.sin(phi)*Math.sin(theta) };
+  const phi = (90-lat)*Math.PI/180, theta = -(lng)*Math.PI/180;
+  return { x: -r*Math.sin(phi)*Math.cos(theta), y: r*Math.cos(phi), z: r*Math.sin(phi)*Math.sin(theta) };
+}
+
+function updateHUD(){
+  const c = document.getElementById('cycles');
+  if(c) c.textContent = State.brainCycles;
+}
+
+function resizeGlobe(){
+  const container = document.getElementById('globeContainer');
+  if(!container || !renderer || !camera) return;
+  const w = container.clientWidth || 360;
+  const h = container.clientHeight || 620;
+  if(w < 40 || h < 40) return;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
 }
 
 function initGlobe(){
   const container = document.getElementById('globeContainer');
   renderer = new THREE.WebGLRenderer({antialias:true, alpha:true});
   const w = container.clientWidth || 360;
-  const h = container.clientHeight || 650;
+  const h = container.clientHeight || 620;
   renderer.setSize(w, h);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
-  renderer.setClearColor(0x00040a, 1);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setClearColor(0x000000, 1);
   container.appendChild(renderer.domElement);
 
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x00040a);
+  scene.background = new THREE.Color(0x000000);
 
-  camera = new THREE.PerspectiveCamera(48, w / h, 0.1, 1000);
-  camera.position.set(0,0,4.5); camera.lookAt(0,0,0);
+  camera = new THREE.PerspectiveCamera(50, w/h, 0.1, 1000);
+  camera.position.set(0, 0, 3.82); // closer: Earth fills phone screen
+  camera.lookAt(0,0,0);
 
-  scene.add(new THREE.AmbientLight(0x334455,0.7));
-  const sun = new THREE.DirectionalLight(0xffffff,1.15); sun.position.set(5,3,4); scene.add(sun);
+  scene.add(new THREE.AmbientLight(0x334455, 0.65));
+  const sun = new THREE.DirectionalLight(0xffffff, 1.2);
+  sun.position.set(5, 3, 4);
+  scene.add(sun);
 
-  const geo = new THREE.SphereGeometry(1,64,64);
+  const geo = new THREE.SphereGeometry(1, 64, 64);
   const loader = new THREE.TextureLoader();
   const tex = loader.load('https://cdn.jsdelivr.net/gh/mrdoob/three.js@r128/examples/textures/planets/earth_atmos_2048.jpg');
-  earth = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({map:tex, shininess:6}));
+  earth = new THREE.Mesh(geo, new THREE.MeshPhongMaterial({map: tex, shininess: 7}));
   earth.rotation.y = -0.65;
   scene.add(earth);
 
-  const grid = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({color:0xffffff, wireframe:true, transparent:true, opacity:0.55}));
+  // structural proof always visible
+  const grid = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({color:0xffffff, wireframe:true, transparent:true, opacity:0.58}));
   earth.add(grid);
 
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(1.03,0.02,6,72), new THREE.MeshBasicMaterial({color:0xffcc44, transparent:true, opacity:0.88}));
-  ring.rotation.x = Math.PI/2; earth.add(ring); equator = ring;
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(1.025, 0.018, 6, 72), new THREE.MeshBasicMaterial({color:0xffcc44, transparent:true, opacity:0.9}));
+  ring.rotation.x = Math.PI/2;
+  earth.add(ring);
+  equator = ring;
 
-  const sg = new THREE.BufferGeometry(); const sp=[];
-  for(let i=0;i<10000;i++){ sp.push((Math.random()-0.5)*2400); sp.push((Math.random()-0.5)*2400); sp.push((Math.random()-0.5)*2400); }
-  sg.setAttribute('position', new THREE.Float32BufferAttribute(sp,3));
-  scene.add(new THREE.Points(sg, new THREE.PointsMaterial({color:0x8899aa,size:0.45})));
+  // very few faint stars (no fake space dominating)
+  const sg = new THREE.BufferGeometry();
+  const sp = [];
+  for(let i=0; i<1400; i++){
+    sp.push((Math.random()-0.5)*2600);
+    sp.push((Math.random()-0.5)*2600);
+    sp.push((Math.random()-0.5)*2600);
+  }
+  sg.setAttribute('position', new THREE.Float32BufferAttribute(sp, 3));
+  scene.add(new THREE.Points(sg, new THREE.PointsMaterial({color:0x667788, size:0.22})));
 
-  for(let i=0;i<7;i++){
-    const p = new THREE.Mesh(new THREE.SphereGeometry(0.024,6,6), new THREE.MeshBasicMaterial({color:(i%3==0)?0xffff44:0x33ff88}));
-    const a = i*0.72; p.position.set(Math.cos(a)*1.015, Math.sin(a*0.6)*0.4, Math.sin(a)*1.015);
+  // markers
+  for(let i=0; i<8; i++){
+    const p = new THREE.Mesh(new THREE.SphereGeometry(0.023,6,6), new THREE.MeshBasicMaterial({color:(i%3===0)?0xffff44:0x44ff99}));
+    const a = i * 0.78;
+    p.position.set(Math.cos(a)*1.015, Math.sin(a*0.6)*0.38, Math.sin(a)*1.015);
     earth.add(p);
   }
 
-  let down=false, lx=0,ly=0;
-  container.addEventListener('mousedown',e=>{down=true;lx=e.clientX;ly=e.clientY;});
-  window.addEventListener('mouseup',()=>down=false);
-  container.addEventListener('mousemove',e=>{
-    if(!down||!earth)return;
-    earth.rotation.y += (e.clientX-lx)*0.004;
-    earth.rotation.x += (e.clientY-ly)*0.003;
-    lx=e.clientX;ly=e.clientY;
+  pinsGroup = new THREE.Group();
+  earth.add(pinsGroup);
+
+  // drag rotate
+  let down = false, lx=0, ly=0;
+  container.addEventListener('mousedown', e => { down=true; lx=e.clientX; ly=e.clientY; });
+  window.addEventListener('mouseup', () => down=false);
+  container.addEventListener('mousemove', e => {
+    if(!down || !earth) return;
+    earth.rotation.y += (e.clientX - lx) * 0.0042;
+    earth.rotation.x += (e.clientY - ly) * 0.0032;
+    lx = e.clientX; ly = e.clientY;
   });
-  container.addEventListener('wheel',e=>{
-    camera.position.z += e.deltaY*0.008; camera.position.z=Math.max(2.2,Math.min(8,camera.position.z));
+  container.addEventListener('wheel', e => {
+    camera.position.z += e.deltaY * 0.007;
+    camera.position.z = Math.max(2.0, Math.min(8.5, camera.position.z));
+  });
+
+  // CLICK = pilot command (real coords)
+  container.addEventListener('click', e => {
+    if(!earth || !camera) return;
+    const rect = container.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    const m = new THREE.Vector2(x, y);
+    const ray = new THREE.Raycaster();
+    ray.setFromCamera(m, camera);
+    const hits = ray.intersectObject(earth, true);
+    if(hits.length){
+      const p = hits[0].point.clone().normalize();
+      const lat = 90 - (Math.acos(p.y) * 180 / Math.PI);
+      const lng = Math.atan2(p.z, p.x) * 180 / Math.PI;
+      pilotCommand(lat, lng);
+    }
   });
 
   function animate(){
     requestAnimationFrame(animate);
-    if(earth) earth.rotation.y += 0.0002;
-    if(equator) equator.rotation.z += 0.0001;
-    renderer.render(scene,camera);
+    if(earth) earth.rotation.y += 0.00018;
+    if(equator) equator.rotation.z += 0.00009;
+    updateDrones();
+    renderer.render(scene, camera);
   }
   animate();
 
-  function doResize() {
-    const w = container.clientWidth || 360;
-    const h = container.clientHeight || 650;
-    renderer.setSize(w, h);
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
+  // robust sizing
+  window.addEventListener('resize', resizeGlobe);
+  if (window.ResizeObserver){
+    new ResizeObserver(resizeGlobe).observe(container);
   }
-  window.addEventListener('resize', doResize);
-  setTimeout(doResize, 50);
-  setTimeout(doResize, 200);
+  setTimeout(resizeGlobe, 70);
+  setTimeout(resizeGlobe, 190);
+  setTimeout(resizeGlobe, 480);
+  setTimeout(resizeGlobe, 950);
 }
 
-function showToast(t){ const el=document.createElement('div'); el.textContent=t; el.style.cssText='position:fixed;bottom:4px;left:50%;transform:translateX(-50%);background:#112;color:#4aa6ff;padding:0 2px;font-size:4px;border-radius:1px;z-index:400'; document.body.appendChild(el); setTimeout(()=>el.remove(),800); }
+function clearPins(){ if(!pinsGroup) return; while(pinsGroup.children.length) pinsGroup.remove(pinsGroup.children[0]); }
+
+function initDrones(){
+  State.drones = [];
+  if(!pinsGroup) return;
+  const starts = [
+    {t:'air', la:38.1, ln:23.8},
+    {t:'sea', la:37.6, ln:24.9},
+    {t:'land', la:35.3, ln:24.6}
+  ];
+  starts.forEach(d => {
+    const pos = latLngToPos(d.la, d.ln, d.t==='air' ? 1.105 : 1.028);
+    const col = d.t==='air' ? 0x44ccff : (d.t==='sea' ? 0x00ddff : 0x55ff77);
+    const m = new THREE.Mesh(new THREE.SphereGeometry(d.t==='air'?0.028:0.021, 6,6), new THREE.MeshBasicMaterial({color:col}));
+    m.position.set(pos.x, pos.y, pos.z);
+    m.userData = {type:d.t, targetLat:d.la, targetLng:d.ln};
+    pinsGroup.add(m);
+    State.drones.push(m);
+  });
+}
+
+function pilotCommand(lat, lng){
+  if(!State.drones.length) return;
+  const d = State.drones[State.brainCycles % State.drones.length];
+  if(d && d.userData){
+    d.userData.targetLat = lat;
+    d.userData.targetLng = lng;
+    logRadio('PILOT CMD ' + lat.toFixed(1) + ',' + lng.toFixed(1));
+  }
+}
+
+function updateDrones(){
+  State.drones.forEach(dr => {
+    if(!dr.userData) return;
+    const r = (dr.userData.type === 'air') ? 1.105 : 1.028;
+    const tp = latLngToPos(dr.userData.targetLat, dr.userData.targetLng, r);
+    dr.position.lerp(new THREE.Vector3(tp.x, tp.y, tp.z), 0.013);
+  });
+}
 
 function logRadio(msg){
-  const log=document.getElementById('radio-log');
+  const log = document.getElementById('radio-log');
   if(!log) return;
-  const d=document.createElement('div'); d.textContent = new Date().toLocaleTimeString().slice(3,8)+' '+msg;
-  log.appendChild(d); while(log.children.length>2) log.removeChild(log.children[0]);
+  const d = document.createElement('div');
+  d.textContent = new Date().toLocaleTimeString().slice(3,8) + ' ' + msg;
+  log.appendChild(d);
+  while(log.children.length > 2) log.removeChild(log.children[0]);
+}
+
+function brainReflect(){
+  State.brainCycles++;
+  updateHUD();
+  if(State.solo && State.drones.length){
+    State.drones.forEach((d, i) => {
+      if(d.userData){
+        d.userData.targetLat += (Math.random()-0.5) * 0.55;
+        d.userData.targetLng += (Math.random()-0.5) * 0.7;
+      }
+    });
+  }
+  if(State.brainCycles % 4 === 0){
+    logRadio('ΤΗΛΕΜΑΧΟΣ autonomous ' + State.drones.length + ' units');
+  }
+}
+
+let brainInt = null;
+function startAutonomous(){
+  if(brainInt) clearInterval(brainInt);
+  brainInt = setInterval(() => { if(State.solo) brainReflect(); }, 920);
 }
 
 function testBroadcast446(){
   const msg = document.getElementById('bc-msg').value || 'TEST from ASTRANOV Greece';
   logRadio('TX 446.13125: ' + msg);
-  try { const a=new (window.AudioContext||window.webkitAudioContext)(); const o=a.createOscillator(); o.type='square'; o.frequency.value=800; const g=a.createGain(); g.gain.value=0.1; o.connect(g); g.connect(a.destination); o.start(); setTimeout(()=>o.stop(),1500); }catch(e){}
-  try { const u=new SpeechSynthesisUtterance('Broadcast on 446.13125 PMR446 Greece. ' + msg + '. Pilot Telemachos.'); speechSynthesis.speak(u); }catch(e){}
-  const c=document.getElementById('globeContainer'); if(c){ c.style.boxShadow='0 0 10px #ffeb3b'; setTimeout(()=>c.style.boxShadow='',1000); }
+  try{
+    const a = new (window.AudioContext || window.webkitAudioContext)();
+    const o = a.createOscillator(); o.type='square'; o.frequency.value=810;
+    const g = a.createGain(); g.gain.value=0.09;
+    o.connect(g); g.connect(a.destination); o.start(); setTimeout(()=>o.stop(),1400);
+  }catch(e){}
+  try{
+    const u = new SpeechSynthesisUtterance('Broadcast on PMR 446.13125 MHz Greece. Pilot ' + PILOT_CODENAME + '. ' + msg);
+    speechSynthesis.speak(u);
+  }catch(e){}
+  const c = document.getElementById('globeContainer');
+  if(c){ c.style.boxShadow = '0 0 11px #ffeb3b'; setTimeout(()=> c.style.boxShadow='', 820); }
 }
 
-function connectHardware(t){ logRadio('HW: '+t); }
-function voiceFromSpace(){ try{ const u=new SpeechSynthesisUtterance('Voice from space. Pilot ΤΗΛΕΜΑΧΟΣ.'); speechSynthesis.speak(u); }catch(e){} }
-function playMood(){ try{ const a=new (window.AudioContext||window.webkitAudioContext)(); const o=a.createOscillator(); o.type='sine'; o.frequency.value=200; const g=a.createGain(); g.gain.value=0.04; o.connect(g); g.connect(a.destination); o.start(); setTimeout(()=>{o.stop();},1000); }catch(e){} }
-function greekWisdom(){ alert('Know thyself. War obsolete.'); }
-function dangerWake(){ logRadio('DANGER'); }
+function connectHardware(t){ logRadio('HW CONNECT ' + t); }
+function voiceFromSpace(){ try{ const u = new SpeechSynthesisUtterance('Voice from space. Pilot ' + PILOT_CODENAME + '. ΑΠΟ ΑΗΡ ΕΙΣ ΑΛΣ ΕΚ ΛΑΣ.'); speechSynthesis.speak(u); }catch(e){} }
+function playMood(){ try{ const a = new (window.AudioContext||window.webkitAudioContext)(); const o=a.createOscillator(); o.type='sine'; o.frequency.value=188; const g=a.createGain(); g.gain.value=0.035; o.connect(g); g.connect(a.destination); o.start(); setTimeout(()=>{o.stop();}, 820); }catch(e){} }
 
 function boot(){
   initGlobe();
-  logRadio('Ready - Pilot ΤΗΛΕΜΑΧΟΣ');
-  console.log('%c[ASTRANOV] Real Earth globe filling phone screen.', 'color:#30d158');
+  initDrones();
+  updateHUD();
+  logRadio('ΤΗΛΕΜΑΧΟΣ ONLINE');
+  startAutonomous();
+  setInterval(updateHUD, 5200);
+  // initial activity
+  setTimeout(() => {
+    if(State.drones[0] && State.drones[0].userData){
+      State.drones[0].userData.targetLat = 37.98; State.drones[0].userData.targetLng = 23.72;
+    }
+  }, 1400);
+  console.log('%c[ASTRANOV] Real Earth dominant in phone. Pilot ΤΗΛΕΜΑΧΟΣ. No fake space.', 'color:#30d158');
 }
 window.addEventListener('load', boot);
 </script>
