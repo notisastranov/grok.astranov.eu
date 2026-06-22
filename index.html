@@ -42,6 +42,8 @@
       <button onclick="connectHardware('PMR')">PMR</button>
       <button onclick="voiceFromSpace()">VOICE</button>
       <button onclick="playMood()">MOOD</button>
+      <button onclick="locateSelf()" style="background:#555">LOCATE</button>
+      <button onclick="focusCity()" style="background:#555">CITY</button>
     </div>
     <div>
       <svg class="crete" viewBox="0 0 200 9" fill="none" stroke="#ffeb3b" stroke-width="0.45">
@@ -49,7 +51,7 @@
       </svg>
     </div>
     <div id="radio-log"></div>
-    <div class="info">ΑΠΟ ΑΗΡ ΕΙΣ ΑΛΣ ΕΚ ΛΑΣ • Real Earth • emotion detect</div>
+    <div class="info">ΑΠΟ ΑΗΡ ΕΙΣ ΑΛΣ ΕΚ ΛΑΣ • Products • Drivers visible • City map</div>
   </div>
 </div>
 
@@ -96,15 +98,58 @@ const crawlSeeds = [
   {la:37.45, ln:25.37, type:'intel', label:'Naxos Signal'},
 ];
 
+// Products for ordering in city (Crete/Greece focus)
+const vendorProducts = {
+  'Iraklio Hub': ['Extra Virgin Olive Oil', 'Cretan Honey', 'Raki'],
+  'Patra Relay': ['Red Wine', 'Feta Cheese', 'Herbs'],
+  default: ['Local Produce', 'Fresh Goods']
+};
+
+// Self location (user in city)
+let selfLocation = { la: 35.34, ln: 25.13 }; // default Iraklio area
+let selfMarker = null;
+
+function locateSelf() {
+  if (!pinsGroup) return;
+  // remove old
+  if (selfMarker && selfMarker.parent) selfMarker.parent.remove(selfMarker);
+  const pos = latLngToPos(selfLocation.la, selfLocation.ln, 1.04);
+  selfMarker = new THREE.Mesh(
+    new THREE.SphereGeometry(0.022, 5, 5),
+    new THREE.MeshBasicMaterial({color: 0xffffff})
+  );
+  selfMarker.position.set(pos.x, pos.y, pos.z);
+  selfMarker.userData = {type: 'self', label: 'YOU'};
+  pinsGroup.add(selfMarker);
+  logRadio('LOCATED SELF @ Iraklio area');
+  recordInteraction(1);
+}
+
+function focusCity() {
+  // focus camera on city area (Crete) for "city map" view
+  if (!camera || !earth) return;
+  earth.rotation.y = 0.65; // rotate Greece toward view
+  camera.position.set(0.6, 0.9, 2.1);
+  camera.lookAt(0.1, 0.4, 0);
+  logRadio('CITY MAP focused on Crete');
+}
+
+function addDriverOrb() {
+  const la = 35.3 + (Math.random()-0.5)*0.4;
+  const ln = 25.0 + (Math.random()-0.5)*0.4;
+  addOrb(la, ln, 'driver', 'Driver ' + (Math.floor(Math.random()*90)+10));
+}
+
 function addOrb(lat, lng, type, label) {
-  if (!pinsGroup || taskOrbs.length > 15) return;
+  if (!pinsGroup || taskOrbs.length > 16) return;
   const pos = latLngToPos(lat, lng, 1.032);
   let col = 0x77aaff;
   if (type === 'vendor') col = 0xffd166;
   if (type === 'delivery') col = 0x66ff99;
   if (type === 'launch') col = 0xff6699;
+  if (type === 'driver') col = 0x88ffdd; // visible drivers on city map
   const orb = new THREE.Mesh(
-    new THREE.SphereGeometry(0.017, 5, 5),
+    new THREE.SphereGeometry(type==='driver' ? 0.019 : 0.017, 5, 5),
     new THREE.MeshBasicMaterial({color: col})
   );
   orb.position.set(pos.x, pos.y, pos.z);
@@ -114,7 +159,11 @@ function addOrb(lat, lng, type, label) {
 }
 
 function crawlerStep() {
-  // autonomous crawler populates data orbs (sim real-world signals/shops)
+  // autonomous crawler populates data orbs (sim real-world signals/shops/drivers)
+  if (Math.random() < 0.35) {
+    addDriverOrb();
+    return;
+  }
   const s = crawlSeeds[Math.floor(Math.random() * crawlSeeds.length)];
   const la = s.la + (Math.random() - 0.5) * 0.22;
   const ln = s.ln + (Math.random() - 0.5) * 0.22;
@@ -126,30 +175,67 @@ function doTask(orb) {
   if (!orb || !orb.userData || orb.userData.tasked) return;
   const ud = orb.userData;
   ud.tasked = true;
-  const actionMap = {
-    vendor: 'SUPPLY UNIFY',
-    delivery: 'DELIVERY VECTOR',
-    intel: 'INTEL SYNC',
-    launch: 'ORBIT TASK'
-  };
-  const action = actionMap[ud.type] || 'EXEC TASK';
-  logRadio('SCI-FI: ' + action + ' • ' + ud.label);
-  // assign fleet drone
-  if (State.drones.length) {
-    const d = State.drones[State.brainCycles % State.drones.length];
-    if (d && d.userData) {
-      d.userData.targetLat = ud.lat;
-      d.userData.targetLng = ud.lng;
+
+  if (ud.type === 'vendor') {
+    // FIND PRODUCTS to order in city
+    const prods = vendorProducts[ud.label] || vendorProducts.default;
+    logRadio('PRODUCTS in ' + ud.label + ': ' + prods.join(', '));
+    // create delivery request at self
+    setTimeout(() => {
+      const delLat = selfLocation.la + (Math.random()-0.5)*0.03;
+      const delLn = selfLocation.ln + (Math.random()-0.5)*0.03;
+      addOrb(delLat, delLn, 'delivery', 'Delivery to YOU');
+      logRadio('DELIVERY created at your location');
+    }, 300);
+  } else if (ud.type === 'driver') {
+    // assign deliveries to this visible driver
+    logRadio('DRIVER ' + ud.label + ' available for assignment');
+    // find a pending delivery orb and assign
+    const pendingDel = taskOrbs.find(o => o.userData && o.userData.type==='delivery' && !o.userData.tasked);
+    if (pendingDel) {
+      pendingDel.userData.tasked = true;
+      logRadio('ASSIGNED delivery to ' + ud.label);
+      // move this driver to delivery / self
+      ud.targetLat = pendingDel.userData.lat || selfLocation.la;
+      ud.targetLng = pendingDel.userData.ln || selfLocation.ln;
+      if (orb.material) orb.material.color.setHex(0x44ff88);
+      // complete delivery
+      setTimeout(() => {
+        if (pendingDel.parent) pendingDel.parent.remove(pendingDel);
+        const idx = taskOrbs.indexOf(pendingDel);
+        if (idx >=0) taskOrbs.splice(idx,1);
+        if (orb.parent) orb.parent.remove(orb);
+        const i2 = taskOrbs.indexOf(orb);
+        if (i2 >=0) taskOrbs.splice(i2,1);
+      }, 5500);
+    }
+  } else {
+    const actionMap = {
+      delivery: 'DELIVERY VECTOR',
+      intel: 'INTEL SYNC',
+      launch: 'ORBIT TASK'
+    };
+    const action = actionMap[ud.type] || 'EXEC TASK';
+    logRadio('SCI-FI: ' + action + ' • ' + ud.label);
+    if (State.drones.length) {
+      const d = State.drones[State.brainCycles % State.drones.length];
+      if (d && d.userData) {
+        d.userData.targetLat = ud.lat;
+        d.userData.targetLng = ud.lng;
+      }
     }
   }
-  if (orb.material) orb.material.color.setHex(0x33ffcc);
-  setTimeout(() => {
-    if (orb.parent) {
-      orb.parent.remove(orb);
-      const i = taskOrbs.indexOf(orb);
-      if (i >= 0) taskOrbs.splice(i, 1);
-    }
-  }, 6200);
+
+  if (orb.material && !orb.userData.type.includes('driver')) orb.material.color.setHex(0x33ffcc);
+  if (!ud.type.includes('driver')) {
+    setTimeout(() => {
+      if (orb.parent) {
+        orb.parent.remove(orb);
+        const i = taskOrbs.indexOf(orb);
+        if (i >= 0) taskOrbs.splice(i, 1);
+      }
+    }, 6200);
+  }
 }
 
 function seedOrbs() {
@@ -158,6 +244,8 @@ function seedOrbs() {
     const la = s.la + (i % 3 - 1) * 0.035;
     addOrb(la, s.ln + (i % 2) * 0.01, s.type, s.label);
   });
+  // make some visible drivers on city map
+  for (let i=0; i<3; i++) addDriverOrb();
 }
 
 function latLngToPos(lat, lng, r=1.01){
@@ -300,6 +388,15 @@ function initGlobe(){
     if(earth) earth.rotation.y += rot;
     if(equator) equator.rotation.z += 0.00009;
     updateDrones(lerpF);
+
+    // move assigned visible drivers on the map
+    taskOrbs.forEach(o => {
+      if (o.userData && o.userData.type === 'driver' && o.userData.targetLat) {
+        const tp = latLngToPos(o.userData.targetLat, o.userData.targetLng, 1.032);
+        o.position.lerp(new THREE.Vector3(tp.x, tp.y, tp.z), 0.02);
+      }
+    });
+
     renderer.render(scene, camera);
   }
   animate();
@@ -421,6 +518,8 @@ function boot(){
   initGlobe();
   initDrones();
   seedOrbs();           // populate Earth with data orbs immediately
+  locateSelf();         // locate myself on city map
+  focusCity();          // start in city view
   updateHUD();
   logRadio('ΤΗΛΕΜΑΧΟΣ ONLINE');
   updateEmotion();
